@@ -804,13 +804,14 @@ function openAddPlan(u) {
   closeLayer();
   const curEnd = /^\d{4}-\d\d-\d\d$/.test(u.End) ? u.End : '', canCont = u.eff === 'Active' && !!curEnd && curEnd >= TODAY && u.Plan !== FREE_PLAN;
   D = { isNew: false, mode: 'addplan', orig: u, x: Object.assign({}, u, { Plan: PLANS.includes(u.Plan) && u.Plan !== FREE_PLAN ? u.Plan : 'Basic', Access: u.Plan === FREE_PLAN ? '' : (u.Access || '') }),
-    from: canCont ? 'cont' : 'today', per: '1m', perLabel: '1 month', end: '' };
+    from: 'today', per: '1m', perLabel: '1 month', end: '' };                 /* user: start = today by default (editable) */
   const pers = [['7d', '7 days'], ['1m', '1 month'], ['2m', '2 months'], ['3m', '3 months'], ['6m', '6 months'], ['12m', '1 year']];
   modal(`<h3>+ Add plan · ${esc(u.Name || u.Email)}</h3>
     <p class="left" style="margin-bottom:12px">Now: <b>${esc(u.Plan || 'no plan')}</b> · ${esc(u.eff)}${curEnd ? ' · till ' + fmtD(curEnd) : ''}</p>
     <div class="fld"><label>Plan</label><div class="seg" id="apPlan">${PLANS.map(p => `<button type="button" data-v="${p}" class="${D.x.Plan === p ? 'on' : ''}">${p}</button>`).join('')}</div></div>
     <div class="fld"><label>Start</label><div class="seg" id="apFrom"><button type="button" data-v="today" class="${D.from === 'today' ? 'on' : ''}">Start today</button>
       <button type="button" data-v="cont" class="${D.from === 'cont' ? 'on' : ''}"${canCont ? '' : ' disabled style="opacity:.45;cursor:not-allowed"'}>Continue after current end${curEnd ? ' (' + fmtD(curEnd) + ')' : ''}</button></div></div>
+    <div class="fld"><label>Start date (you can change it)</label><input id="apStart" type="date"></div>
     <div class="pers" id="apPer"><span class="lb">Period:</span>${pers.map(([v, l]) => `<button type="button" data-p="${v}" class="${v === D.per ? 'on' : ''}">${l}</button>`).join('')}</div>
     <div class="fld"><label>Or your own end date</label><input id="apEnd" type="date"></div>
     <div class="sum" id="apSum" style="margin-bottom:12px"></div>
@@ -820,11 +821,15 @@ function openAddPlan(u) {
     <div class="fld"><label>Segments – what the client can see <span id="accCount" class="left" style="font-weight:400"></span></label><div class="acc" id="acc"></div></div>
     <label style="display:flex;gap:8px;align-items:center;margin:4px 0 14px;font-size:13px;cursor:pointer"><input type="checkbox" id="xNotify" checked> Email the client about the new plan</label>
     <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('ok')} Save plan</button></div>`, 'wide');
-  const calc = () => { const start = D.from === 'cont' ? addD(curEnd, 1) : TODAY, end = D.end || period(start, D.per, true), days = dnum(end) - dnum(start) + 1;
+  /* 22-Nov-2026 (user): start date box - today by default (or the day after the current end), editable */
+  const startOf = () => D.from === 'cont' ? addD(curEnd, 1) : D.from === 'own' && /^\d{4}-\d\d-\d\d$/.test($('apStart').value) ? $('apStart').value : TODAY;
+  $('apStart').value = startOf();
+  $('apStart').onchange = e => { if (!/^\d{4}-\d\d-\d\d$/.test(e.target.value)) e.target.value = startOf(); else { D.from = 'own'; segSet('apFrom', ''); } calc(); };
+  const calc = () => { const start = startOf(), end = D.end || period(start, D.per, true), days = dnum(end) - dnum(start) + 1;
     D.start = start; D.endCalc = end;
     $('apSum').innerHTML = end < start ? '⚠️ End date is before the start date.' : `✅ <b>${esc(D.x.Plan)}</b> from <b>${fmtD(start)}</b> to <b>${fmtD(end)}</b> · ${days} day${days === 1 ? '' : 's'}` + (D.from === 'cont' ? ' · no days lost' : ''); };
   segBind('apPlan', v => { D.x.Plan = v; if (v === 'Advance' && !String(D.x.Access).trim()) { D.x.Access = 'ALL'; drawAcc(); } if (v === FREE_PLAN) { D.per = '7d'; D.perLabel = '7 days'; D.end = ''; $('apEnd').value = ''; $('apPer').querySelectorAll('button').forEach(o => o.classList.toggle('on', o.dataset.p === '7d')); } calc(); });
-  $('apFrom').querySelectorAll('button').forEach(b => b.onclick = () => { if (b.disabled) return; D.from = b.dataset.v; segSet('apFrom', D.from); calc(); });
+  $('apFrom').querySelectorAll('button').forEach(b => b.onclick = () => { if (b.disabled) return; D.from = b.dataset.v; segSet('apFrom', D.from); $('apStart').value = startOf(); calc(); });
   $('apPer').querySelectorAll('button').forEach(b => b.onclick = () => { D.per = b.dataset.p; D.perLabel = b.textContent; D.end = ''; $('apEnd').value = ''; $('apPer').querySelectorAll('button').forEach(o => o.classList.toggle('on', o === b)); calc(); });
   $('apEnd').onchange = e => { D.end = e.target.value; if (D.end) { D.perLabel = ''; $('apPer').querySelectorAll('button').forEach(o => o.classList.remove('on')); } calc(); };
   $('mNo').onclick = closeLayer; $('mshade').onclick = closeLayer;
