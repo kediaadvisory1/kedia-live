@@ -488,16 +488,17 @@ function navHtml() {
     '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
     a('expired', 'ban', 'Expired', ex, 1) + (pend ? a('pending', 'wait', 'Waiting for approval', pend) : '') +
     (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
-    '<div class="grp">Reports</div>' + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
+    '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
 }
 function route() {
-  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'pending', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history'].includes(h) ? h : 'dash';
+  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'pending', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales'].includes(h) ? h : 'dash';
   if ((VIEW === 'team' || VIEW === 'deleted') && !isAdmin()) VIEW = 'subs';
   $('side').classList.remove('open'); navHtml(); window.scrollTo(0, 0);
   if (VIEW === 'dash') return viewDash();
   if (VIEW === 'history') return viewHist();
   if (VIEW === 'deleted') return viewDeleted();
   if (VIEW === 'plans') return viewPlans();
+  if (VIEW === 'sales') return viewSales();
   F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Expired', team: 'All' }[VIEW];
   F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
   viewSubs();
@@ -506,7 +507,7 @@ function title(t, s) { $('pgTitle').textContent = t; $('pgSub').textContent = s 
 
 /* ---------- dashboard ---------- */
 function viewDash() {
-  title('Dashboard', 'Commodity Live clients at a glance · ' + fmtD(TODAY).replace(/<[^>]+>/g, ''));
+  title('Dashboard', (isAdmin() ? 'Commodity Live clients at a glance · ' : 'My performance – your clients only · ') + fmtD(TODAY).replace(/<[^>]+>/g, ''));
   const cl = USERS.filter(u => (u.Role || 'user') === 'user'), act = cl.filter(u => u.eff === 'Active');
   const k = (l, col, v, s, go) => `<button class="kpi" data-go="${go}"><div class="l"><i style="background:${col}"></i>${l}</div><div class="v">${v}</div><div class="s">${s}</div></button>`;
   const new7 = cl.filter(u => u.Created && TODAY && dnum(String(u.Created).slice(0, 10)) >= dnum(TODAY) - 7).length;
@@ -1060,6 +1061,97 @@ function viewPlans() {
     const csv = '﻿' + P_COLS.map(q).join(',') + '\n' + list().map(p => P_COLS.map(c => q(p[c])).join(',')).join('\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'KEDIA Commodity Live plans ' + TODAY + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
   draw();
+}
+
+/* ---------- Sales & RM performance (22-Nov-2026, user): period by quick buttons, month range or date range; RM-wise table; monthly chart.
+   Amount = plan history lines in the period ("Given on" date), credited to the client's CURRENT Sales RM (or Service RM). An RM gets only own clients from the server. ---------- */
+const SP = { from: '', to: '', by: 'Sales RM', open: '' };
+function spDefault() { if (!SP.from) { SP.from = String(TODAY).slice(0, 8) + '01'; SP.to = TODAY; } }
+const monthEnd = m => { const [y, mo] = m.split('-').map(Number); return new Date(Date.UTC(y, mo, 0)).toISOString().slice(0, 10); };
+function spQuick(k) {
+  const t = TODAY, y = +t.slice(0, 4), m = +t.slice(5, 7), ym = (yy, mm) => yy + '-' + String(mm).padStart(2, '0');
+  if (k === 'tm') { SP.from = t.slice(0, 8) + '01'; SP.to = t; }
+  else if (k === 'lm') { const d = new Date(Date.UTC(y, m - 2, 1)); const s = d.toISOString().slice(0, 7); SP.from = s + '-01'; SP.to = monthEnd(s); }
+  else if (k === 'tq') { const q0 = Math.floor((m - 1) / 3) * 3 + 1; SP.from = ym(y, q0) + '-01'; SP.to = t; }
+  else if (k === 'fy') { const fy = m >= 4 ? y : y - 1; SP.from = fy + '-04-01'; SP.to = t; }
+  else if (k === 'l12') { const d = new Date(Date.UTC(y, m - 12, 1)); SP.from = d.toISOString().slice(0, 7) + '-01'; SP.to = t; }
+  else if (k === 'all') { const ds = PLANROWS.map(p => String(p.Time).slice(0, 10)).filter(Boolean).sort(); SP.from = ds[0] || t; SP.to = t; }
+}
+function viewSales() {
+  spDefault();
+  title('Sales & RM performance', isAdmin() ? 'Amount, new clients and renewals – by RM, for any period' : 'Your clients – amount, new clients and renewals for any period');
+  const chips = [['tm', 'This month'], ['lm', 'Last month'], ['tq', 'This quarter'], ['fy', 'This FY (Apr–Mar)'], ['l12', 'Last 12 months'], ['all', 'All time']];
+  $('content').innerHTML = `<div class="card"><div class="frow" style="border-bottom:0;flex-wrap:wrap">
+      <div class="tabsF" id="spChips">${chips.map(([k, l]) => `<button data-k="${k}">${l}</button>`).join('')}</div>
+      <span class="sp"></span>
+      <label class="left">Months <input type="month" id="spM1" value="${SP.from.slice(0, 7)}"> to <input type="month" id="spM2" value="${SP.to.slice(0, 7)}"></label>
+      <label class="left">Dates <input type="date" id="spD1" value="${SP.from}"> to <input type="date" id="spD2" value="${SP.to}"></label></div></div>
+    <div class="kpis" id="spK"></div>
+    <div class="card"><div class="hd"><h2>Amount by month</h2><span class="note" id="spChartNote"></span></div><div class="bd" id="spChart"></div></div>
+    <div class="card"><div class="hd"><h2>RM-wise</h2><span class="note">click a row to see its plans</span><span class="sp"></span>
+      <div class="seg" id="spBy"><button type="button" data-v="Sales RM">Credit to Sales RM</button><button type="button" data-v="Service RM">Service RM</button></div>
+      <button class="btn line sm" id="spCsv">${ic('dl')} Export</button></div>
+      <div class="tw"><table class="t"><thead><tr><th class="ns">RM</th><th class="ns">Clients</th><th class="ns">Active</th><th class="ns">${FREE_PLAN}</th><th class="ns">Expired</th><th class="ns">Expiring ≤ 7 days</th>
+        <th class="ns">New clients</th><th class="ns">Paid plans</th><th class="ns">New paid</th><th class="ns">Renewals</th><th class="ns">Amount (period)</th><th class="ns">Amount (all time)</th></tr></thead><tbody id="spB"></tbody></table></div></div>`;
+  const set = () => { $('spM1').value = SP.from.slice(0, 7); $('spM2').value = SP.to.slice(0, 7); $('spD1').value = SP.from; $('spD2').value = SP.to; drawSales(); };
+  $('spChips').querySelectorAll('button').forEach(b => b.onclick = () => { spQuick(b.dataset.k); $('spChips').querySelectorAll('button').forEach(o => o.classList.toggle('on', o === b)); set(); });
+  const clr = () => $('spChips').querySelectorAll('button').forEach(o => o.classList.remove('on'));
+  $('spM1').onchange = $('spM2').onchange = () => { const a = $('spM1').value, b = $('spM2').value || a; if (!a) return; SP.from = a + '-01'; SP.to = monthEnd(b < a ? a : b); clr(); set(); };
+  $('spD1').onchange = $('spD2').onchange = () => { const a = $('spD1').value, b = $('spD2').value; if (!a || !b) return; SP.from = a < b ? a : b; SP.to = a < b ? b : a; clr(); set(); };
+  segSet('spBy', SP.by); segBind('spBy', v => { SP.by = v; drawSales(); });
+  $('spCsv').onclick = () => { const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', R = salesRows();
+    const H = ['RM', 'Clients', 'Active', FREE_PLAN, 'Expired', 'Expiring 7d', 'New clients', 'Paid plans', 'New paid', 'Renewals', 'Amount (period)', 'Amount (all time)'];
+    const csv = '﻿' + q('Period ' + SP.from + ' to ' + SP.to + ' · credit to ' + SP.by) + '\n' + H.map(q).join(',') + '\n' +
+      R.map(r => [r.rm, r.clients, r.active, r.free, r.expired, r.soon, r.newC, r.paid, r.newPaid, r.renew, r.amt, r.amtAll].map(q).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'KEDIA Sales by RM ' + SP.from + ' to ' + SP.to + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  drawSales();
+}
+const inP = d => { d = String(d || '').slice(0, 10); return d >= SP.from && d <= SP.to; };
+const isPaid = p => p.Plan !== FREE_PLAN && Number(p.Amount) > 0;
+function salesRows() {
+  const cl = USERS.filter(u => (u.Role || 'user') === 'user' || (u.Role === 'rm' && rmHasPlan(u))), byEmail = {};
+  cl.forEach(u => byEmail[u.Email.toLowerCase()] = u);
+  const rmOf = u => (u && u[SP.by]) || 'No RM', rows = {};
+  const row = n => rows[n] = rows[n] || { rm: n, clients: 0, active: 0, free: 0, expired: 0, soon: 0, newC: 0, paid: 0, newPaid: 0, renew: 0, amt: 0, amtAll: 0, lines: [] };
+  cl.forEach(u => { const r = row(rmOf(u)); r.clients++; if (u.eff === 'Active') r.active++; if (u.eff === 'Active' && u.Plan === FREE_PLAN) r.free++; if (u.eff === 'Expired') r.expired++;
+    if (soon(u)) r.soon++; if (inP(String(u.Created).slice(0, 10))) r.newC++; });
+  const firstPaid = {};
+  PLANROWS.slice().sort((a, b) => String(a.Time).localeCompare(String(b.Time))).forEach(p => { const e = String(p.Email).toLowerCase(); if (isPaid(p) && !firstPaid[e]) firstPaid[e] = p; });
+  PLANROWS.forEach(p => { const e = String(p.Email).toLowerCase(), u = byEmail[e]; if (!u) return; const r = row(rmOf(u)), a = Number(p.Amount) || 0;
+    r.amtAll += a;
+    if (!inP(p.Time)) return;
+    r.amt += a; r.lines.push(p);
+    if (isPaid(p)) { r.paid++; if (firstPaid[e] === p) r.newPaid++; else r.renew++; } });
+  return Object.values(rows).sort((a, b) => b.amt - a.amt || b.clients - a.clients);
+}
+function drawSales() {
+  const R = salesRows(), tot = k => R.reduce((s, r) => s + r[k], 0), freeSign = PLANROWS.filter(p => p.Plan === FREE_PLAN && inP(p.Time)).length;
+  const k = (l, v, s) => `<div class="kpi" style="cursor:default"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const days = dnum(SP.to) - dnum(SP.from) + 1;
+  $('spK').innerHTML = k('Amount', inr(tot('amt')), fmtD(SP.from).replace(/<[^>]+>/g, '') + ' – ' + fmtD(SP.to).replace(/<[^>]+>/g, '') + ' · ' + days + ' days') + k('Paid plans', tot('paid'), 'with an amount') +
+    k('New paid clients', tot('newPaid'), 'first paid plan') + k('Renewals', tot('renew'), 'paid again') + k('New sign-ups', tot('newC'), freeSign + ' got ' + FREE_PLAN) +
+    k('Average', tot('paid') ? inr(tot('amt') / tot('paid')) : '—', 'per paid plan');
+  /* monthly bars (max 24 months, ending at the period end) */
+  const ms = []; let cur = SP.from.slice(0, 7); const last = SP.to.slice(0, 7);
+  while (cur <= last && ms.length < 60) { ms.push(cur); const [y, m] = cur.split('-').map(Number); cur = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 7); }
+  const show = ms.slice(-24), val = m => PLANROWS.filter(p => String(p.Time).slice(0, 7) === m && inP(p.Time) && USERS.some(u => u.Email.toLowerCase() === String(p.Email).toLowerCase())).reduce((s, p) => s + (Number(p.Amount) || 0), 0);
+  const vs = show.map(val), mx = Math.max(1, ...vs), W = 760, H = 190, bw = Math.min(46, (W - 40) / Math.max(1, show.length) - 8);
+  $('spChartNote').textContent = ms.length > 24 ? 'last 24 months of the period' : '';
+  $('spChart').innerHTML = `<svg viewBox="0 0 ${W} ${H + 40}" style="width:100%;height:auto;max-height:260px">` + show.map((m, i) => {
+    const x = 30 + i * ((W - 40) / show.length), h = vs[i] / mx * H, lab = MON[+m.slice(5, 7) - 1] + (show.length > 12 ? '' : ' ' + m.slice(2, 4));
+    return `<rect x="${x}" y="${H - h + 10}" width="${bw}" height="${Math.max(h, vs[i] ? 2 : 0)}" rx="4" fill="${i === show.length - 1 ? '#E8A317' : '#1E2761'}"><title>${lab}: ${inr(vs[i])}</title></rect>` +
+      (vs[i] ? `<text x="${x + bw / 2}" y="${H - h + 4}" text-anchor="middle" font-size="10" fill="#1E2761" font-weight="700">${vs[i] >= 100000 ? (vs[i] / 100000).toFixed(1) + 'L' : vs[i] >= 1000 ? Math.round(vs[i] / 1000) + 'k' : vs[i]}</text>` : '') +
+      `<text x="${x + bw / 2}" y="${H + 26}" text-anchor="middle" font-size="10.5" fill="#6B7280">${lab}</text>`; }).join('') + `<line x1="24" x2="${W - 6}" y1="${H + 10}" y2="${H + 10}" stroke="#E4E7EE"/></svg>`;
+  const T = R.reduce((t, r) => { Object.keys(r).forEach(x => { if (typeof r[x] === 'number') t[x] = (t[x] || 0) + r[x]; }); return t; }, {});
+  const td = (v, b) => `<td${b ? ' style="font-weight:800;color:var(--navy)"' : ''}>${v}</td>`;
+  $('spB').innerHTML = R.length ? R.map(r => `<tr data-rm="${esc(r.rm)}" style="cursor:pointer"><td><b style="color:var(--navy)">${SP.open === r.rm ? '▾' : '▸'} ${esc(r.rm)}</b></td>` +
+      [r.clients, r.active, r.free, r.expired, r.soon, r.newC, r.paid, r.newPaid, r.renew].map(v => td(v)).join('') + td(inr(r.amt), 1) + td(inr(r.amtAll)) + '</tr>' +
+      (SP.open === r.rm ? `<tr><td colspan="12" style="background:#FFFBF0;white-space:normal">${r.lines.length ? '<table class="t" style="font-size:12.5px"><tbody>' +
+        r.lines.sort((a, b) => String(b.Time).localeCompare(String(a.Time))).map(p => `<tr><td class="left">${fmtT(p.Time)}</td><td><b>${esc(p.Name)}</b><br><span class="left">${esc(p.Email)}</span></td><td><span class="tag g">${esc(p.Plan)}</span></td><td>${esc(p.Period)}</td><td class="left">${fmtD(p.Start)} – ${fmtD(p.End)}</td><td><b>${Number(p.Amount) ? inr(p.Amount) : '—'}</b></td><td>${esc(p.Mode || '—')}</td><td class="left">${esc(p.By)}</td></tr>`).join('') + '</tbody></table>'
+        : '<div class="left">No plans in this period.</div>'}</td></tr>` : '')).join('') +
+      `<tr style="background:var(--cream)"><td><b>Total</b></td>${[T.clients, T.active, T.free, T.expired, T.soon, T.newC, T.paid, T.newPaid, T.renew].map(v => td(v || 0, 1)).join('')}${td(inr(T.amt || 0), 1)}${td(inr(T.amtAll || 0), 1)}</tr>`
+    : '<tr><td colspan="12"><div class="empty">No clients yet.</div></td></tr>';
+  $('spB').querySelectorAll('tr[data-rm]').forEach(tr => tr.onclick = () => { SP.open = SP.open === tr.dataset.rm ? '' : tr.dataset.rm; drawSales(); });
 }
 
 /* ---------- login history ---------- */
