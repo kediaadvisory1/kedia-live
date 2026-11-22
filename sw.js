@@ -1,5 +1,5 @@
 /* KEDIA Commodity Live - keeps the page shell; live data always comes fresh from Google */
-const CACHE = 'kedia-live-524ac09380';
+const CACHE = 'kedia-live-c8de727b57';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
