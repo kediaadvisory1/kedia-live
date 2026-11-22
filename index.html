@@ -261,6 +261,29 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
 .uinfo { font-size: 12.5px; color: #4B5563; line-height: 1.6; padding: 2px 4px 10px; border-bottom: 1px solid #EEF0F4; margin-bottom: 8px; }
 .umenu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 8px 6px; border-radius: 8px; font: inherit; font-size: 13.5px; color: #1E2761; font-weight: 600; cursor: pointer; }
 .umenu button:hover { background: #FBF0D2; }
+/* 22-Nov-2026 (user): clients do not get the share / PDF / refresh tools - only admin and RM (refresh fixed at 1 minute) */
+body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !important; }
+/* My profile & plan */
+.mywrap { position: fixed; inset: 0; z-index: 60; background: rgba(15,20,50,.5); display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+.mywrap.hide { display: none; }
+.mycard { width: min(620px, 100%); background: #fff; border-radius: 14px; border-top: 4px solid #E8A317; box-shadow: 0 30px 80px rgba(0,0,0,.3); overflow: hidden; }
+.myhd { background: #1E2761; color: #fff; padding: 18px 20px; display: flex; gap: 14px; align-items: center; }
+.myhd .uav { width: 48px; height: 48px; font-size: 20px; background: #E8A317; color: #1E2761; }
+.myhd h3 { margin: 0; font-size: 18px; } .myhd small { color: #C9CEE6; }
+.myhd .x { margin-left: auto; background: rgba(255,255,255,.12); border: 0; color: #fff; width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 18px; }
+.mybd { padding: 16px 20px 20px; display: grid; gap: 14px; }
+.mysec { border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px 16px; }
+.mysec .st { font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: #B26206; font-weight: 800; margin-bottom: 10px; }
+.mygrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; font-size: 13px; } .mygrid span { color: #6B7280; display: block; font-size: 11.5px; } .mygrid b { color: #1E2761; }
+.myplan { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .myplan .pn { font-size: 20px; font-weight: 800; color: #1E2761; }
+.mypill { padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; } .mypill.ok { background: #E6F4EA; color: #157F3B; } .mypill.bad { background: #FDECEC; color: #B42318; } .mypill.wait { background: #FFF4DB; color: #B26206; }
+.mybar { height: 8px; background: #EEF0F5; border-radius: 8px; overflow: hidden; margin: 10px 0 4px; } .mybar b { display: block; height: 100%; background: linear-gradient(90deg, #E8A317, #1E2761); }
+.mychips { display: flex; flex-wrap: wrap; gap: 6px; } .mychips span { background: #EEF0F7; color: #1E2761; border-radius: 20px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+.mytbl { width: 100%; border-collapse: collapse; font-size: 12.5px; } .mytbl th { background: #1E2761; color: #fff; text-align: left; padding: 7px 8px; border-bottom: 2px solid #E8A317; font-weight: 700; }
+.mytbl td { padding: 7px 8px; border-bottom: 1px solid #EEF0F4; text-align: left !important; } .mytbl th { text-align: left !important; }
+.mybtns { display: flex; gap: 8px; flex-wrap: wrap; } .mybtns a, .mybtns button { flex: 1; min-width: 150px; text-align: center; padding: 11px 14px; border-radius: 9px; font-weight: 700; text-decoration: none; cursor: pointer; font: inherit; font-weight: 700; border: 1px solid #CDD2DE; background: #fff; color: #1E2761; }
+.mybtns .gold { background: #E8A317; border-color: #E8A317; color: #1E2761; }
+@media (max-width: 560px) { .mygrid { grid-template-columns: 1fr; } .mywrap { padding: 12px 10px; } }
 /* commodity outside the plan */
 .lockcard { text-align: center; padding: 42px 22px; max-width: 620px; margin: 30px auto; }
 .lockcard .big2 { font-size: 52px; } .lockcard h2 { justify-content: center; font-size: 22px; margin: 10px 0 6px; }
@@ -354,7 +377,7 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
   <div class="sp"></div>
   <div class="clock"><b id="clock">--:--:--</b><div><span id="pEx" class="pill off">—</span> <span id="pIntl" class="pill off hide">—</span></div></div>
   <div class="uchip hide" id="userChip"><span class="uav" id="uAv">K</span><span class="unm" id="uName"></span>
-    <div class="umenu" id="uMenu"><div class="uinfo" id="uInfo"></div><button id="btnChgPw">Change password</button><button id="btnLogout">Log out</button></div></div>
+    <div class="umenu" id="uMenu"><div class="uinfo" id="uInfo"></div><button id="btnMyPlan">👤 My profile &amp; plan</button><button id="btnChgPw">🔑 Change password</button><button id="btnLogout">↩ Log out</button></div></div>
   <button id="btnMore" class="mob" aria-label="More buttons">⋯</button>
   <div class="hbtns" id="hBtns">
     <label style="font-size:12px">Refresh <select id="refSel"><option value="5">5 s</option><option value="10">10 s</option><option value="30" selected>30 s</option><option value="60">1 min</option><option value="0">Off</option></select></label>
@@ -2009,11 +2032,53 @@ function showUserChip() {
   $('uInfo').innerHTML = `<b style="color:#1E2761">${esc(ME.name || '')}</b><br>${esc(ME.email)}<br>` + (ME.plan ? `Plan: <b>${esc(ME.plan)}</b><br>` : '') +
     (ME.end ? `Access till <b>${fmtDate(ME.end)}</b>` : 'Access: no end date') + (ME.role !== 'user' ? `<br><span style="color:#B26206;font-weight:700">${ME.role === 'admin' ? 'Admin' : 'Relationship Manager'}</span>` : '');
   if ((ME.role === 'admin' || ME.role === 'rm') && !$('btnPanel')) { const b = document.createElement('button'); b.id = 'btnPanel'; b.textContent = '⚙ Back panel'; b.onclick = () => window.open(ADMIN_URL, '_blank'); $('uMenu').insertBefore(b, $('btnChgPw')); }
+  /* clients: no PDF / picture / WhatsApp / refresh tools; prices refresh every 1 minute */
+  const client = AUTH_ON && (ME.role || 'user') === 'user';
+  document.body.classList.toggle('client', client);
+  if (client) { $('refSel').value = '60'; setRefresh(); }
+}
+/* 22-Nov-2026 (user): My profile & plan - details, current plan, days left, commodities, past plans, renew on WhatsApp / call */
+const WA_NO = '919619551022';
+async function showMyPlan() {
+  $('userChip').classList.remove('open');
+  let w = $('myWrap'); if (!w) { w = document.createElement('div'); w.id = 'myWrap'; w.className = 'mywrap'; document.body.appendChild(w); w.onclick = e => { if (e.target === w) w.classList.add('hide'); }; }
+  w.classList.remove('hide');
+  w.innerHTML = '<div class="mycard"><div class="mybd" style="text-align:center;color:#6B7280">Loading your plan…</div></div>';
+  let r = null; try { r = await authCall({ action: 'me', token: TOKEN }); } catch (e) {}
+  if (r && r.ok) ME = Object.assign(ME || {}, r.user);
+  const u = ME || {}, plans = (r && r.plans) || [], today = new Date(Date.now() + 19800000).toISOString().slice(0, 10);
+  const dn = d => Date.parse(d + 'T00:00:00Z') / 86400000, hasEnd = /^\d{4}-\d\d-\d\d$/.test(u.end || '');
+  const left = hasEnd ? dn(u.end) - dn(today) : null, total = hasEnd && /^\d{4}-\d\d-\d\d$/.test(u.start || '') ? dn(u.end) - dn(u.start) + 1 : null;
+  const st = u.status || 'Active', pc = st === 'Active' ? 'ok' : st === 'Pending' ? 'wait' : 'bad';
+  const comm = (u.access || []).filter(k => CFG[k]), allK = Object.keys(CFG);
+  const chips = comm.length >= allK.length ? '<span>All commodities</span>' : comm.map(k => `<span>${esc(CFG[k].tab)}</span>`).join('') || '<span>—</span>';
+  const msg = encodeURIComponent(`Hello KEDIA, I want to renew / upgrade my Commodity Live plan. Name: ${u.name || ''}, Mobile: ${u.mobile || ''}, Email: ${u.email || ''}`);
+  const waUrl = 'https:' + '/' + '/wa.me/' + WA_NO + '?text=' + msg;
+  w.innerHTML = `<div class="mycard"><div class="myhd"><div class="uav">${esc((u.name || u.email || 'K').trim().charAt(0).toUpperCase())}</div>
+      <div><h3>${esc(u.name || '')}</h3><small>${esc(u.email || '')}</small></div><button class="x" id="myX" aria-label="Close">✕</button></div>
+    <div class="mybd">
+      <div class="mysec"><div class="st">My profile</div><div class="mygrid">
+        <div><span>Name</span><b>${esc(u.name || '—')}</b></div><div><span>Mobile</span><b>${esc(u.mobile || '—')}</b></div>
+        <div><span>Email</span><b>${esc(u.email || '—')}</b></div><div><span>City</span><b>${esc(u.city || '—')}</b></div></div>
+        <div style="font-size:11.5px;color:#9CA3AF;margin-top:8px">To change these details, please contact KEDIA ADVISORY.</div></div>
+      <div class="mysec"><div class="st">My plan</div>
+        <div class="myplan"><span class="pn">${esc(u.role === 'admin' ? 'Admin' : u.role === 'rm' ? 'Relationship Manager' : (u.plan || 'No plan'))}</span><span class="mypill ${pc}">${esc(st)}</span></div>
+        <div style="font-size:13px;color:#4B5563;margin-top:6px">${hasEnd ? `From <b>${u.start ? fmtDate(u.start) : '—'}</b> to <b>${fmtDate(u.end)}</b>` : 'No end date'}
+          ${left != null ? (left >= 0 ? ` · <b style="color:${left <= 3 ? '#B42318' : '#157F3B'}">${left === 0 ? 'ends today' : left + ' day' + (left === 1 ? '' : 's') + ' left'}</b>` : ' · <b style="color:#B42318">ended</b>') : ''}</div>
+        ${total && left != null && left >= 0 ? `<div class="mybar"><b style="width:${Math.max(3, Math.min(100, left / total * 100))}%"></b></div>` : ''}
+        <div style="font-size:12px;color:#6B7280;margin:12px 0 6px">Commodities in your plan (News and NCDEX Spot are always open):</div><div class="mychips">${chips}</div></div>
+      ${plans.length ? `<div class="mysec"><div class="st">My plan history</div><table class="mytbl"><tr><th>Plan</th><th>Period</th><th>From – to</th></tr>` +
+        plans.map(p => `<tr><td><b style="color:#1E2761">${esc(p.plan)}</b></td><td>${esc(p.period)}</td><td>${p.start ? fmtDate(p.start) : '—'} – ${p.end ? fmtDate(p.end) : '—'}</td></tr>`).join('') + '</table></div>' : ''}
+      ${u.role === 'user' || !u.role ? `<div class="mybtns"><a class="gold" href="${waUrl}" target="_blank" rel="noopener">💬 Renew / upgrade on WhatsApp</a><a href="tel:+${WA_NO}">📞 Call KEDIA</a></div>` : ''}
+      <div style="font-size:11px;color:#9CA3AF;text-align:center">KEDIA ADVISORY · SEBI Registration Number: INH000006156</div>
+    </div></div>`;
+  $('myX').onclick = () => w.classList.add('hide');
 }
 $('userChip').addEventListener('click', e => { if (!e.target.closest('.umenu')) $('userChip').classList.toggle('open'); });
 document.addEventListener('click', e => { if (!e.target.closest('#userChip')) $('userChip').classList.remove('open'); });
 $('btnLogout').onclick = logout;
 $('btnChgPw').onclick = () => { $('userChip').classList.remove('open'); showAuth('change'); };
+$('btnMyPlan').onclick = showMyPlan;
 function showLocked(h) {
   const k = S[h] && CFG[h] ? h : firstOpen(), nm = CFG[k] ? CFG[k].tab : h, open = Object.keys(S).filter(x => CFG[x] && !locked(x));
   document.title = 'Commodity Live – ' + nm; $('title').innerHTML = 'Commodity <span>Live</span>'; $('subTitle').innerHTML = `<b>${esc(nm)}</b> · not in your plan`; $('track').innerHTML = '';
