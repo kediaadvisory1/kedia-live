@@ -312,7 +312,11 @@ const GROUPS = [['Bullion', ['GOLD', 'SILVER']], ['Energy', ['CRUDEOIL', 'NATURA
   ['Oilseeds & Oils', ['SOYABEAN', 'MUSTARD', 'GROUNDNUT', 'SESAME', 'CASTOR', 'CASTOROIL', 'CPO', 'SOYOIL', 'SUNOIL', 'SOYMEAL']],
   ['Cereals & Sugar', ['WHEAT', 'PADDY', 'MAIZE', 'BAJRA', 'BARLEY', 'SUGAR']], ['Cotton', ['KAPAS', 'COTTON', 'COCUD', 'COTWASOIL']],
   ['Guar', ['GUARSEED', 'GUARGUM', 'GUARKORMA']]];
-const PLANS = ['Basic', 'Advance', 'Custom'];
+const FREE_PLAN = '7 Days Access';                 /* given automatically on sign-up (never call it "trial") */
+const PLANS = [FREE_PLAN, 'Basic', 'Advance', 'Custom'];
+const MODES = ['UPI', 'Bank transfer', 'Cash', 'Cheque', 'Card', 'Free', 'Other'];
+const P_COLS = ['Time', 'Email', 'Name', 'Plan', 'Period', 'Start', 'End', 'Amount', 'Mode', 'Note', 'By'];
+const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -336,13 +340,14 @@ const IC = {
   menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
   app: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  rupee: '<path d="M6 3h12M6 8h12M14 21 6 13h3a5 5 0 0 0 0-10"/>',
   trash: '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
   copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'
 };
 const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC[n]}</svg>`;
 
 let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaToken') || ''; } catch (e) {}
-let ME = null, USERS = [], RMS = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash';
+let ME = null, USERS = [], RMS = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
 const F = { tab: 'All', q: '', plan: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
 
 /* ---------- server ---------- */
@@ -353,7 +358,7 @@ async function call(action, extra) {
     j = await r.json();
   } catch (e) { throw new Error('Could not reach the server. Please check the internet and try again.'); }
   if (!j.ok) {
-    if (j.error === 'LOGIN_REQUIRED') { setToken(''); showLogin('login', 'Please log in again.'); }
+    if (j.error === 'LOGIN_REQUIRED' || j.error === 'LOGGED_IN_ELSEWHERE') { setToken(''); showLogin('login', j.error === 'LOGIN_REQUIRED' ? 'Please log in again.' : 'You logged in on another device. Please log in again here.'); }
     throw new Error(j.error || 'Something went wrong.');
   }
   return j;
@@ -367,7 +372,11 @@ async function loadComm() {
 async function loadAll() {
   const j = await call('admin_list');
   ME = j.me; USERS = j.users || []; RMS = (j.rms || []).filter(Boolean); TODAY = j.today;
+  PLANROWS = (j.plans || []).map(r => Object.fromEntries(P_COLS.map((k, i) => [k, r[i]])));
+  const paid = {}; PLANROWS.forEach(p => { const e = String(p.Email).toLowerCase(); paid[e] = paid[e] || { amt: 0, mode: '' }; paid[e].amt += Number(p.Amount) || 0; if (p.Mode) paid[e].mode = p.Mode; });
+  USERS.forEach(u => { const p = paid[u.Email.toLowerCase()] || {}; u.Paid = p.amt || 0; u.Mode = p.mode || ''; });
 }
+const plansOf = email => PLANROWS.filter(p => String(p.Email).toLowerCase() === String(email).toLowerCase()).sort((a, b) => String(b.Time).localeCompare(String(a.Time)));
 
 /* ---------- helpers ---------- */
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -417,7 +426,7 @@ function showLogin(mode, msg, ok) {
   }
   if (mode === 'forgot') {
     $('lmain').innerHTML = `<h3>Forgot password</h3><div class="sub">We will email a new password to you.</div>${m}
-      <form id="lf"><div class="fld"><label>Email</label><input id="le" type="email" autocomplete="email" required></div>
+      <form id="lf"><div class="fld"><label>Email or mobile number</label><input id="le" type="text" autocomplete="username" required></div>
       <button class="btn gold wide" id="lb">Email me a new password</button></form>
       <p style="text-align:center;margin-top:16px"><a href="#" id="lback">Back to log in</a></p>`;
     $('lback').onclick = e => { e.preventDefault(); showLogin('login'); };
@@ -426,7 +435,7 @@ function showLogin(mode, msg, ok) {
     return;
   }
   $('lmain').innerHTML = `<h3>Admin / RM log in</h3><div class="sub">Only KEDIA team members can open the back panel.</div>${m}
-    <form id="lf"><div class="fld"><label>Email</label><input id="le" type="email" autocomplete="username" required></div>
+    <form id="lf"><div class="fld"><label>Email or mobile number</label><input id="le" type="text" autocomplete="username" required></div>
     <div class="fld"><label>Password</label><input id="lp" type="password" autocomplete="current-password" required></div>
     <button class="btn gold wide" id="lb">${ic('lock')} Log in</button></form>
     <p style="display:flex;justify-content:space-between;margin-top:16px;font-size:13px"><a href="#" id="lfg">Forgot password?</a><a href="${APP_URL}">Open Commodity Live</a></p>`;
@@ -450,19 +459,25 @@ async function enter() {
   route();
 }
 function navHtml() {
-  const pend = USERS.filter(u => u.eff === 'Pending').length, sn = USERS.filter(soon).length;
+  const cl = USERS.filter(u => (u.Role || 'user') === 'user'), free = cl.filter(u => u.eff === 'Active' && u.Plan === FREE_PLAN).length, sn = USERS.filter(soon).length,
+    ex = cl.filter(u => u.eff === 'Expired').length, pend = USERS.filter(u => u.eff === 'Pending').length;
   const a = (v, i, t, b, r) => `<a href="#${v}" class="${VIEW === v ? 'on' : ''}">${ic(i)}<span>${t}</span>${b ? `<span class="bdg${r ? ' red' : ''}">${b}</span>` : ''}</a>`;
   $('nav').innerHTML = '<div class="grp">Overview</div>' + a('dash', 'dash', 'Dashboard') +
-    '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', USERS.length) + a('pending', 'wait', 'Waiting for approval', pend) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
-    (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') : '') + '<div class="grp">Reports</div>' + a('history', 'hist', 'Login history');
+    '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
+    a('expired', 'ban', 'Expired', ex, 1) + (pend ? a('pending', 'wait', 'Waiting for approval', pend) : '') +
+    (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
+    '<div class="grp">Reports</div>' + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
 }
 function route() {
-  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'pending', 'expiring', 'team', 'history'].includes(h) ? h : 'dash';
-  if (VIEW === 'team' && !isAdmin()) VIEW = 'subs';
+  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'pending', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history'].includes(h) ? h : 'dash';
+  if ((VIEW === 'team' || VIEW === 'deleted') && !isAdmin()) VIEW = 'subs';
   $('side').classList.remove('open'); navHtml(); window.scrollTo(0, 0);
   if (VIEW === 'dash') return viewDash();
   if (VIEW === 'history') return viewHist();
-  F.tab = { subs: F.tab === 'Pending' || F.tab === 'Soon' ? 'All' : F.tab, pending: 'Pending', expiring: 'Soon', team: 'All' }[VIEW]; F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
+  if (VIEW === 'deleted') return viewDeleted();
+  if (VIEW === 'plans') return viewPlans();
+  F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Expired', team: 'All' }[VIEW];
+  F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
   viewSubs();
 }
 function title(t, s) { $('pgTitle').textContent = t; $('pgSub').textContent = s || ''; document.title = t + ' · KEDIA Back Panel'; }
@@ -470,42 +485,46 @@ function title(t, s) { $('pgTitle').textContent = t; $('pgSub').textContent = s 
 /* ---------- dashboard ---------- */
 function viewDash() {
   title('Dashboard', 'Commodity Live clients at a glance · ' + fmtD(TODAY).replace(/<[^>]+>/g, ''));
-  const c = s => USERS.filter(u => u.eff === s && (u.Role || 'user') === 'user').length, cl = USERS.filter(u => (u.Role || 'user') === 'user');
+  const cl = USERS.filter(u => (u.Role || 'user') === 'user'), act = cl.filter(u => u.eff === 'Active');
   const k = (l, col, v, s, go) => `<button class="kpi" data-go="${go}"><div class="l"><i style="background:${col}"></i>${l}</div><div class="v">${v}</div><div class="s">${s}</div></button>`;
   const new7 = cl.filter(u => u.Created && TODAY && dnum(String(u.Created).slice(0, 10)) >= dnum(TODAY) - 7).length;
-  const plans = {}; cl.filter(u => u.eff === 'Active').forEach(u => { const p = u.Plan || 'No plan'; plans[p] = (plans[p] || 0) + 1; });
-  const cx = {}; cl.filter(u => u.eff === 'Active').forEach(u => { const a = String(u.Access || '').toUpperCase(), set = new Set(a.split(',').map(s => s.trim()));
+  const mon = String(TODAY).slice(0, 7), monRows = PLANROWS.filter(p => String(p.Time).slice(0, 7) === mon), monAmt = monRows.reduce((s, p) => s + (Number(p.Amount) || 0), 0);
+  const plans = {}; act.forEach(u => { const p = u.Plan || 'No plan'; plans[p] = (plans[p] || 0) + 1; });
+  const cx = {}; act.forEach(u => { const a = String(u.Access || '').toUpperCase(), set = new Set(a.split(',').map(s => s.trim()));
     groups().forEach(([g, ks]) => { if (a.trim() === 'ALL' || ks.some(x => set.has(x))) cx[g] = (cx[g] || 0) + 1; }); });
-  const bars = o => { const e = Object.entries(o).sort((a, b) => b[1] - a[1]), mx = Math.max(1, ...e.map(x => x[1]));
-    return e.length ? '<div class="bars">' + e.map(([n, v]) => `<div class="bar"><span>${esc(n)}</span><div class="tr"><b style="width:${Math.max(4, v / mx * 100)}%"></b></div><span class="n">${v}</span></div>`).join('') + '</div>' : '<div class="empty">No active clients yet</div>'; };
-  const pend = USERS.filter(u => u.eff === 'Pending').sort((a, b) => String(b.Created).localeCompare(String(a.Created))).slice(0, 8);
+  const bars = (o, fmt) => { const e = Object.entries(o).sort((a, b) => b[1] - a[1]), mx = Math.max(1, ...e.map(x => x[1]));
+    return e.length ? '<div class="bars">' + e.map(([n, v]) => `<div class="bar"><span>${esc(n)}</span><div class="tr"><b style="width:${Math.max(4, v / mx * 100)}%"></b></div><span class="n">${fmt ? fmt(v) : v}</span></div>`).join('') + '</div>' : '<div class="empty">Nothing yet</div>'; };
+  const byMode = {}; monRows.forEach(p => { if (Number(p.Amount) > 0) byMode[p.Mode || 'Other'] = (byMode[p.Mode || 'Other'] || 0) + Number(p.Amount); });
+  const fresh = cl.filter(u => u.Plan === FREE_PLAN && u.eff === 'Active').sort((a, b) => String(b.Created).localeCompare(String(a.Created))).slice(0, 8);
   const sn = USERS.filter(soon).sort((a, b) => left(a) - left(b)).slice(0, 8);
   const mini = (list, extra) => list.length ? `<div class="tw"><table class="t"><tbody>${list.map(u => `<tr><td>${who(u)}</td><td>${extra(u)}</td><td style="text-align:right">${rowBtns(u, true)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">Nothing here 👍</div>';
   $('content').innerHTML = `<div class="kpis">
       ${k('Total clients', '#1E2761', cl.length, new7 + ' new in last 7 days', 'subs')}
-      ${k('Active', '#157F3B', c('Active'), 'can see live data', 'subs:Active')}
-      ${k('Waiting for approval', '#E8A317', c('Pending'), 'signed up, not approved', 'pending')}
+      ${k('Active (paid plans)', '#157F3B', act.filter(u => u.Plan !== FREE_PLAN).length, 'Basic / Advance / Custom', 'subs:Active')}
+      ${k(FREE_PLAN, '#E8A317', act.filter(u => u.Plan === FREE_PLAN).length, 'new sign-ups, all commodities', 'free')}
       ${k('Expiring in 7 days', '#B54708', cl.filter(soon).length, 'call them to renew', 'expiring')}
-      ${k('Expired', '#B42318', c('Expired'), 'end date passed', 'subs:Expired')}
-      ${k('Blocked', '#475467', c('Blocked'), 'no access', 'subs:Blocked')}
+      ${k('Expired', '#B42318', cl.filter(u => u.eff === 'Expired').length, 'give a new plan', 'expired')}
+      ${k('Amount this month', '#1E2761', inr(monAmt), monRows.filter(p => Number(p.Amount) > 0).length + ' paid plan(s)', 'plans')}
     </div>
     <div class="grid2">
-      <div class="card"><div class="hd"><h2>Waiting for approval</h2><span class="note">new sign-ups from the app</span><span class="sp"></span><a href="#pending" class="btn line sm">See all</a></div>${mini(pend, u => `<span class="left">Signed up ${fmtT(u.Created)}</span><br><span class="left">${esc(u.Mobile)}${u.City ? ' · ' + esc(u.City) : ''}</span>`)}</div>
+      <div class="card"><div class="hd"><h2>New sign-ups on ${FREE_PLAN}</h2><span class="sp"></span><a href="#free" class="btn line sm">See all</a></div>${mini(fresh, u => `<span class="left">Signed up ${fmtT(u.Created)}</span><br><span class="left${left(u) != null && left(u) <= 2 ? ' r' : ''}">${left(u) != null ? (left(u) === 0 ? 'ends today' : left(u) + ' day' + (left(u) === 1 ? '' : 's') + ' left') : ''} · ${esc(u.Mobile)}</span>`)}</div>
       <div class="card"><div class="hd"><h2>Active clients by plan</h2></div><div class="bd">${bars(plans)}</div></div>
     </div>
     <div class="grid2">
-      <div class="card"><div class="hd"><h2>Expiring in the next 7 days</h2><span class="sp"></span><a href="#expiring" class="btn line sm">See all</a></div>${mini(sn, u => `<span class="left r">${left(u) === 0 ? 'Ends today' : left(u) + ' day' + (left(u) > 1 ? 's' : '') + ' left'}</span><br><span class="left">End ${fmtD(u.End)}</span>`)}</div>
-      <div class="card"><div class="hd"><h2>Active clients by complex</h2></div><div class="bd">${bars(cx)}</div></div>
-    </div>`;
+      <div class="card"><div class="hd"><h2>Expiring in the next 7 days</h2><span class="sp"></span><a href="#expiring" class="btn line sm">See all</a></div>${mini(sn, u => `<span class="left r">${left(u) === 0 ? 'Ends today' : left(u) + ' day' + (left(u) > 1 ? 's' : '') + ' left'}</span><br><span class="left">${esc(u.Plan || '')} · end ${fmtD(u.End)}</span>`)}</div>
+      <div class="card"><div class="hd"><h2>Amount this month by payment mode</h2></div><div class="bd">${bars(byMode, inr)}</div></div>
+    </div>
+    <div class="card"><div class="hd"><h2>Active clients by complex</h2></div><div class="bd">${bars(cx)}</div></div>`;
   document.querySelectorAll('.kpi').forEach(b => b.onclick = () => { const [v, t] = b.dataset.go.split(':'); if (t) { F.tab = t; F.role = ''; } else if (v === 'subs') F.tab = 'All'; location.hash = v; if (location.hash === '#' + v) route(); });
   bindRowBtns();
 }
 function who(u) { return `<div class="who"><div class="av">${esc(ini(u.Name))}</div><div><b>${esc(u.Name || '—')}</b><small>${esc(u.Email)}</small></div></div>`; }
 function rowBtns(u, mini) {
   const e = esc(u.Email);
+  const needPlan = (u.Role || 'user') === 'user' && (u.eff === 'Expired' || u.Plan === FREE_PLAN);
   if (u.eff === 'Pending' && mini) return `<button class="btn gold sm" data-a="approve" data-e="${e}">${ic('ok')} Approve</button>`;
-  if (mini) return `<button class="btn line sm" data-a="extend" data-e="${e}">Extend</button>`;
-  return `<div class="acts">${u.eff === 'Pending' ? `<button class="btn gold sm" data-a="approve" data-e="${e}">Approve</button>` : ''}
+  if (mini) return needPlan ? `<button class="btn gold sm" data-a="plan" data-e="${e}">${ic('rupee')} Give plan</button>` : `<button class="btn line sm" data-a="extend" data-e="${e}">Extend</button>`;
+  return `<div class="acts">${u.eff === 'Pending' ? `<button class="btn gold sm" data-a="approve" data-e="${e}">Approve</button>` : needPlan ? `<button class="btn gold sm" data-a="plan" data-e="${e}">Give plan</button>` : ''}
     <button class="ib" title="Edit" data-a="edit" data-e="${e}">${ic('edit')}</button>
     <button class="ib" title="Reset password" data-a="reset" data-e="${e}">${ic('key')}</button>
     ${u.Status === 'Blocked' ? `<button class="ib" title="Unblock" data-a="unblock" data-e="${e}">${ic('ok')}</button>` : `<button class="ib r" title="Block" data-a="block" data-e="${e}">${ic('ban')}</button>`}</div>`;
@@ -513,19 +532,19 @@ function rowBtns(u, mini) {
 function bindRowBtns() {
   document.querySelectorAll('[data-a]').forEach(b => b.onclick = e => { e.stopPropagation(); const u = USERS.find(x => x.Email === b.dataset.e); if (!u) return;
     const a = b.dataset.a;
-    if (a === 'edit') openDrawer(u); else if (a === 'approve') openDrawer(u, 'approve'); else if (a === 'extend') openDrawer(u, 'extend');
+    if (a === 'edit') openDrawer(u); else if (a === 'approve') openDrawer(u, 'approve'); else if (a === 'extend') openDrawer(u, 'extend'); else if (a === 'plan') openDrawer(u, 'plan');
     else if (a === 'reset') askReset(u); else if (a === 'block') askBlock(u, true); else if (a === 'unblock') askBlock(u, false); });
 }
 
 /* ---------- subscribers list ---------- */
 const COLS = [['#', null], ['Client', 'Name'], ['Mobile', 'Mobile'], ['City', 'City'], ['Plan', 'Plan'], ['Segments', null], ['Start date', 'Start'], ['End date', 'End'],
-  ['Plan status', 'eff'], ['User type', 'Role'], ['Sales RM', 'Sales RM'], ['Service RM', 'Service RM'], ['Last login', 'Last login'], ['Signed up', 'Created'], ['Remarks', null], ['Actions', null]];
+  ['Plan status', 'eff'], ['Amount', 'Paid'], ['Mode', 'Mode'], ['User type', 'Role'], ['Sales RM', 'Sales RM'], ['Service RM', 'Service RM'], ['Last login', 'Last login'], ['Signed up', 'Created'], ['Remarks', null], ['Actions', null]];
 function filtered(ignoreTab) {
   const q = F.q.trim().toLowerCase();
   return USERS.filter(u => {
     const staff = u.Role === 'admin' || u.Role === 'rm';
     if (F.role === 'staff' ? !staff : (F.role ? (u.Role || 'user') !== F.role : false)) return false;
-    if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
+    if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
     if (F.plan && (u.Plan || '') !== F.plan) return false;
     if (F.srm && (u['Sales RM'] || '') !== F.srm) return false;
     if (F.vrm && (u['Service RM'] || '') !== F.vrm) return false;
@@ -534,7 +553,8 @@ function filtered(ignoreTab) {
   });
 }
 function viewSubs() {
-  const T = { subs: ['Subscribers List', 'Every Commodity Live client'], pending: ['Waiting for approval', 'People who signed up in the app – approve and choose their access'],
+  const T = { subs: ['Subscribers List', 'Every Commodity Live client'], free: [FREE_PLAN, 'New sign-ups: all commodities for 7 days – give them a plan before it ends'],
+    expired: ['Expired', 'Clients whose access has ended – give a new plan'], pending: ['Waiting for approval', 'People who signed up in the app – approve and choose their access'],
     expiring: ['Expiring in 7 days', 'Active clients whose end date comes in the next 7 days'], team: ['Team (Admin / RM)', 'Who can open this back panel'] }[VIEW];
   title(T[0], T[1]);
   const opts = (vals, cur, all) => `<option value="">${all}</option>` + vals.map(v => `<option${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('');
@@ -552,8 +572,8 @@ function viewSubs() {
   drawTable();
 }
 function drawTable() {
-  const base = filtered(true), cnt = t => t === 'All' ? base.length : t === 'Soon' ? base.filter(soon).length : base.filter(u => u.eff === t).length;
-  $('tabsF').innerHTML = [['All', 'All'], ['Active', 'Active'], ['Pending', 'Pending'], ['Soon', 'Expiring ≤ 7 days'], ['Expired', 'Expired'], ['Blocked', 'Blocked']]
+  const base = filtered(true), cnt = t => t === 'All' ? base.length : t === 'Soon' ? base.filter(soon).length : t === 'Free' ? base.filter(u => u.eff === 'Active' && u.Plan === FREE_PLAN).length : base.filter(u => u.eff === t).length;
+  $('tabsF').innerHTML = [['All', 'All'], ['Active', 'Active'], ['Free', FREE_PLAN], ['Soon', 'Expiring ≤ 7 days'], ['Expired', 'Expired'], ['Blocked', 'Blocked'], ['Pending', 'Pending']].filter(([t]) => t !== 'Pending' || cnt('Pending'))
     .map(([t, l]) => `<button data-t="${t}" class="${F.tab === t ? 'on' : ''}">${l}<span>${cnt(t)}</span></button>`).join('');
   $('tabsF').querySelectorAll('button').forEach(b => b.onclick = () => { F.tab = b.dataset.t; F.page = 0; drawTable(); });
   $('thr').innerHTML = COLS.map(([l, k]) => k ? `<th data-k="${k}" class="${F.sort === k ? 'srt' : ''}">${l}<span class="ar">${F.sort === k ? (F.dir > 0 ? '▲' : '▼') : '↕'}</span></th>` : `<th class="ns">${l}</th>`).join('');
@@ -565,7 +585,7 @@ function drawTable() {
     return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td>
       <td>${u.Plan ? `<span class="tag g">${esc(u.Plan)}</span>` : '<span class="left">—</span>'}</td><td class="wrap">${accTags(u.Role === 'admin' ? 'ALL' : u.Access)}</td>
       <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${l != null && u.eff === 'Active' ? `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>` : ''}</td>
-      <td>${pill(u)}</td><td>${{ admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM</span>' }[u.Role] || 'Client'}</td>
+      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${{ admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM</span>' }[u.Role] || 'Client'}</td>
       <td>${esc(u['Sales RM'] || '—')}</td><td>${esc(u['Service RM'] || '—')}</td><td class="left">${fmtT(u['Last login'])}</td><td class="left">${fmtT(u.Created)}</td>
       <td class="wrap left" style="max-width:220px">${esc(u.Remarks || '')}</td><td>${rowBtns(u)}</td></tr>`; }).join('')
     : `<tr><td colspan="${COLS.length}"><div class="empty">${USERS.length ? 'No client matches these filters.' : 'No clients yet. When someone signs up in the app, they appear here.'}</div></td></tr>`;
@@ -578,9 +598,9 @@ function drawTable() {
   $('pPrev').onclick = () => { F.page--; drawTable(); }; $('pNext').onclick = () => { F.page++; drawTable(); };
 }
 function exportCsv() {
-  const cols = ['Name', 'Email', 'Mobile', 'City', 'State', 'Plan', 'Access', 'Start', 'End', 'eff', 'Role', 'Sales RM', 'Service RM', 'Last login', 'Created', 'Remarks'];
+  const cols = ['Name', 'Email', 'Mobile', 'City', 'State', 'Plan', 'Access', 'Start', 'End', 'eff', 'Paid', 'Mode', 'Role', 'Sales RM', 'Service RM', 'Last login', 'Created', 'Remarks'];
   const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-  const csv = '﻿' + cols.map(c => q(c === 'eff' ? 'Plan status' : c)).join(',') + '\n' + filtered().map(u => cols.map(c => q(u[c])).join(',')).join('\n');
+  const csv = '﻿' + cols.map(c => q(c === 'eff' ? 'Plan status' : c === 'Paid' ? 'Amount (total)' : c === 'Mode' ? 'Payment mode' : c)).join(',') + '\n' + filtered().map(u => cols.map(c => q(u[c])).join(',')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'KEDIA Commodity Live clients ' + TODAY + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
@@ -592,6 +612,7 @@ function openDrawer(u, mode) {
   D = { isNew, mode: mode || '', orig: u, x: Object.assign({ Email: '', Name: '', Mobile: '', City: '', State: '', Role: mode === 'staff' ? 'rm' : 'user', Status: mode === 'staff' ? 'Active' : 'Pending', Plan: '', Start: '', End: '', Access: mode === 'staff' ? 'ALL' : '', 'Sales RM': '', 'Service RM': '', Remarks: '' }, u || {}) };
   const x = D.x;
   if (mode === 'approve') { x.Status = 'Active'; if (!x.Start || x.eff !== 'Active') x.Start = TODAY; if (!x.Plan) x.Plan = 'Basic'; }
+  if (mode === 'plan') { x.Status = 'Active'; x.Start = TODAY; x.End = ''; if (!x.Plan || x.Plan === FREE_PLAN) { x.Plan = 'Basic'; x.Access = ''; } }
   if (isNew && !x.Start) x.Start = TODAY;
   if (x.Status !== 'Active' && x.Status !== 'Blocked') x.Status = x.Status || 'Pending';
   const sel = (id, vals, cur, blank) => `<select id="${id}">${blank ? `<option value="">${blank}</option>` : ''}${[...new Set(vals.concat(cur ? [cur] : []))].map(v => `<option${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select>`;
@@ -601,6 +622,7 @@ function openDrawer(u, mode) {
       <button class="x" id="dx" aria-label="Close">${ic('x')}</button></div>
     <div class="db">
       ${mode === 'approve' ? '<div class="sum">✅ <b>Approve:</b> choose the plan, the period and what this client can see, then press <b>Save</b>.</div>' : ''}
+      ${mode === 'plan' ? '<div class="sum">💳 <b>Give a plan:</b> choose the plan, the period, the amount and what this client can see, then press <b>Save</b>. It is added to the plan history.</div>' : ''}
       <div class="sec"><div class="st">Client details</div><div class="g2">
         <div class="fld"><label>Name *</label><input id="xName" value="${esc(x.Name)}"></div>
         <div class="fld"><label>Email *</label><input id="xEmail" type="email" value="${esc(x.Email)}"${isNew ? '' : ' readonly title="Email is the login and cannot be changed"'}></div>
@@ -618,7 +640,11 @@ function openDrawer(u, mode) {
         <div class="g2"><div class="fld"><label>Start date</label><input id="xStart" type="date" value="${esc(/^\d{4}-\d\d-\d\d$/.test(x.Start) ? x.Start : '')}"></div>
           <div class="fld"><label>End date (custom date)</label><input id="xEnd" type="date" value="${esc(/^\d{4}-\d\d-\d\d$/.test(x.End) ? x.End : '')}"></div></div>
         <div class="sum" id="perSum"></div>
-        <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px;cursor:pointer"><input type="checkbox" id="xNotify" ${(!isNew && u.eff !== 'Active') ? 'checked' : ''}> Email the client when the access becomes active</label>
+        <div class="g2" style="margin-top:12px"><div class="fld"><label>Amount received (₹)</label><input id="xAmt" inputmode="decimal" placeholder="0"></div>
+          <div class="fld"><label>Payment mode</label><select id="xMode"><option value="">—</option>${MODES.map(m => `<option>${m}</option>`).join('')}</select></div></div>
+        <div class="fld" style="margin:0"><label>Payment note (UTR / receipt no.)</label><input id="xPayNote" placeholder="Optional"></div>
+        <div class="info">Amount and mode are saved in the plan history when you give or change a plan.</div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:13px;cursor:pointer"><input type="checkbox" id="xNotify" ${(!isNew && (u.eff !== 'Active' || mode === 'plan')) ? 'checked' : ''}> Email the client about the new plan / active access</label>
       </div>
 
       <div class="sec"><div class="st">Segments – what the client can see<span class="sp"></span><span id="accCount" class="left"></span></div>
@@ -631,6 +657,10 @@ function openDrawer(u, mode) {
         <div class="fld" style="margin:0"><label>Remarks</label><textarea id="xRem" rows="3" placeholder="Payment, call notes, anything useful">${esc(x.Remarks)}</textarea></div>
         ${ME.role === 'rm' && isNew ? '<div class="info">New clients you add get you as Sales RM if you leave it empty.</div>' : ''}</div>
 
+      ${isNew ? '' : `<div class="sec"><div class="st">Plan history<span class="sp"></span><span class="left">${(() => { const p = plansOf(x.Email); return p.length + ' plan' + (p.length === 1 ? '' : 's') + ' · ' + inr(p.reduce((s, r) => s + (Number(r.Amount) || 0), 0)); })()}</span></div>
+        ${(() => { const p = plansOf(x.Email); return p.length ? `<div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">By</th></tr></thead><tbody>` +
+          p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td></tr>`).join('') +
+          '</tbody></table></div>' : '<div class="left">No plan given yet.</div>'; })()}</div>`}
       ${isNew ? '' : `<div class="sec"><div class="st">Recent activity<span class="sp"></span><span class="left">last login ${fmtT(u['Last login']).replace(/<[^>]+>/g, '')}</span></div><div class="tl" id="act"><div><span><span class="spin"></span></span>Loading…</div></div></div>`}
     </div>
     <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}
@@ -638,11 +668,11 @@ function openDrawer(u, mode) {
       <button class="btn line" id="dCancel">Cancel</button><button class="btn gold" id="dSave">${ic('ok')} Save</button></div></div>`;
   $('shade').onclick = $('dx').onclick = $('dCancel').onclick = closeLayer;
   segBind('xStatus', v => { x.Status = v; perSum(); }); segBind('xPlan', v => { x.Plan = v; if (v === 'Advance' && !String(x.Access).trim()) { x.Access = 'ALL'; drawAcc(); } });
-  $('pers').querySelectorAll('button').forEach(b => b.onclick = () => { const s = $('xStart').value || TODAY; $('xStart').value = s; $('xEnd').value = period(s, b.dataset.p, true);
+  $('pers').querySelectorAll('button').forEach(b => b.onclick = () => { const s = $('xStart').value || TODAY; $('xStart').value = s; $('xEnd').value = period(s, b.dataset.p, true); D.period = b.textContent;
     $('pers').querySelectorAll('button').forEach(o => o.classList.toggle('on', o === b)); perSum(); });
   if ($('ext')) $('ext').querySelectorAll('button').forEach(b => b.onclick = () => { const e = $('xEnd').value, from = e && e >= TODAY ? e : addD(TODAY, -1);
-    $('xEnd').value = period(addD(from, 1), b.dataset.p, true); if (!$('xStart').value) $('xStart').value = TODAY; x.Status = 'Active'; segSet('xStatus', 'Active'); perSum(); });
-  $('xStart').onchange = $('xEnd').onchange = () => { $('pers').querySelectorAll('button').forEach(o => o.classList.remove('on')); perSum(); };
+    $('xEnd').value = period(addD(from, 1), b.dataset.p, true); if (!$('xStart').value) $('xStart').value = TODAY; D.period = 'Extended ' + b.textContent; x.Status = 'Active'; segSet('xStatus', 'Active'); perSum(); });
+  $('xStart').onchange = $('xEnd').onchange = () => { $('pers').querySelectorAll('button').forEach(o => o.classList.remove('on')); D.period = ''; perSum(); };
   if ($('xRole')) $('xRole').onchange = e => { x.Role = e.target.value; roleInfo(); drawAcc(); };
   if ($('dReset')) $('dReset').onclick = () => askReset(u);
   if ($('dDel')) $('dDel').onclick = () => askDelete(u);
@@ -695,9 +725,16 @@ async function saveDrawer() {
   if (out.Status === 'Active' && !out.Access) return toast('Tick at least one commodity (or "All commodities") before making the client Active.', true);
   if (out.End && out.Start && out.End < out.Start) return toast('The end date is before the start date.', true);
   if (out.Status === 'Active' && !out.Start) out.Start = TODAY;
+  /* plan history line: a new client, a new plan / dates, or any amount entered */
+  const o = D.orig || {}, amt = $('xAmt').value.trim(), changed = D.isNew || o.Plan !== out.Plan || o.Start !== out.Start || o.End !== out.End || (o.eff !== 'Active' && out.Status === 'Active');
+  let grant = null;
+  if ((x.Role || 'user') === 'user' && out.Status === 'Active' && (changed || amt)) {
+    const days = out.End ? dnum(out.End) - dnum(out.Start || TODAY) + 1 : 0;
+    grant = { Period: D.period || (days ? days + ' days' : 'No end date'), Amount: amt || 0, Mode: $('xMode').value, Note: $('xPayNote').value.trim() };
+  }
   busy(b, true, 'Saving…');
   try {
-    const j = await call('admin_save', { user: out, notify: $('xNotify').checked });
+    const j = await call('admin_save', { user: out, notify: $('xNotify').checked, grant });
     const wasNew = D.isNew; closeLayer(); await loadAll(); route();
     if (wasNew && j.tempPassword) showPw(out, j.tempPassword, j.mailed, 'Account created');
     else toast('Saved: ' + out.Name);
@@ -737,15 +774,71 @@ function askBlock(u, block) {
 }
 
 function askDelete(u) {
-  modal(`<h3>Delete ${esc(u.Name || u.Email)}?</h3><p>This removes <b>${esc(u.Email)}</b> for good: login, plan, dates, access, RM and remarks. They are logged out at once.
-    <b>This cannot be undone.</b> (Only the login history line stays.)</p><p style="font-size:12.5px">To stop access for a while instead, use <b>Block</b>.</p>
+  modal(`<h3>Delete ${esc(u.Name || u.Email)}?</h3><p><b>${esc(u.Email)}</b> is removed from the client list and logged out at once. The record moves to the <b>Deleted</b> tab,
+    where an admin can <b>Restore</b> it. The email and mobile become free for a new sign-up.</p><p style="font-size:12.5px">To stop access for a while instead, use <b>Block</b>.</p>
     <div class="fld"><label>Type DELETE to confirm</label><input id="mConf" autocomplete="off" placeholder="DELETE"></div>
-    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn red" id="mYes" disabled>${ic('trash')} Delete for good</button></div>`);
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn red" id="mYes" disabled>${ic('trash')} Delete</button></div>`);
   $('mConf').oninput = e => { $('mYes').disabled = e.target.value.trim().toUpperCase() !== 'DELETE'; };
   $('mNo').onclick = closeModal;
   $('mYes').onclick = async () => { busy($('mYes'), true);
-    try { await call('admin_delete', { email: u.Email }); closeLayer(); HIST = null; await loadAll(); route(); toast('Deleted: ' + (u.Name || u.Email)); }
+    try { await call('admin_delete', { email: u.Email }); closeLayer(); HIST = null; DELETED = null; await loadAll(); route(); toast('Deleted: ' + (u.Name || u.Email) + ' (see the Deleted tab)'); }
     catch (e) { closeModal(); toast(e.message, true); } };
+}
+
+/* ---------- deleted users (admin only) ---------- */
+async function viewDeleted() {
+  title('Deleted', 'Clients removed by an admin – Restore brings them back with the same login, plan and dates');
+  $('content').innerHTML = `<div class="card"><div class="hd"><h2>Deleted users</h2><span class="sp"></span></div>
+    <div class="frow"><div class="sbox">${ic('search')}<input id="dq" type="search" placeholder="Search name, email, mobile"></div></div>
+    <div class="tw"><table class="t"><thead><tr><th class="ns">Deleted on</th><th class="ns">Deleted by</th><th class="ns">Client</th><th class="ns">Mobile</th><th class="ns">Plan</th><th class="ns">End date</th><th class="ns">Remarks</th><th class="ns">Actions</th></tr></thead>
+    <tbody id="db2"><tr><td colspan="8"><div class="empty"><span class="spin"></span> Loading…</div></td></tr></tbody></table></div></div>`;
+  try { if (!DELETED) DELETED = (await call('admin_deleted')).rows || []; } catch (e) { $('db2').innerHTML = `<tr><td colspan="8"><div class="empty">${esc(e.message)}</div></td></tr>`; return; }
+  const draw = () => { const q = $('dq').value.trim().toLowerCase();
+    const rows = DELETED.filter(r => !q || [r.Name, r.Email, r.Mobile].join(' ').toLowerCase().includes(q));
+    $('db2').innerHTML = rows.length ? rows.map(r => `<tr><td class="left">${fmtT(r['Deleted on'])}</td><td>${esc(r['Deleted by'])}</td><td>${who(r)}</td><td>${esc(r.Mobile || '—')}</td>
+      <td>${r.Plan ? `<span class="tag g">${esc(r.Plan)}</span>` : '—'}</td><td>${fmtD(r.End)}</td><td class="wrap left">${esc(r.Remarks)}</td>
+      <td><button class="btn line sm" data-r="${r.row}" data-e="${esc(r.Email)}">${ic('ref')} Restore</button></td></tr>`).join('') : '<tr><td colspan="8"><div class="empty">No deleted users.</div></td></tr>';
+    $('db2').querySelectorAll('[data-r]').forEach(b => b.onclick = () => askRestore(DELETED.find(r => String(r.row) === b.dataset.r))); };
+  $('dq').oninput = draw; draw();
+}
+function askRestore(r) {
+  if (!r) return;
+  modal(`<h3>Restore ${esc(r.Name || r.Email)}?</h3><p>The client comes back to the Subscribers List with the same password, plan, dates and access as before deleting.</p>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('ref')} Restore</button></div>`);
+  $('mNo').onclick = closeModal;
+  $('mYes').onclick = async () => { busy($('mYes'), true);
+    try { await call('admin_restore', { row: r.row, email: r.Email }); closeModal(); DELETED = null; HIST = null; await loadAll(); route(); toast('Restored: ' + (r.Name || r.Email)); }
+    catch (e) { closeModal(); toast(e.message, true); } };
+}
+
+/* ---------- plan history & amount ---------- */
+function viewPlans() {
+  title('Plan history & amount', 'Every plan given: period, amount, payment mode and who gave it');
+  const months = [...new Set(PLANROWS.map(p => String(p.Time).slice(0, 7)))].sort().reverse(), cur = String(TODAY).slice(0, 7);
+  const mName = m => MON[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4);
+  $('content').innerHTML = `<div class="kpis" id="pk"></div><div class="card"><div class="hd"><h2>Plans given</h2><span class="sp"></span><button class="btn line sm" id="pCsv">${ic('dl')} Export</button></div>
+    <div class="frow"><div class="sbox">${ic('search')}<input id="pq" type="search" placeholder="Search client, plan, note"></div>
+      <select id="pm"><option value="">All months</option>${months.map(m => `<option value="${m}"${m === cur ? ' selected' : ''}>${mName(m)}</option>`).join('')}</select>
+      <select id="pp"><option value="">All plans</option>${PLANS.map(p => `<option>${p}</option>`).join('')}</select>
+      <select id="pmo"><option value="">All modes</option>${MODES.map(p => `<option>${p}</option>`).join('')}</select>
+      <select id="pby"><option value="">Given by anyone</option>${[...new Set(PLANROWS.map(p => p.By).filter(Boolean))].sort().map(p => `<option>${esc(p)}</option>`).join('')}</select></div>
+    <div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Client</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">Note</th><th class="ns">By</th></tr></thead><tbody id="pb"></tbody></table></div></div>`;
+  if (!months.includes(cur)) $('pm').value = '';
+  const list = () => { const q = $('pq').value.trim().toLowerCase(), m = $('pm').value, pl = $('pp').value, mo = $('pmo').value, by = $('pby').value;
+    return PLANROWS.filter(p => (!m || String(p.Time).startsWith(m)) && (!pl || p.Plan === pl) && (!mo || p.Mode === mo) && (!by || p.By === by) &&
+      (!q || [p.Name, p.Email, p.Plan, p.Note].join(' ').toLowerCase().includes(q))).sort((a, b) => String(b.Time).localeCompare(String(a.Time))); };
+  const draw = () => { const L = list(), paid = L.filter(p => Number(p.Amount) > 0), tot = paid.reduce((s, p) => s + Number(p.Amount), 0);
+    const k = (l, v, s) => `<div class="kpi" style="cursor:default"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+    $('pk').innerHTML = k('Amount', inr(tot), $('pm').value ? mName($('pm').value) : 'all months') + k('Paid plans', paid.length, 'with an amount') + k('Plans given', L.length, 'incl. ' + FREE_PLAN) +
+      k('Average', paid.length ? inr(tot / paid.length) : '—', 'per paid plan') + k(FREE_PLAN, L.filter(p => p.Plan === FREE_PLAN).length, 'sign-ups') + k('Clients', new Set(L.map(p => p.Email)).size, 'in this list');
+    $('pb').innerHTML = L.length ? L.map(p => `<tr><td class="left">${fmtT(p.Time)}</td><td><b style="color:var(--navy)">${esc(p.Name)}</b><br><span class="left">${esc(p.Email)}</span></td><td><span class="tag g">${esc(p.Plan)}</span></td>
+      <td>${esc(p.Period)}</td><td class="left">${fmtD(p.Start)} – ${fmtD(p.End)}</td><td><b>${Number(p.Amount) ? inr(p.Amount) : '—'}</b></td><td>${esc(p.Mode || '—')}</td><td class="wrap left">${esc(p.Note)}</td><td class="left">${esc(p.By)}</td></tr>`).join('')
+      : '<tr><td colspan="9"><div class="empty">No plans in this view.</div></td></tr>'; };
+  ['pq', 'pm', 'pp', 'pmo', 'pby'].forEach(id => { $(id).oninput = $(id).onchange = draw; });
+  $('pCsv').onclick = () => { const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = '﻿' + P_COLS.map(q).join(',') + '\n' + list().map(p => P_COLS.map(c => q(p[c])).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'KEDIA Commodity Live plans ' + TODAY + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  draw();
 }
 
 /* ---------- login history ---------- */
@@ -777,7 +870,7 @@ function setup() {
   $('dApp').onclick = () => { location.href = APP_URL; };
   $('dPw').onclick = () => { $('drop').classList.add('hide'); showLogin('change'); };
   $('dOut').onclick = async () => { try { await call('logout'); } catch (e) {} setToken(''); showLogin('login', 'You are logged out.', true); };
-  $('btnRefresh').onclick = async () => { const b = $('btnRefresh'); busy(b, true, 'Loading'); try { HIST = null; await loadAll(); route(); toast('Up to date'); } catch (e) { toast(e.message, true); } busy(b, false); };
+  $('btnRefresh').onclick = async () => { const b = $('btnRefresh'); busy(b, true, 'Loading'); try { HIST = null; DELETED = null; await loadAll(); route(); toast('Up to date'); } catch (e) { toast(e.message, true); } busy(b, false); };
   window.addEventListener('hashchange', () => { if (ME) route(); });
   if (TOKEN) enter(); else showLogin('login');
 }
