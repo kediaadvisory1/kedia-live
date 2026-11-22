@@ -213,6 +213,62 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
 #shot .bx .s { font-size: 12px; color: #4B5563; margin-top: 4px; }
 #shot table th { position: static; }
 #shot .sf { padding: 0 22px 16px; font-size: 11px; color: #4B5563; line-height: 1.5; }
+/* ------------------------------------------------------------ login / sign-up (22-Nov-2026, user: "great design as per our theme") */
+.auth { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 18px; overflow-y: auto;
+        background: radial-gradient(1200px 600px at 10% 0%, rgba(232,163,23,.18), transparent 60%), linear-gradient(135deg, #141B47 0%, #1E2761 55%, #2A3580 100%); }
+.auth.hide { display: none; }
+.acard { width: 100%; max-width: 940px; display: grid; grid-template-columns: 1.05fr 1fr; background: #fff; border-radius: 18px; overflow: hidden;
+         box-shadow: 0 30px 80px rgba(8,12,40,.45); border-top: 5px solid #E8A317; }
+.aside { position: relative; padding: 34px 34px 26px; color: #fff; background: linear-gradient(160deg, #1E2761 0%, #18205A 100%); overflow: hidden; }
+.aside::after { content: ""; position: absolute; right: -90px; bottom: -90px; width: 260px; height: 260px; border-radius: 50%; border: 36px solid rgba(232,163,23,.12); }
+.alogo { height: 44px; display: block; margin-bottom: 26px; }
+.aside h2 { margin: 0; font-size: 34px; line-height: 1.1; letter-spacing: .3px; } .aside h2 span { color: #E8A317; }
+.atag { margin: 8px 0 22px; color: rgba(255,255,255,.75); font-size: 15px; }
+.aside ul { list-style: none; margin: 0 0 26px; padding: 0; } .aside li { position: relative; padding: 7px 0 7px 26px; font-size: 14px; color: rgba(255,255,255,.92); border-bottom: 1px solid rgba(255,255,255,.07); }
+.aside li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 10px; height: 10px; border-radius: 50%; background: #E8A317; box-shadow: 0 0 0 4px rgba(232,163,23,.2); }
+.afoot { font-size: 11.5px; color: rgba(255,255,255,.55); line-height: 1.6; position: relative; z-index: 1; }
+.amain { padding: 34px 34px 28px; color: #1F2937; display: flex; flex-direction: column; }
+.amain h3 { margin: 0 0 4px; font-size: 24px; color: #1E2761; } .amain .asub { margin: 0 0 18px; color: #6B7280; font-size: 13.5px; }
+.atabs { display: flex; background: #F4F6FA; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+.atabs button { flex: 1; border: 0; background: transparent; padding: 9px; border-radius: 9px; font-weight: 700; color: #6B7280; font-size: 14px; cursor: pointer; }
+.atabs button.on { background: #fff; color: #1E2761; box-shadow: 0 2px 8px rgba(30,39,97,.12); }
+.afield { margin-bottom: 13px; } .afield label { display: block; font-size: 12px; font-weight: 700; color: #4B5563; margin-bottom: 5px; letter-spacing: .2px; }
+.afield input { width: 100%; box-sizing: border-box; padding: 11px 13px; border: 1.5px solid #D5DAE4; border-radius: 10px; font: inherit; font-size: 15px; color: #1F2937; background: #fff; transition: border-color .15s, box-shadow .15s; }
+.afield input:focus { outline: none; border-color: #E8A317; box-shadow: 0 0 0 4px rgba(232,163,23,.16); }
+.abtn { width: 100%; padding: 12px; border: 0; border-radius: 10px; font: inherit; font-size: 15.5px; font-weight: 700; color: #1E2761; cursor: pointer;
+        background: linear-gradient(180deg, #F2B53A 0%, #E8A317 100%); box-shadow: 0 6px 16px rgba(232,163,23,.35); margin-top: 4px; }
+.abtn:hover { filter: brightness(1.03); } .abtn:disabled { opacity: .6; cursor: wait; }
+.abtn.ghost { background: #fff; color: #1E2761; border: 1.5px solid #1E2761; box-shadow: none; margin-top: 10px; }
+.alink { background: none; border: 0; color: #1E2761; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline; }
+.arow { display: flex; justify-content: space-between; align-items: center; margin: 2px 0 14px; font-size: 13px; color: #6B7280; }
+.amsg { border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin-bottom: 14px; line-height: 1.5; }
+.amsg.err { background: #FDECEA; color: #8E1C14; border: 1px solid #F5C2BD; } .amsg.ok { background: #E8F5E9; color: #1B5E20; border: 1px solid #B9DFBC; }
+.amsg.info { background: #FBF0D2; color: #5C4200; border: 1px solid #EED9A0; }
+.astate { text-align: center; padding: 10px 0; } .astate .big2 { font-size: 46px; line-height: 1; margin-bottom: 10px; }
+.astate p { color: #4B5563; font-size: 14px; line-height: 1.6; margin: 6px 0; }
+.acontact { margin-top: 16px; background: #F4F6FA; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; color: #1F2937; text-align: left; }
+.acontact b { color: #1E2761; }
+.anote { margin-top: auto; padding-top: 16px; font-size: 11.5px; color: #9CA3AF; line-height: 1.5; }
+@media (max-width: 760px) { .acard { grid-template-columns: 1fr; } .aside { padding: 22px 22px 18px; } .aside ul, .afoot { display: none; } .atag { margin-bottom: 0; }
+  .alogo { height: 34px; margin-bottom: 14px; } .aside h2 { font-size: 26px; } .amain { padding: 22px; } }
+/* signed-in user in the header */
+.uchip { position: relative; display: flex; align-items: center; gap: 8px; flex: none; cursor: pointer; padding: 4px 10px 4px 4px; border: 1px solid #E5E7EB; border-radius: 22px; background: #fff; }
+.uchip.hide { display: none; }
+.uav { width: 30px; height: 30px; border-radius: 50%; background: #1E2761; color: #E8A317; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.unm { font-size: 13px; font-weight: 700; color: #1E2761; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.umenu { display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; background: #fff; border: 1px solid #E5E7EB; border-top: 3px solid #E8A317; border-radius: 12px; box-shadow: 0 12px 30px rgba(30,39,97,.18); min-width: 230px; padding: 10px; }
+.uchip.open .umenu { display: block; }
+.uinfo { font-size: 12.5px; color: #4B5563; line-height: 1.6; padding: 2px 4px 10px; border-bottom: 1px solid #EEF0F4; margin-bottom: 8px; }
+.umenu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 8px 6px; border-radius: 8px; font: inherit; font-size: 13.5px; color: #1E2761; font-weight: 600; cursor: pointer; }
+.umenu button:hover { background: #FBF0D2; }
+/* commodity outside the plan */
+.lockcard { text-align: center; padding: 42px 22px; max-width: 620px; margin: 30px auto; }
+.lockcard .big2 { font-size: 52px; } .lockcard h2 { justify-content: center; font-size: 22px; margin: 10px 0 6px; }
+.lockcard p { color: #4B5563; line-height: 1.6; }
+.lockcard .opens { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+.lockcard .opens a { text-decoration: none; padding: 6px 14px; border-radius: 16px; background: #FBF0D2; color: #1E2761; font-weight: 700; font-size: 13px; }
+.side a.lk { color: var(--muted); } .side a .lki { font-size: 11px; opacity: .8; }
+
 /* ------------------------------------------------------------ phone / tablet (21-Nov-2026, user: "mobile responsive") */
 .mob { display: none !important; }
 .shade { display: none; }
@@ -297,6 +353,8 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
   <div class="ttl"><h1 id="title">Commodity <span>Live</span></h1><div class="sub" id="subTitle"></div></div>
   <div class="sp"></div>
   <div class="clock"><b id="clock">--:--:--</b><div><span id="pEx" class="pill off">—</span> <span id="pIntl" class="pill off hide">—</span></div></div>
+  <div class="uchip hide" id="userChip"><span class="uav" id="uAv">K</span><span class="unm" id="uName"></span>
+    <div class="umenu" id="uMenu"><div class="uinfo" id="uInfo"></div><button id="btnChgPw">Change password</button><button id="btnLogout">Log out</button></div></div>
   <button id="btnMore" class="mob" aria-label="More buttons">⋯</button>
   <div class="hbtns" id="hBtns">
     <label style="font-size:12px">Refresh <select id="refSel"><option value="5">5 s</option><option value="10">10 s</option><option value="30" selected>30 s</option><option value="60">1 min</option><option value="0">Off</option></select></label>
@@ -485,6 +543,8 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
   </div>
   </div>
   <div id="newsView" class="hide"></div>
+  <!-- 22-Nov-2026 login: commodity outside the user's plan -->
+  <div id="lockView" class="hide"><div class="card lockcard" id="lockCard"></div></div>
   <div id="spotView" class="hide">
     <div class="card mb">
       <h2>NCDEX spot prices – all commodities <small id="spInfo"></small>
@@ -504,6 +564,25 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
 </div>
 </div>
 
+<!-- 22-Nov-2026 login / sign-up screens (Google page + app only) -->
+<div class="auth hide" id="authWrap" role="dialog" aria-modal="true">
+  <div class="acard">
+    <div class="aside">
+      <img class="alogo" id="aLogo" alt="KEDIA ADVISORY">
+      <h2>Commodity <span>Live</span></h2>
+      <p class="atag">India's commodity markets in one place.</p>
+      <ul>
+        <li><b>42</b> MCX &amp; NCDEX commodities, live</li>
+        <li>Charts, technicals, levels &amp; seasonality</li>
+        <li>Crop weather, mandi arrivals, exports &amp; imports</li>
+        <li>LME · Shanghai · CME arbitrage</li>
+        <li>News &amp; economic data that move prices</li>
+      </ul>
+      <div class="afoot">KEDIA ADVISORY · Kedia Stocks &amp; Commodities Research Pvt. Ltd.<br>SEBI Research Analyst Reg. No. INH000006156</div>
+    </div>
+    <div class="amain" id="authMain"></div>
+  </div>
+</div>
 <div id="shot"></div>
 <div class="toast" id="toast"></div>
 
@@ -526,10 +605,15 @@ const cell = (v, d = 2, suf = '%', loc) => v == null || isNaN(v) ? '<td class="n
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 /* opened as a file (double-click on Gold Live.html): talk to the server on 127.0.0.1:8898 instead */
 const BASE = '';
-/* Google version: every data call goes to Code.gs api(path) */
-/* APP version: data straight from the Google web app (same data as the Google page) */
+/* APP version: data straight from the Google web app (same data as the Google page); TOKEN = the login session */
 const API_URL = 'https://script.google.com/macros/s/AKfycbzq9mNbXAyGSI42_WJ4yheS4eDZF7Wg1yjyts9Qm73M1u25aXIM3OdRewQ1HA6IA_Hs/exec';
-const api = async p => { const r = await fetch(API_URL + '?api=' + encodeURIComponent(p), { cache: 'no-store' }); if (!r.ok) throw new Error(p.split('?')[0] + ' ' + r.status); const j = await r.json(); if (j && j.__error) throw new Error(j.__error); return j; };
+const api0 = async p => { const r = await fetch(API_URL + '?api=' + encodeURIComponent(p) + '&t=' + encodeURIComponent(TOKEN || ''), { cache: 'no-store' }); if (!r.ok) throw new Error(p.split('?')[0] + ' ' + r.status); const j = await r.json(); if (j && j.__error) throw new Error(j.__error); return j; };
+/* 22-Nov-2026 login: OFF on this PC version (gold_server), ON in the Google page + app (build_cloud / build_app switch it) */
+const AUTH_ON = true;
+let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaToken') || ''; } catch (e) {}
+let ME = null;
+const authCall = async o => { const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ auth: o }) }); if (!r.ok) throw new Error('login ' + r.status); return r.json(); };
+const api = async p => { try { return await api0(p); } catch (e) { if (AUTH_ON) authErr(e); throw e; } };
 const dstr = t => new Date(t * 1000).toISOString().slice(0, 10);
 function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2400); }
 function segInit(id, fn) {
@@ -704,7 +788,7 @@ function buildTabs() {
     ['Guar', ['GUARSEED', 'GUARGUM', 'GUARKORMA']]];
   const listed = new Set(G.flatMap(g => g[1])), rest = Object.keys(S).filter(k => !listed.has(k));
   if (rest.length) G.push(['Others', rest]);
-  const link = k => `<a href="#${k.toLowerCase()}" data-c="${k}" class="${k === ck ? 'on' : ''}">${CFG[k].tab}${S[k].spotOnly ? ' <small style="opacity:.6;font-weight:400">spot</small>' : ''}</a>`;
+  const link = k => `<a href="#${k.toLowerCase()}" data-c="${k}" class="${k === ck ? 'on' : ''}${locked(k) ? ' lk' : ''}">${CFG[k].tab}${S[k].spotOnly ? ' <small style="opacity:.6;font-weight:400">spot</small>' : ''}${locked(k) ? ' <span class="lki" title="Not in your plan">🔒</span>' : ''}</a>`;
   /* 21-Nov-2026 (user): search box on top of the menu - typing filters the list, Enter opens the first match */
   $('tabs').innerHTML = '<div class="msearch"><input id="mSearch" type="search" placeholder="🔍 Search commodity" autocomplete="off"></div>' + G.map(([g, ks]) => { ks = ks.filter(k => S[k] && CFG[k]); return ks.length ? `<span class="tg">${g}</span>` + ks.map(link).join('') : ''; }).join('') +
     '<span class="tg">More</span><a href="#spot" data-c="SPOT">NCDEX Spot (all)</a><a href="#news" data-c="NEWS">News</a>' +
@@ -734,7 +818,13 @@ let view = 'comm';
 function applyTab() {
   const h = (location.hash || '').slice(1).toUpperCase();
   const other = h === 'NEWS' || h === 'SPOT';
-  document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.c === (other ? h : (S[h] && CFG[h] ? h : 'GOLD'))));
+  const first = firstOpen();
+  document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.c === (other ? h : (S[h] && CFG[h] ? h : first))));
+  /* 22-Nov-2026 login: a commodity outside the user's plan shows the lock card, no data is asked for */
+  const lockIt = !other && AUTH_ON && locked(S[h] && CFG[h] ? h : first);
+  $('lockView').classList.toggle('hide', !lockIt);
+  if (lockIt) { ['commView', 'newsView', 'spotView'].forEach(id => $(id).classList.add('hide')); $('jumpBar').classList.add('hide'); $('jumpSelBox').classList.add('hide');
+    view = 'lock'; showLocked(h); return; }
   $('commView').classList.toggle('hide', other); $('jumpBar').classList.toggle('hide', other); $('jumpSelBox').classList.toggle('hide', other); $('newsView').classList.toggle('hide', h !== 'NEWS'); $('spotView').classList.toggle('hide', h !== 'SPOT');
   if (other) {
     $('track').innerHTML = ''; $('pEx').classList.add('hide'); $('pIntl').classList.add('hide'); $('cloudBar').classList.add('hide');
@@ -745,7 +835,7 @@ function applyTab() {
     return;
   }
   view = 'comm'; $('pEx').classList.remove('hide');
-  ck = S[h] && CFG[h] ? h : 'GOLD'; C = Object.assign({}, CFG[ck]); PD = S[ck].dec || 0;
+  ck = S[h] && CFG[h] ? h : first; C = Object.assign({}, CFG[ck]); PD = S[ck].dec || 0;
   /* spot names come from the server list (desktop: Kota first; Google: Gondal from the NCDEX bhavcopy) */
   if (C.src2 === 'spot' && S[ck].spots.length) { const sn = S[ck].spots[0][0];
     C.src = C.src.map(s => s[0] === 'spot' ? ['spot', sn] : s); C.src2Name = sn;
@@ -1422,7 +1512,7 @@ function renderAllNews() {
     el.closest('.card').style.display = allNewsCat !== 'all' && !p.length ? 'none' : ''; });
 }
 async function loadAllNews() {
-  const ks = Object.keys(S).filter(k => CFG[k]);
+  const ks = Object.keys(S).filter(k => CFG[k] && !locked(k));      /* login: only the commodities in the user's plan */
   $('newsView').innerHTML = '<div class="card mb"><h2>Filter news by type</h2><div class="chips" id="nAllChips"></div></div>' +
     ks.map(k => `<div class="card mb"><h2>${CFG[k].tab} news <small id="nInfo${k}"></small></h2><ul class="news" id="nList${k}"><li><span></span>Loading…</li></ul></div>`).join('');
   await Promise.all(ks.map(async k => {
@@ -1820,6 +1910,117 @@ $('btnPdf').onclick = async () => {
   }
 };
 
+/* ------------------------------------------------------------ login, sign-up, plan locks (22-Nov-2026; Google page + app only, AUTH_ON)
+   The server (Code.gs Auth.gs) is the real lock: it sends no data for a commodity outside the plan. This part only draws the screens. */
+const ADMIN_URL = 'https:' + '/' + '/kediaadvisory1.github.io/kedia-live/admin.html';     /* no double slash: Google cuts inline scripts there */
+const CONTACT = '<b>KEDIA ADVISORY</b><br>📞 +91 9619551022 &nbsp;·&nbsp; ✉ info@kediaadvisory.com';
+const locked = k => AUTH_ON && !!ME && !(ME.access || []).includes(k);
+function firstOpen() { const ks = Object.keys(S).filter(k => CFG[k]); if (!AUTH_ON || !ME) return S.GOLD ? 'GOLD' : ks[0]; return ks.find(k => !locked(k)) || ks[0]; }
+function saveToken(t) { TOKEN = t || ''; try { if (TOKEN) localStorage.setItem('kediaToken', TOKEN); else localStorage.removeItem('kediaToken'); } catch (e) {} }
+let authBusy = false;
+function authErr(e) {
+  const m = String(e && e.message || e);
+  if (/LOGIN_REQUIRED/.test(m)) { if (!authBusy) { authBusy = true; saveToken(''); ME = null; showAuth('login', { cls: 'info', t: 'Please log in to continue.' }); } }
+  else { const s = /NO_ACCESS:(\w+)/.exec(m); if (s && !authBusy) { authBusy = true; showStatus(s[1]); } }
+}
+async function authStart() {
+  $('aLogo').src = window.KEDIA_LOGO || '';
+  if (!TOKEN) { showAuth('login'); return false; }
+  let r; try { r = await authCall({ action: 'me', token: TOKEN }); } catch (e) { r = { ok: false }; }
+  if (!r.ok) { saveToken(''); showAuth('login', /LOGIN_REQUIRED/.test(r.error || '') ? { cls: 'info', t: 'Your login has ended. Please log in again.' } : null); return false; }
+  return gate(r.user);
+}
+function gate(u) {
+  ME = u;
+  if (u.mustChange) { showAuth('change', { cls: 'info', t: 'Welcome! Please set your own password to continue.' }); return false; }
+  if (u.status !== 'Active') { showStatus(u.status); return false; }
+  $('authWrap').classList.add('hide'); authBusy = false; return true;
+}
+const fld = (id, lab, type = 'text', ph = '', ac = '') => `<div class="afield"><label for="${id}">${lab}</label><input id="${id}" type="${type}" placeholder="${ph}" autocomplete="${ac}"></div>`;
+function showAuth(mode, msg) {
+  $('authWrap').classList.remove('hide'); $('aLogo').src = window.KEDIA_LOGO || '';
+  const m = msg ? `<div class="amsg ${msg.cls}">${msg.t}</div>` : '', tabs = on => `<div class="atabs"><button type="button" data-m="login" class="${on === 'login' ? 'on' : ''}">Log in</button><button type="button" data-m="signup" class="${on === 'signup' ? 'on' : ''}">Sign up</button></div>`;
+  let h = '';
+  if (mode === 'login') h = tabs('login') + `<h3>Welcome back</h3><p class="asub">Log in to see live commodity prices and research.</p>${m}<form id="aForm">` +
+    fld('aEmail', 'Email', 'email', 'you@example.com', 'username') + fld('aPass', 'Password', 'password', 'Your password', 'current-password') +
+    `<div class="arow"><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="aShow"> Show password</label><button type="button" class="alink" data-m="forgot">Forgot password?</button></div>` +
+    `<button class="abtn" id="aGo">Log in</button></form><div class="anote">New here? Tap <b>Sign up</b>. Your password comes by email and KEDIA activates your access.</div>`;
+  else if (mode === 'signup') h = tabs('signup') + `<h3>Create your account</h3><p class="asub">We will email you a password. Access starts once KEDIA approves it.</p>${m}<form id="aForm">` +
+    fld('aName', 'Full name', 'text', 'Your name', 'name') + fld('aMobile', 'Mobile number', 'tel', '10-digit mobile', 'tel') + fld('aEmail', 'Email', 'email', 'you@example.com', 'email') +
+    fld('aCity', 'City (optional)', 'text', 'e.g. Mumbai', 'address-level2') + `<button class="abtn" id="aGo">Sign up</button></form>` +
+    `<div class="anote">By signing up you agree to be contacted by KEDIA ADVISORY about your access. Research is for information only, not a buy or sell recommendation.</div>`;
+  else if (mode === 'forgot') h = `<h3>Forgot password</h3><p class="asub">Enter your registered email. A new password will be sent to it.</p>${m}<form id="aForm">` +
+    fld('aEmail', 'Email', 'email', 'you@example.com', 'username') + `<button class="abtn" id="aGo">Email me a new password</button></form>` +
+    `<button type="button" class="abtn ghost" data-m="login">Back to log in</button>`;
+  else if (mode === 'change') h = `<h3>Set your password</h3><p class="asub">At least 8 characters, with letters and numbers.</p>${m}<form id="aForm">` +
+    (ME && !ME.mustChange ? fld('aOld', 'Current password', 'password', '', 'current-password') : '') +
+    fld('aPass', 'New password', 'password', 'New password', 'new-password') + fld('aPass2', 'Type it again', 'password', 'Same password again', 'new-password') +
+    `<button class="abtn" id="aGo">Save password</button></form>` + (ME && !ME.mustChange && ME.status === 'Active' ? `<button type="button" class="abtn ghost" id="aCancel">Cancel</button>` : `<button type="button" class="abtn ghost" id="aOut">Log out</button>`);
+  $('authMain').innerHTML = h;
+  const f = $('aForm'); if (f) { setTimeout(() => { const i = f.querySelector('input'); if (i) i.focus(); }, 50); f.onsubmit = ev => { ev.preventDefault(); authSubmit(mode); }; }
+  $('authMain').querySelectorAll('[data-m]').forEach(b => b.onclick = () => showAuth(b.dataset.m));
+  if ($('aShow')) $('aShow').onchange = e => { $('aPass').type = e.target.checked ? 'text' : 'password'; };
+  if ($('aCancel')) $('aCancel').onclick = () => { $('authWrap').classList.add('hide'); };
+  if ($('aOut')) $('aOut').onclick = logout;
+}
+function showStatus(st) {
+  $('authWrap').classList.remove('hide'); $('aLogo').src = window.KEDIA_LOGO || '';
+  const nm = ME && ME.name ? esc(ME.name.split(' ')[0]) : 'there';
+  const T = { Pending: ['⏳', `Hello ${nm}, your account is waiting for approval`, 'KEDIA ADVISORY will activate your access shortly. You will be able to open your commodities as soon as it is approved.'],
+    Expired: ['⌛', 'Your access has ended', `Your plan ended${ME && ME.end ? ' on <b>' + fmtDate(ME.end) + '</b>' : ''}. Please contact KEDIA ADVISORY to renew it.`],
+    Blocked: ['🔒', 'Your access is on hold', 'Please contact KEDIA ADVISORY.'] }[st] || ['🔒', 'No access yet', 'Please contact KEDIA ADVISORY.'];
+  $('authMain').innerHTML = `<div class="astate"><div class="big2">${T[0]}</div><h3>${T[1]}</h3><p>${T[2]}</p></div><div class="acontact">${CONTACT}</div>` +
+    `<button type="button" class="abtn" id="aAgain" style="margin-top:16px">Check again</button><button type="button" class="abtn ghost" id="aOut">Log out</button>`;
+  $('aAgain').onclick = async () => { $('aAgain').disabled = true; if (await authStart()) boot(); else if ($('aAgain')) $('aAgain').disabled = false; };
+  $('aOut').onclick = logout;
+}
+async function authSubmit(mode) {
+  const v = id => ($(id) ? $(id).value.trim() : ''), btn = $('aGo'), old = btn.textContent;
+  const fail = t => { showAuth(mode, { cls: 'err', t: esc(t) }); keep(); }, vals = {}; ['aEmail', 'aName', 'aMobile', 'aCity'].forEach(id => { if ($(id)) vals[id] = $(id).value; });
+  const keep = () => Object.entries(vals).forEach(([id, x]) => { if ($(id)) $(id).value = x; });
+  btn.disabled = true; btn.textContent = 'Please wait…';
+  try {
+    if (mode === 'login') {
+      const r = await authCall({ action: 'login', email: v('aEmail'), password: $('aPass').value, device: navigator.userAgent.slice(0, 80) });
+      if (!r.ok) return fail(r.error || 'Login failed');
+      saveToken(r.token); if (gate(r.user)) boot();
+    } else if (mode === 'signup') {
+      const r = await authCall({ action: 'signup', name: v('aName'), mobile: v('aMobile'), email: v('aEmail'), city: v('aCity') });
+      if (!r.ok) return fail(r.error || 'Sign up failed');
+      showAuth('login', { cls: 'ok', t: '✅ ' + esc(r.message) + '<br>Use that password to log in below.' }); if ($('aEmail')) $('aEmail').value = vals.aEmail || '';
+    } else if (mode === 'forgot') {
+      const r = await authCall({ action: 'forgot', email: v('aEmail') });
+      showAuth('login', { cls: r.ok ? 'ok' : 'err', t: esc(r.ok ? r.message : (r.error || 'Could not send')) }); if ($('aEmail')) $('aEmail').value = vals.aEmail || '';
+    } else if (mode === 'change') {
+      if ($('aPass').value !== $('aPass2').value) return fail('The two passwords are not the same.');
+      const r = await authCall({ action: 'change', token: TOKEN, old: $('aOld') ? $('aOld').value : '', password: $('aPass').value });
+      if (!r.ok) return fail(r.error || 'Could not save');
+      toast('Password saved'); if (gate(r.user)) boot();
+    }
+  } catch (e) { fail('Could not reach KEDIA – check the internet and try again.'); }
+  finally { if (btn.isConnected) { btn.disabled = false; btn.textContent = old; } }
+}
+async function logout() { try { if (TOKEN) await authCall({ action: 'logout', token: TOKEN }); } catch (e) {} saveToken(''); ME = null; location.reload(); }
+function showUserChip() {
+  if (!ME) return;
+  const c = $('userChip'); c.classList.remove('hide');
+  $('uAv').textContent = (ME.name || ME.email || 'K').trim().charAt(0).toUpperCase(); $('uName').textContent = (ME.name || ME.email).split(' ')[0];
+  $('uInfo').innerHTML = `<b style="color:#1E2761">${esc(ME.name || '')}</b><br>${esc(ME.email)}<br>` + (ME.plan ? `Plan: <b>${esc(ME.plan)}</b><br>` : '') +
+    (ME.end ? `Access till <b>${fmtDate(ME.end)}</b>` : 'Access: no end date') + (ME.role !== 'user' ? `<br><span style="color:#B26206;font-weight:700">${ME.role === 'admin' ? 'Admin' : 'Relationship Manager'}</span>` : '');
+  if ((ME.role === 'admin' || ME.role === 'rm') && !$('btnPanel')) { const b = document.createElement('button'); b.id = 'btnPanel'; b.textContent = '⚙ Back panel'; b.onclick = () => window.open(ADMIN_URL, '_blank'); $('uMenu').insertBefore(b, $('btnChgPw')); }
+}
+$('userChip').addEventListener('click', e => { if (!e.target.closest('.umenu')) $('userChip').classList.toggle('open'); });
+document.addEventListener('click', e => { if (!e.target.closest('#userChip')) $('userChip').classList.remove('open'); });
+$('btnLogout').onclick = logout;
+$('btnChgPw').onclick = () => { $('userChip').classList.remove('open'); showAuth('change'); };
+function showLocked(h) {
+  const k = S[h] && CFG[h] ? h : firstOpen(), nm = CFG[k] ? CFG[k].tab : h, open = Object.keys(S).filter(x => CFG[x] && !locked(x));
+  document.title = 'Commodity Live – ' + nm; $('title').innerHTML = 'Commodity <span>Live</span>'; $('subTitle').innerHTML = `<b>${esc(nm)}</b> · not in your plan`; $('track').innerHTML = '';
+  $('lockCard').innerHTML = `<div class="big2">🔒</div><h2>${esc(nm)} is not in your plan</h2><p>Your KEDIA plan does not include this commodity yet. To add it, please contact your relationship manager.</p>` +
+    `<div class="acontact" style="max-width:380px;margin:14px auto 0">${CONTACT}</div>` +
+    (open.length ? `<p style="margin-top:20px"><b>Your plan includes:</b></p><div class="opens">${open.map(x => `<a href="#${x.toLowerCase()}">${esc(CFG[x].tab)}</a>`).join('')}</div>` : '');
+}
+
 /* ------------------------------------------------------------ loops */
 let liveTimer = null, firstLive = true;
 async function refreshLive() {
@@ -1858,13 +2059,21 @@ $('duty').oninput = renderParity;
     catch (e) { $('srvBanner').style.display = 'block'; return; }
   }
   try { S = await api('/api/config'); } catch (e) { $('srvBanner').style.display = 'block'; return; }
-  buildTabs(); setRefresh(); applyTab();
-  setInterval(() => { if (view === 'comm') CB.forEach(b => { if (b.intraday()) b.draw(); }); }, 60000);   /* intraday charts: new bars every minute */
-  setInterval(() => { loadSlow(); }, 600000);
-  setInterval(() => { if (view === 'news') loadAllNews(); else if (view === 'spot') loadSpotTab(); else { if (S[ck].agmark) loadArrivals(); if (S[ck].eco) loadEco(); loadCommNews(); } }, 900000);
-  setInterval(() => { if (view === 'comm' && S[ck].weather) loadWeather(); }, 3 * 3600000);
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => CB.forEach(b => b.draw(true)));
+  if (AUTH_ON && !(await authStart())) return;          /* login screen shown; boot() runs after a good login */
+  boot();
 })();
+let booted = false;
+function boot() {
+  if (AUTH_ON) showUserChip();
+  if (booted) { buildTabs(); applyTab(); return; }
+  booted = true;
+  buildTabs(); setRefresh(); applyTab();
+  setInterval(() => { if (view === 'comm' && !locked(ck)) CB.forEach(b => { if (b.intraday()) b.draw(); }); }, 60000);   /* intraday charts: new bars every minute */
+  setInterval(() => { if (!locked(ck)) loadSlow(); }, 600000);
+  setInterval(() => { if (view === 'news') loadAllNews(); else if (view === 'spot') loadSpotTab(); else if (!locked(ck)) { if (S[ck].agmark) loadArrivals(); if (S[ck].eco) loadEco(); loadCommNews(); } }, 900000);
+  setInterval(() => { if (view === 'comm' && !locked(ck) && S[ck].weather) loadWeather(); }, 3 * 3600000);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => CB.forEach(b => b.draw(true)));
+}
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 </body>
