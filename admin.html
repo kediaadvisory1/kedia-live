@@ -176,6 +176,9 @@ table.t td.wrap { white-space: normal; min-width: 160px; }
 .db { flex: 1; overflow-y: auto; padding: 16px 20px; display: grid; gap: 14px; align-content: start; }
 .sec { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
 .sec > .st { font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--gold-t); font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.sec > .st .sttxt { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+.sec > .st .sttxt::before { content: '▾ '; text-decoration: none; display: inline-block; width: 14px; }
+.sec.shut > .st { margin-bottom: 0; } .sec.shut > .st .sttxt::before { content: '▸ '; } .sec.shut > :not(.st) { display: none !important; }
 .sec > .st .sp { flex: 1; }
 .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
 .seg { display: inline-flex; border: 1px solid #CDD2DE; border-radius: 9px; overflow: hidden; background: #fff; flex-wrap: wrap; }
@@ -427,7 +430,15 @@ function accTags(acc) {
   set.forEach(k => out.push(`<span class="tag">${esc(name(k))}</span>`));
   return out.length > 4 ? out.slice(0, 3).join('') + `<span class="tag">+${out.length - 3}</span>` : out.join('');
 }
-function pill(u) { const s = u.eff || u.Status || 'Pending'; return soon(u) ? '<span class="pill p-Soon">Expiring</span>' : `<span class="pill p-${esc(s)}">${esc(s)}</span>`; }
+/* 22-Nov-2026 (user): Plan status = Active / Inactive (ended or not approved) / Blocked; days left / Expired go in the End date column */
+const stWord = u => { const s = u.eff || u.Status || 'Pending'; return s === 'Active' ? 'Active' : s === 'Blocked' ? 'Blocked' : 'Inactive'; };
+function endNote(u) {
+  const l = left(u); if (l == null) return '';
+  if (l > 0) return `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>`;
+  if (l === 0) return '<br><span class="left r">ends today</span>';
+  return `<br><span class="left r"><b>Expired</b> · ${-l} day${l === -1 ? '' : 's'} ago</span>`;
+}
+function pill(u) { const w = stWord(u); return `<span class="pill p-${w === 'Inactive' ? 'Expired' : w}">${w}</span>`; }
 function toast(t, err) { const d = document.createElement('div'); d.className = 'toast' + (err ? ' err' : ''); d.textContent = t; $('toasts').appendChild(d); setTimeout(() => d.remove(), err ? 6000 : 3500); }
 function busy(btn, on, txt) { if (!btn) return; if (on) { btn.dataset.t = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>' + (txt || 'Please wait…'); } else { btn.disabled = false; if (btn.dataset.t) btn.innerHTML = btn.dataset.t; } }
 
@@ -486,7 +497,7 @@ function navHtml() {
   const a = (v, i, t, b, r) => `<a href="#${v}" class="${VIEW === v ? 'on' : ''}">${ic(i)}<span>${t}</span>${b ? `<span class="bdg${r ? ' red' : ''}">${b}</span>` : ''}</a>`;
   $('nav').innerHTML = '<div class="grp">Overview</div>' + a('dash', 'dash', 'Dashboard') +
     '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
-    a('expired', 'ban', 'Expired', ex, 1) + (pend ? a('pending', 'wait', 'Waiting for approval', pend) : '') +
+    a('expired', 'ban', 'Inactive', ex, 1) + (pend ? a('pending', 'wait', 'Waiting for approval', pend) : '') +
     (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
     '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
 }
@@ -499,7 +510,7 @@ function route() {
   if (VIEW === 'deleted') return viewDeleted();
   if (VIEW === 'plans') return viewPlans();
   if (VIEW === 'sales') return viewSales();
-  F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Expired', team: 'All' }[VIEW];
+  F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Inactive', team: 'All' }[VIEW];
   F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
   viewSubs();
 }
@@ -526,7 +537,7 @@ function viewDash() {
       ${k('Active (paid plans)', '#157F3B', act.filter(u => u.Plan !== FREE_PLAN).length, 'Basic / Advance / Custom', 'subs:Active')}
       ${k(FREE_PLAN, '#E8A317', act.filter(u => u.Plan === FREE_PLAN).length, 'new sign-ups, all commodities', 'free')}
       ${k('Expiring in 7 days', '#B54708', cl.filter(soon).length, 'call them to renew', 'expiring')}
-      ${k('Expired', '#B42318', cl.filter(u => u.eff === 'Expired').length, 'give a new plan', 'expired')}
+      ${k('Inactive', '#B42318', cl.filter(u => stWord(u) === 'Inactive').length, 'access ended – give a new plan', 'expired')}
       ${k('Amount this month', '#1E2761', inr(monAmt), monRows.filter(p => Number(p.Amount) > 0).length + ' paid plan(s)', 'plans')}
     </div>
     <div class="grid2">
@@ -582,7 +593,7 @@ function filtered(ignoreTab) {
     if (u.main && F.role !== 'staff') return false;                     /* main admin: only in Team (Admin / RM) */
     if (staff && F.role !== 'staff' && F.role !== u.Role && !(u.Role === 'rm' && rmHasPlan(u))) return false;   /* staff without a plan: Team only */
     if (F.role === 'staff' ? !staff : (F.role ? (u.Role || 'user') !== F.role : false)) return false;
-    if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
+    if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : F.tab === 'Inactive' ? stWord(u) !== 'Inactive' : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
     if (F.plan && (u.Plan || '') !== F.plan) return false;
     if (F.src && srcKind(u) !== F.src) return false;
     if (F.srm && (u['Sales RM'] || '') !== F.srm) return false;
@@ -593,7 +604,7 @@ function filtered(ignoreTab) {
 }
 function viewSubs() {
   const T = { subs: ['Subscribers List', 'Every Commodity Live client'], free: [FREE_PLAN, 'New sign-ups: all commodities for 7 days – give them a plan before it ends'],
-    expired: ['Expired', 'Clients whose access has ended – give a new plan'], pending: ['Waiting for approval', 'People who signed up in the app – approve and choose their access'],
+    expired: ['Inactive', 'Clients whose access has ended (or never started) – give a new plan'], pending: ['Waiting for approval', 'People who signed up in the app – approve and choose their access'],
     expiring: ['Expiring in 7 days', 'Active clients whose end date comes in the next 7 days'], team: ['Team (Admin / RM)', 'Who can open this back panel'] }[VIEW];
   title(T[0], T[1]);
   const opts = (vals, cur, all) => `<option value="">${all}</option>` + vals.map(v => `<option${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('');
@@ -613,8 +624,8 @@ function viewSubs() {
   drawTable();
 }
 function drawTable() {
-  const base = filtered(true), cnt = t => t === 'All' ? base.length : t === 'Soon' ? base.filter(soon).length : t === 'Free' ? base.filter(u => u.eff === 'Active' && u.Plan === FREE_PLAN).length : base.filter(u => u.eff === t).length;
-  $('tabsF').innerHTML = [['All', 'All'], ['Active', 'Active'], ['Free', FREE_PLAN], ['Soon', 'Expiring ≤ 7 days'], ['Expired', 'Expired'], ['Blocked', 'Blocked'], ['Pending', 'Pending']].filter(([t]) => t !== 'Pending' || cnt('Pending'))
+  const base = filtered(true), cnt = t => t === 'All' ? base.length : t === 'Soon' ? base.filter(soon).length : t === 'Free' ? base.filter(u => u.eff === 'Active' && u.Plan === FREE_PLAN).length : t === 'Inactive' ? base.filter(u => stWord(u) === 'Inactive').length : base.filter(u => u.eff === t).length;
+  $('tabsF').innerHTML = [['All', 'All'], ['Active', 'Active'], ['Inactive', 'Inactive'], ['Blocked', 'Blocked'], ['Soon', 'Expiring ≤ 7 days'], ['Free', FREE_PLAN]]
     .map(([t, l]) => `<button data-t="${t}" class="${F.tab === t ? 'on' : ''}">${l}<span>${cnt(t)}</span></button>`).join('');
   $('tabsF').querySelectorAll('button').forEach(b => b.onclick = () => { F.tab = b.dataset.t; F.page = 0; drawTable(); });
   $('thr').innerHTML = COLS.map(([l, k]) => k ? `<th data-k="${k}" class="${F.sort === k ? 'srt' : ''}">${l}<span class="ar">${F.sort === k ? (F.dir > 0 ? '▲' : '▼') : '↕'}</span></th>` : `<th class="ns">${l}</th>`).join('');
@@ -625,7 +636,7 @@ function drawTable() {
   $('tb').innerHTML = rows.length ? rows.map((u, i) => { const l = left(u);
     return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td><td>${srcHtml(u)}</td>
       <td>${u.Plan ? `<span class="tag g">${esc(u.Plan)}</span>` : '<span class="left">—</span>'}</td><td class="wrap">${accTags(u.Role === 'admin' ? 'ALL' : u.Access)}</td>
-      <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${l != null && u.eff === 'Active' ? (l < 0 ? '<br><span class="left r">plan ended</span>' : `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>`) : ''}</td>
+      <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${endNote(u)}</td>
       <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM' + (u['RM type'] && u['RM type'] !== 'Both' ? ' · ' + esc(u['RM type']) : '') + '</span>' + (VIEW !== 'team' ? '<br><span class="left">also RM</span>' : '') }[u.Role] || 'Client'}</td>
       <td>${esc(u['Sales RM'] || '—')}</td><td>${esc(u['Service RM'] || '—')}</td><td class="left">${fmtT(u['Last login'])}</td><td class="left">${fmtT(u.Created)}</td>
       <td class="wrap left" style="max-width:220px">${esc(u.Remarks || '')}</td><td>${rowBtns(u)}</td></tr>`; }).join('')
@@ -756,6 +767,18 @@ function openDrawer(u, mode) {
   }
   if (mode === 'extend' && $('ext')) $('ext').scrollIntoView({ block: 'center' });
   if (!isNew) loadActivity(u.Email);
+  /* 22-Nov-2026 (user): every card title is underlined - click to fold / unfold. All cards start FOLDED; the ones you open are
+     remembered on this computer. Approve / extend / a new client open the cards they need. */
+  let opened = []; try { opened = JSON.parse(localStorage.getItem('kediaOpenCards') || '[]'); } catch (e) {}
+  const need = isNew ? ['client details', 'subscription', 'segments'] : mode === 'approve' ? ['subscription', 'segments'] : mode === 'extend' ? ['subscription'] : [];
+  document.querySelectorAll('.drawer .sec > .st').forEach(st => {
+    const tn = [...st.childNodes].find(n => n.nodeType === 3 && n.textContent.trim()); if (!tn) return;
+    const sp = document.createElement('span'); sp.className = 'sttxt'; sp.textContent = tn.textContent.trim(); st.replaceChild(sp, tn);
+    const key = sp.textContent.toLowerCase(), sec = st.parentElement;
+    if (!opened.includes(key) && !need.some(n => key.startsWith(n))) sec.classList.add('shut');
+    sp.onclick = () => { sec.classList.toggle('shut'); const set = new Set(opened); sec.classList.contains('shut') ? set.delete(key) : set.add(key); opened = [...set];
+      try { localStorage.setItem('kediaOpenCards', JSON.stringify(opened)); } catch (e) {} };
+  });
   D.snap = drawerState();                                              /* to warn about unsaved changes */
   document.addEventListener('keydown', escClose);
 }
@@ -1135,7 +1158,7 @@ function viewSales() {
     <div class="card"><div class="hd"><h2>RM-wise</h2><span class="note">click a row to see its plans</span><span class="sp"></span>
       <div class="seg" id="spBy"><button type="button" data-v="Sales RM">Credit to Sales RM</button><button type="button" data-v="Service RM">Service RM</button></div>
       <button class="btn line sm" id="spCsv">${ic('dl')} Export</button></div>
-      <div class="tw"><table class="t"><thead><tr><th class="ns">RM</th><th class="ns">Clients</th><th class="ns">Active</th><th class="ns">${FREE_PLAN}</th><th class="ns">Expired</th><th class="ns">Expiring ≤ 7 days</th>
+      <div class="tw"><table class="t"><thead><tr><th class="ns">RM</th><th class="ns">Clients</th><th class="ns">Active</th><th class="ns">${FREE_PLAN}</th><th class="ns">Inactive</th><th class="ns">Expiring ≤ 7 days</th>
         <th class="ns">New clients</th><th class="ns">Paid plans</th><th class="ns">New paid</th><th class="ns">Renewals</th><th class="ns">Amount (period)</th><th class="ns">Amount (all time)</th></tr></thead><tbody id="spB"></tbody></table></div></div>`;
   const set = () => { $('spM1').value = SP.from.slice(0, 7); $('spM2').value = SP.to.slice(0, 7); $('spD1').value = SP.from; $('spD2').value = SP.to; drawSales(); };
   $('spChips').querySelectorAll('button').forEach(b => b.onclick = () => { spQuick(b.dataset.k); $('spChips').querySelectorAll('button').forEach(o => o.classList.toggle('on', o === b)); set(); });
@@ -1157,7 +1180,7 @@ function salesRows() {
   cl.forEach(u => byEmail[u.Email.toLowerCase()] = u);
   const rmOf = u => (u && u[SP.by]) || 'No RM', rows = {};
   const row = n => rows[n] = rows[n] || { rm: n, clients: 0, active: 0, free: 0, expired: 0, soon: 0, newC: 0, paid: 0, newPaid: 0, renew: 0, amt: 0, amtAll: 0, lines: [] };
-  cl.forEach(u => { const r = row(rmOf(u)); r.clients++; if (u.eff === 'Active') r.active++; if (u.eff === 'Active' && u.Plan === FREE_PLAN) r.free++; if (u.eff === 'Expired') r.expired++;
+  cl.forEach(u => { const r = row(rmOf(u)); r.clients++; if (u.eff === 'Active') r.active++; if (u.eff === 'Active' && u.Plan === FREE_PLAN) r.free++; if (stWord(u) === 'Inactive') r.expired++;
     if (soon(u)) r.soon++; if (inP(String(u.Created).slice(0, 10))) r.newC++; });
   const firstPaid = {};
   PLANROWS.slice().sort((a, b) => String(a.Time).localeCompare(String(b.Time))).forEach(p => { const e = String(p.Email).toLowerCase(); if (isPaid(p) && !firstPaid[e]) firstPaid[e] = p; });
@@ -1233,7 +1256,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = 'b32312b1fd', K = 'va';
+<script>(function () { var V = 'd16b730a0d', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
