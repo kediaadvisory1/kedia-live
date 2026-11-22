@@ -1,0 +1,1871 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KEDIA Commodity Live</title>
+<script>window.KEDIA_LOGO = 'data:image/png;base64,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';</script>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --navy: #1E2761; --navy-solid: #1E2761; --gold: #E8A317; --gold-ink: #B26206; --cream: #FBF0D2;
+  --page: #F4F6FA; --surface: #ffffff; --ink: #1F2937; --ink2: #4B5563; --muted: #6B7280;
+  --grid: #E5E7EB; --axis: #CBD0DA; --border: #E5E7EB; --bad: #B3261E; --good: #2E7D32; --row-alt: #F7F8FB;
+  --sma50: #D32F2F; --sma200: #111111; --chop: #1B6E1B; --c1: #E8A317; --c2: #1E2761; --c3: #0F8B8D; --c4: #8E44AD; --c5: #9AA3B5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --gold-ink: #F0B94A;
+    --navy: #8E9BE0; --cream: #3a321c; --bad: #e66767; --good: #3fbf5a; --row-alt: #222220;
+    --sma50: #ff6b6b; --sma200: #f0efec; --chop: #4fc34f; --c2: #8E9BE0; --c3: #3CC3C5; --c4: #C08AE0; --c5: #6f7380;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --gold-ink: #F0B94A;
+  --navy: #8E9BE0; --cream: #3a321c; --bad: #e66767; --good: #3fbf5a; --row-alt: #222220;
+  --sma50: #ff6b6b; --sma200: #f0efec; --chop: #4fc34f; --c2: #8E9BE0; --c3: #3CC3C5; --c4: #C08AE0; --c5: #6f7380;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font: 14px/1.45 "Century Gothic", CenturyGothic, AppleGothic, sans-serif; }
+input, select, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 4px 9px; }
+button { cursor: pointer; }
+button.brand { border-color: var(--navy); color: var(--navy); font-weight: 600; }
+a { color: var(--navy); }
+.num { font-variant-numeric: tabular-nums; }
+.up { color: var(--good); } .dn { color: var(--bad); } .na { color: var(--muted); }
+
+/* header + tabs */
+/* 21-Nov-2026 (user): house theme like Seasonality / Arrivals - white header and menu, navy text, gold line, cream highlight
+   (no big dark-blue bars) */
+.hdr { background: var(--surface); color: var(--ink); border-bottom: 3px solid var(--gold); }
+.hdr .in { max-width: 1320px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+.hdr img.logo { height: 40px; display: block; }
+.hdr h1 { margin: 0; font-size: 20px; line-height: 1.1; color: var(--navy); }
+.hdr h1 span { color: var(--gold); }
+.hdr .sub { font-size: 12px; color: var(--ink2); }
+.hdr .clock b { color: var(--navy); }
+.hdr .sp { flex: 1; }
+.hdr .clock { font-size: 13px; text-align: right; }
+.hdr .clock b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.hdr button { border-color: var(--navy); color: var(--navy); font-weight: 600; }
+.hdr button:hover { background: var(--cream); }
+.tabs { background: var(--navy-solid); border-bottom: 3px solid var(--gold); }
+.tabs .in { max-width: 1320px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; }
+.tabs a { color: rgba(255,255,255,.75); text-decoration: none; padding: 8px 18px; font-weight: 600; border-radius: 8px 8px 0 0; white-space: nowrap; }
+.tabs a.on { background: var(--gold); color: #1E2761; }
+/* left menu (21-Nov-2026): sticks to the screen while the page scrolls; on a phone it turns into a scrolling row on top */
+.layout { display: flex; align-items: flex-start; }
+.main { flex: 1; min-width: 0; }
+.side { position: sticky; top: 0; flex: none; width: 190px; height: 100vh; overflow-y: auto; background: var(--surface); border-right: 1px solid var(--grid); padding: 6px 0 40px; scrollbar-width: thin; }
+.side .tg { display: block; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 12px 14px 3px; }
+.side a { display: block; color: var(--ink); text-decoration: none; padding: 5px 14px 5px 22px; font-size: 14px; border-left: 4px solid transparent; }
+.side a.on { background: var(--cream); color: var(--navy); border-left-color: var(--gold); font-weight: 700; }
+.side .msearch { padding: 8px 10px 2px; position: sticky; top: 0; background: var(--surface); z-index: 2; }
+.side .msearch input { width: 100%; box-sizing: border-box; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; }
+.side .msearch input:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+.side .mnone { color: var(--muted); font-size: 13px; padding: 10px 14px; }
+.side a:not(.on):hover { background: var(--page); color: var(--navy); }
+/* "Jump to" (21-Nov-2026, like sgxnifty.org): a list on the RIGHT, always on screen, no sideways scrolling */
+/* page body = Jump box + content, centred together; the box sits in the free space left of the price boxes and stays on screen */
+.mbody { display: flex; justify-content: center; align-items: flex-start; gap: 4px; padding-left: 12px; }
+.mbody > .wrap { flex: 1 1 auto; min-width: 0; margin: 0; }
+.jrail { position: sticky; top: 12px; flex: none; width: 168px; margin-top: 16px; max-height: calc(100vh - 24px); overflow-y: auto; background: var(--surface);
+         border: 1px solid var(--grid); border-top: 3px solid var(--gold); border-radius: 10px; padding: 8px 0 10px; scrollbar-width: thin; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.jrail.hide { display: none; }
+.jrail b { display: block; color: var(--gold-ink); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 14px 6px; }
+.jrail a { display: block; color: var(--ink); text-decoration: none; padding: 5px 14px; font-size: 13.5px; border-left: 4px solid transparent; }
+.jrail a:hover { background: var(--page); color: var(--navy); }
+.jrail a.on { background: var(--cream); color: var(--navy); border-left-color: var(--gold); font-weight: 700; }
+/* phone / tablet rules: at the END of this style block (they must win over the normal rules) */
+.tabs a:not(.on):hover { color: #fff; background: rgba(255,255,255,.08); }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 10px; letter-spacing: .3px; vertical-align: middle; }
+.pill.on { background: #2E7D32; color: #fff; } .pill.off { background: #6B7280; color: #fff; }
+
+/* ticker */
+.ticker { background: var(--surface); border-bottom: 1px solid var(--border); overflow: hidden; white-space: nowrap; }
+.track { display: inline-flex; animation: roll 70s linear infinite; }
+.ticker:hover .track { animation-play-state: paused; }
+@keyframes roll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.tk { padding: 7px 18px; font-size: 13px; border-right: 1px solid var(--grid); }
+.tk b { color: var(--navy); font-weight: 600; margin-right: 6px; }
+
+.wrap { max-width: 1320px; margin: 0 auto; padding: 16px 16px 48px; }
+.grid { display: grid; gap: 16px; margin-bottom: 16px; }
+.g3 { grid-template-columns: 1.25fr 1fr 1.1fr; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g2 > .solo { grid-column: 1 / -1; }
+.g3.two { grid-template-columns: 1.25fr 1fr; }
+.g3.one { grid-template-columns: 1fr; }
+@media (max-width: 1000px) { .g3, .g2, .g3.two { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(30,39,97,.08); min-width: 0; }
+.card.mb { margin-bottom: 16px; }
+.card h2 { margin: 0 0 10px; font-size: 15px; color: var(--navy); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.card h2 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.note { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+.hide { display: none !important; }
+
+/* hero */
+.lab { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.big { font-size: 38px; font-weight: 700; color: var(--navy); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.mid { font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1.15; font-variant-numeric: tabular-nums; }
+.chg { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 12px; margin-top: 12px; font-size: 13px; }
+.kv div span { display: block; font-size: 11px; color: var(--muted); }
+.kv div b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.range { margin-top: 12px; font-size: 11px; color: var(--muted); }
+.range .bar { position: relative; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--bad), var(--gold), var(--good)); margin: 4px 0; opacity: .85; }
+.range .bar i { position: absolute; top: -4px; width: 3px; height: 14px; background: var(--ink); border-radius: 2px; }
+.range .ends { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.expbox { background: var(--cream); border-radius: 8px; padding: 10px 12px; margin: 6px 0 8px; }
+.gap { font-weight: 700; font-size: 14px; margin-top: 4px; }
+.count { font-size: 13px; color: var(--ink2); }
+.count b { color: var(--navy); font-variant-numeric: tabular-nums; }
+.lines { margin-top: 12px; font-size: 13px; line-height: 1.8; }
+
+/* controls */
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 6px; overflow: hidden; flex-wrap: wrap; }
+.seg button { border: 0; border-radius: 0; padding: 4px 10px; background: transparent; color: var(--ink); font-size: 12px; }
+.seg button + button { border-left: 1px solid var(--grid); }
+.seg button.on { background: var(--navy-solid); color: #fff; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; font-size: 12px; }
+.ctl label { display: inline-flex; gap: 4px; align-items: center; cursor: pointer; color: var(--ink2); }
+.ctl label i { display: inline-block; width: 16px; height: 3px; border-radius: 2px; }
+.chart { height: 430px; border: 1px solid var(--grid); border-radius: 6px; position: relative; }
+.chart.sm { height: 140px; margin-top: 6px; }
+.plabel { position: absolute; top: 6px; left: 8px; z-index: 4; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink); background: var(--surface); opacity: .92; padding: 2px 8px; border-radius: 4px; pointer-events: none; max-width: calc(100% - 90px); }
+.plabel:empty { display: none; }
+.plabel b { font-variant-numeric: tabular-nums; }
+.plabel i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 5px; border-radius: 2px; }
+.chartmsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--muted); font-size: 13px; z-index: 3; pointer-events: none; }
+.legend { font-size: 11px; color: var(--muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 4px; border-radius: 2px; }
+.loginbar { background: var(--cream); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+
+/* tables */
+.tw { overflow: auto; border: 1px solid var(--grid); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 6px 9px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th { background: var(--navy-solid); color: #fff; border-bottom: 3px solid var(--gold); font-weight: 600; font-size: 12px; position: sticky; top: 0; }
+th:first-child, td:first-child { text-align: left; }
+td { border-bottom: 1px solid var(--grid); }
+td:first-child { color: var(--navy); font-weight: 600; }
+td.l { text-align: left; white-space: normal; }
+tbody tr:nth-child(even) { background: var(--row-alt); }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.tag.b { background: rgba(46,125,50,.14); color: var(--good); } .tag.s { background: rgba(179,38,30,.13); color: var(--bad); } .tag.n { background: rgba(107,114,128,.15); color: var(--muted); }
+.verdict { font-size: 18px; font-weight: 700; margin: 4px 0 8px; }
+.strip { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; font-size: 12px; }
+.strip span { border: 1px solid var(--grid); border-radius: 6px; padding: 3px 8px; }
+.heat td { padding: 4px 6px; font-size: 12px; }
+.lv { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .lv { grid-template-columns: 1fr; } .kv { grid-template-columns: repeat(2, minmax(0,1fr)); } .big { font-size: 30px; } }
+tr.here td { background: var(--cream) !important; font-weight: 700; }
+
+/* weather */
+.wtiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+@media (max-width: 700px) { .wtiles { grid-template-columns: 1fr; } }
+.wt { border: 1px solid var(--grid); border-radius: 8px; padding: 10px 12px; }
+.wt .h { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.wt .v { font-size: 20px; font-weight: 700; margin: 2px 0; }
+.wt ul { margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: var(--ink2); }
+.imp-bull { color: var(--good); } .imp-bear { color: var(--bad); } .imp-neu { color: var(--muted); }
+
+/* news + faq */
+.news { list-style: none; margin: 0; padding: 0; }
+.news li { padding: 8px 0; border-bottom: 1px solid var(--grid); display: flex; gap: 12px; align-items: baseline; }
+.news li span { color: var(--muted); font-size: 12px; white-space: nowrap; min-width: 82px; }
+.news a { text-decoration: none; color: var(--ink); }
+.news a:hover { color: var(--navy); text-decoration: underline; }
+.news em { font-style: normal; color: var(--gold-ink); font-size: 12px; margin-left: 6px; }
+.news .ntag { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--navy); background: var(--cream); border-radius: 4px; padding: 0 5px; margin-left: 6px; }
+/* news type filters (21-Nov-2026) */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.chips button { border: 1px solid var(--axis); background: var(--surface); color: var(--ink); border-radius: 16px; padding: 4px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.chips button b { font-weight: 400; color: var(--muted); margin-left: 4px; font-size: 12px; }
+.chips button.on { background: var(--navy-solid); color: #fff; border-color: var(--navy-solid); }
+.chips button.on b { color: #E8A317; }
+#commView .card, #heroBox { scroll-margin-top: 12px; }
+details { border-bottom: 1px solid var(--grid); padding: 8px 0; }
+summary { cursor: pointer; font-weight: 600; color: var(--navy); }
+details p, details ul { margin: 6px 0 2px; color: var(--ink2); font-size: 13px; }
+footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--navy-solid); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 50; }
+.toast.show { opacity: 1; }
+
+/* export image (title+date header, no section headings, disclaimer + company + SEBI) */
+#shot { position: fixed; left: -3000px; top: 0; width: 1000px; background: #F4F6FA; color: #1F2937; font-family: "Century Gothic", CenturyGothic, sans-serif; }
+#shot .sh { background: #1E2761; color: #fff; border-bottom: 4px solid #E8A317; padding: 14px 22px; display: flex; align-items: center; gap: 18px; }
+#shot .sh img { height: 46px; }
+#shot .sh h3 { margin: 0; font-size: 24px; } #shot .sh div { font-size: 14px; opacity: .85; }
+#shot .sb { padding: 18px 22px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+#shot .bx { background: #fff; border-top: 3px solid #E8A317; border-radius: 8px; padding: 12px 14px; }
+#shot .bx .l { font-size: 12px; color: #6B7280; text-transform: uppercase; }
+#shot .bx .v { font-size: 28px; font-weight: 700; color: #1E2761; }
+#shot .bx .c { font-size: 15px; font-weight: 600; }
+#shot .bx .s { font-size: 12px; color: #4B5563; margin-top: 4px; }
+#shot table th { position: static; }
+#shot .sf { padding: 0 22px 16px; font-size: 11px; color: #4B5563; line-height: 1.5; }
+/* ------------------------------------------------------------ phone / tablet (21-Nov-2026, user: "mobile responsive") */
+.mob { display: none !important; }
+.shade { display: none; }
+@media (max-width: 1100px) {
+  /* commodity menu slides in from the left (☰); "jump to" = one drop-down that stays on top */
+  .mob { display: inline-flex !important; }
+  #btnMenu, #btnMore { align-items: center; justify-content: center; font-size: 20px; line-height: 1; width: 40px; height: 36px; padding: 0; border-color: var(--navy); color: var(--navy); }
+  .layout { display: block; }
+  .side { position: fixed; left: 0; top: 0; bottom: 0; width: 270px; height: 100%; z-index: 60; transform: translateX(-105%); transition: transform .2s ease;
+          box-shadow: 4px 0 18px rgba(0,0,0,.18); border-right: 3px solid var(--gold); }
+  .side.open { transform: none; }
+  .side a { padding: 9px 18px 9px 24px; font-size: 15px; }
+  .shade.open { display: block; position: fixed; inset: 0; background: rgba(15,20,40,.38); z-index: 55; }
+  .mbody { display: block; padding-left: 0; }
+  .jrail { display: none !important; }
+  .jsel { position: sticky; top: 0; z-index: 20; display: flex !important; padding: 6px 12px; background: var(--page); border-bottom: 1px solid var(--grid); }
+  .jsel.hide { display: none !important; }
+  .jsel select { width: 100%; padding: 8px 10px; font-size: 14px; border: 1px solid var(--gold); border-radius: 8px; color: var(--navy); font-weight: 600; background: var(--surface); }
+  #commView .card, #heroBox { scroll-margin-top: 58px; }
+}
+@media (max-width: 700px) {
+  /* phone: small header (buttons behind ⋯), tighter cards, shorter charts, smaller tables, bigger touch buttons */
+  .hdr .in { padding: 8px 10px; gap: 6px 8px; }
+  .hdr img.logo { height: 30px; }
+  .hdr h1 { font-size: 16px; }
+  .hdr .sub { display: none; }
+  .hdr .clock { font-size: 11px; } .hdr .clock b { font-size: 14px; }
+  .hdr .sp { display: none; }
+  .hbtns { display: none; width: 100%; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+  .hbtns.open { display: flex; }
+  .hbtns button, .hbtns label { flex: 1 1 45%; padding: 8px; }
+  .wrap { padding: 10px 10px 40px; }
+  .card { padding: 10px 12px; border-radius: 8px; }
+  .card h2 { font-size: 14px; }
+  .chart { height: 300px; } .chart.sm { height: 96px; }
+  .ctl { gap: 6px 8px; font-size: 11px; }
+  .seg button { padding: 6px 8px; font-size: 12px; }
+  th, td { padding: 5px 6px; font-size: 12px; }
+  .big { font-size: 28px; } .mid { font-size: 22px; }
+  .kv { gap: 4px 10px; font-size: 12px; }
+  .news li { flex-direction: column; gap: 2px; }
+  .chips button { padding: 6px 12px; }
+  .ticker .tk { font-size: 12px; }
+  footer { padding: 0 10px 24px; }
+}
+@media (min-width: 701px) { .hbtns { display: contents; } }
+/* computer: header in ONE line (21-Nov-2026: Save image / WhatsApp dropped to a 2nd line) - long sub-line is cut with "…" */
+@media (min-width: 1101px) {
+  .hdr .in { max-width: none; flex-wrap: nowrap; padding: 10px 20px; }
+  .hdr .ttl { flex: 1 1 auto; min-width: 0; }
+  .hdr .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hdr .sp { display: none; }
+  .hdr button, .hdr label, .hdr .clock { white-space: nowrap; flex: none; }
+}
+/* copy / download image buttons on every card (21-Nov-2026, user) */
+#commView .card { position: relative; }
+#commView .card > h2 { padding-right: 64px; }
+.cardx { position: absolute; top: 6px; right: 8px; display: flex; gap: 4px; z-index: 4; }
+.cardx button { width: 26px; height: 24px; padding: 0; font-size: 13px; line-height: 1; border: 1px solid var(--axis); border-radius: 6px; background: var(--surface); color: var(--navy); cursor: pointer; opacity: .75; }
+.cardx button:hover { opacity: 1; border-color: var(--gold); background: var(--cream); }
+/* arbitrage table: the "Read" column keeps its width (it was squeezed into tall rows on a phone); phone hides 3 helper columns */
+#arbTbl td:last-child { min-width: 240px; white-space: normal; }
+#arbTbl .tag { white-space: nowrap; }
+@media (max-width: 700px) {
+  #arbTbl th:nth-child(3), #arbTbl td:nth-child(3), #arbTbl th:nth-child(7), #arbTbl td:nth-child(7), #arbTbl th:nth-child(10), #arbTbl td:nth-child(10) { display: none; }
+  #arbTbl td:last-child { min-width: 200px; }
+}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1E2761">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KEDIA Live">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+</head>
+<body>
+<div class="hdr"><div class="in">
+  <!-- phone / tablet (21-Nov-2026): ☰ opens the commodity menu, ⋯ shows the buttons -->
+  <button id="btnMenu" class="mob" aria-label="Commodity list">☰</button>
+  <img class="logo" id="logo" alt="KEDIA ADVISORY">
+  <div class="ttl"><h1 id="title">Commodity <span>Live</span></h1><div class="sub" id="subTitle"></div></div>
+  <div class="sp"></div>
+  <div class="clock"><b id="clock">--:--:--</b><div><span id="pEx" class="pill off">—</span> <span id="pIntl" class="pill off hide">—</span></div></div>
+  <button id="btnMore" class="mob" aria-label="More buttons">⋯</button>
+  <div class="hbtns" id="hBtns">
+    <label style="font-size:12px">Refresh <select id="refSel"><option value="5">5 s</option><option value="10">10 s</option><option value="30" selected>30 s</option><option value="60">1 min</option><option value="0">Off</option></select></label>
+    <button id="btnPdf">Download PDF</button>
+    <button id="btnImg">Save image</button>
+    <button id="btnWa">Copy WhatsApp text</button>
+  </div>
+</div></div>
+<div class="layout">
+<!-- 21-Nov-2026 (user): commodity menu as a vertical list on the left, grouped by complex (phone / tablet: slides in from the left) -->
+<nav class="side" id="tabs"></nav>
+<div class="shade" id="sideShade"></div>
+<div class="main">
+<div class="ticker"><div class="track" id="track"></div></div>
+<div id="cloudBar" class="hide" style="background:var(--cream);color:var(--ink);font-size:12px;padding:5px 16px;text-align:center"></div>
+
+<div class="mbody">
+<!-- 21-Nov-2026 (user, like sgxnifty.org, marked on his screenshot): "Jump to" box in the empty space LEFT of the price boxes -->
+<aside class="jrail" id="jumpBar"></aside>
+<!-- phone / tablet: the same "jump to" list as one small drop-down that stays on top -->
+<div class="jsel mob" id="jumpSelBox"><select id="jumpSel" aria-label="Go to part of the page"></select></div>
+<div class="wrap">
+  <div class="card mb" id="srvBanner" style="display:none;border-top-color:var(--bad)"><h2>Could not load the data</h2><p>Google did not answer. Please reload the page in a minute.</p></div>
+
+  <div id="commView">
+  <!-- hero -->
+  <div class="grid g3" id="heroBox">
+    <div class="card">
+      <div class="lab"><span id="futLab">—</span> <span id="futContract"></span> · <span id="futUnit"></span></div>
+      <div class="big" id="fLtp">—</div>
+      <div class="chg" id="fChg">&nbsp;</div>
+      <div class="kv">
+        <div><span>Open</span><b id="fO">—</b></div><div><span>High</span><b id="fH">—</b></div>
+        <div><span>Low</span><b id="fL">—</b></div><div><span>Prev close</span><b id="fP">—</b></div>
+        <div><span>Volume (lots)</span><b id="fV">—</b></div><div><span>Open interest</span><b id="fOI">—</b></div>
+        <div><span>52-week high</span><b id="f52h">—</b></div><div><span>52-week low</span><b id="f52l">—</b></div>
+      </div>
+      <div class="range"><span>Day range</span><div class="bar"><i id="rngMk" style="left:50%"></i></div><div class="ends"><span id="rngL">—</span><span id="rngH">—</span></div></div>
+      <div class="note" id="futNote"></div>
+    </div>
+    <div class="card" id="box2">
+      <div class="lab" id="b2Lab">—</div>
+      <div class="mid" id="b2Ltp">—</div>
+      <div class="chg" id="b2Chg">&nbsp;</div>
+      <div class="kv" id="b2Kv"></div>
+      <div class="lines" id="b2Lines"></div>
+    </div>
+    <div class="card" id="box3">
+      <div class="lab" id="b3Lab">—</div>
+      <div class="expbox">
+        <div class="mid" id="b3Val">—</div>
+        <div class="chg" id="b3Chg">&nbsp;</div>
+        <div class="gap" id="b3Gap"></div>
+      </div>
+      <div class="count" id="b3Count"></div>
+      <div class="note" id="b3Note"></div>
+    </div>
+  </div>
+
+  <div class="card mb hide" id="ecoCard">
+    <h2>Important economic data – what it means for <span id="ecoFor">gold</span> <small id="ecoInfo"></small></h2>
+    <div class="expbox" id="ecoSum"></div>
+    <div class="tw" style="margin-bottom:12px"><table id="ecoNext"></table></div>
+    <div class="tw"><table id="ecoDone"></table></div>
+    <div class="note" id="ecoNote"></div>
+  </div>
+
+  <!-- 21-Nov-2026 (user): base metals arbitrage - LME, Shanghai, MCX and carry yield for all base metals -->
+  <div class="card mb hide" id="arbCard">
+    <h2>Base metals arbitrage – LME · Shanghai · MCX <small id="arbInfo"></small>
+      <small>funding cost <input type="number" id="arbFund" value="7" step="0.5" min="0" max="25" style="width:60px"> % a year</small></h2>
+    <div class="tw"><table id="arbTbl"></table></div>
+    <div class="note" id="arbNote"></div>
+  </div>
+
+  <div id="chartsBox"></div>
+
+  <div class="grid g2">
+    <div class="card" id="techCard">
+      <h2>Technical summary <small id="techSrc"></small>
+        <span class="seg" id="tTf"><button data-v="60">1H</button><button data-v="120">2H</button><button data-v="240">4H</button><button data-v="D" class="on">Daily</button><button data-v="W">Weekly</button><button data-v="M">Monthly</button></span></h2>
+      <div class="strip" id="techStrip"></div>
+      <div class="verdict" id="techVerdict">—</div>
+      <div class="tw"><table id="techTbl"></table></div>
+      <div class="note" id="techNote"></div>
+    </div>
+    <div class="card" id="lvCard">
+      <h2>Key levels <small id="lvInfo"></small></h2>
+      <div class="lv">
+        <div class="tw"><table id="pivTbl"></table></div>
+        <div class="tw"><table id="fibTbl"></table></div>
+      </div>
+      <div class="note">Pivots from the last finished session (classic: P = (H+L+C)/3). Fibonacci levels from the 52-week high and low of the near-month series.</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card" id="momCard">
+      <h2>Momentum &amp; volatility <small id="momSrc"></small>
+        <span class="seg" id="mTf"><button data-v="60">1H</button><button data-v="120">2H</button><button data-v="240">4H</button><button data-v="D" class="on">Daily</button><button data-v="W">Weekly</button><button data-v="M">Monthly</button></span></h2>
+      <div class="tw"><table id="momTbl"></table></div>
+      <div class="note">Expected move = 1 standard deviation of the last 20 bars. About 2 times in 3 the price stays inside this range. Not a forecast.</div>
+    </div>
+    <div class="card" id="retCard">
+      <h2>Returns</h2>
+      <div class="tw"><table id="retTbl"></table></div>
+      <div class="note" id="retNote"></div>
+    </div>
+  </div>
+
+  <div class="card mb hide" id="weatherCard">
+    <h2>Weather in the main growing areas – expected price impact <small id="wInfo"></small></h2>
+    <div class="wtiles" id="wTiles"></div>
+    <div class="tw"><table id="wTbl"></table></div>
+    <div class="note" id="wNote"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card" id="crossCard">
+      <h2>Compared with other markets <small>today + 60-day link</small></h2>
+      <div class="tw"><table id="crossTbl"></table></div>
+      <div class="note">Link = correlation of daily % moves over the last 60 days (+1 = move together, −1 = move opposite).</div>
+    </div>
+    <div class="card hide" id="parityCard">
+      <h2><span id="parTitle">MCX vs import parity</span> <small>import duty <input type="number" id="duty" value="15" step="0.25" min="0" max="30" style="width:64px"> %</small></h2>
+      <div class="tw"><table id="parTbl"></table></div>
+      <div class="note" id="parNote"></div>
+    </div>
+    <div class="card hide" id="basisCard">
+      <h2>Spot vs futures (basis)</h2>
+      <div class="tw"><table id="basisTbl"></table></div>
+      <div class="note">Basis = spot − futures. Negative basis = futures above spot (normal carry); positive = spot tighter than futures.</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card" id="curveCard">
+      <h2><span id="curveTitle">All expiries</span> <small>contango / carry</small></h2>
+      <div class="tw"><table id="curveTbl"></table></div>
+      <div class="note">Carry % a year = (far price ÷ near price − 1) × 365 ÷ days between expiries.</div>
+    </div>
+    <div class="card" id="famCard">
+      <h2 id="famTitle">Contracts</h2>
+      <div class="tw"><table id="famTbl"></table></div>
+      <div class="note" id="famNote"></div>
+    </div>
+  </div>
+
+  <div class="card mb hide" id="arrCard">
+    <h2>Mandi arrivals &amp; price – synopsis <small id="arrInfo"></small></h2>
+    <div class="expbox" id="arrSyn"></div>
+    <div class="wtiles" id="arrTiles"></div>
+    <div class="chart" id="arrChart" style="height:260px"><div class="plabel" id="lbArr"></div></div>
+    <div class="grid g2" style="margin:12px 0 0">
+      <div class="tw"><table id="arrWeeks"></table></div>
+      <div class="tw"><table id="arrStates"></table></div>
+    </div>
+    <div class="note">Source: Agmarknet mandi reports (all India, state-wise), from the KEDIA Agmarknet Arrivals job. Normal = average of the same dates in the last 5 years. Modal price is arrival-weighted, ₹ per quintal.</div>
+  </div>
+
+  <!-- 21-Nov-2026 (user): India exports & imports (Commerce Ministry, monthly by HS code) - like the arrivals card -->
+  <div class="card mb hide" id="trCard">
+    <h2><span id="trTitle">Exports &amp; imports</span> <small id="trInfo"></small>
+      <span class="seg" id="trFlow"><button data-v="export" class="on">Exports</button><button data-v="import">Imports</button></span></h2>
+    <div class="expbox" id="trSyn"></div>
+    <div class="wtiles" id="trTiles"></div>
+    <div class="chart" id="trChart" style="height:260px"><div class="plabel" id="lbTr"></div></div>
+    <div class="grid g2" style="margin:12px 0 0">
+      <div class="tw"><table id="trTbl"></table></div>
+      <div class="tw"><table id="trCty"></table></div>
+    </div>
+    <div class="note" id="trNote"></div>
+  </div>
+
+  <div id="seasonsBox"></div>
+
+  <!-- 21-Nov-2026 (user): this commodity's news with type filters, just above "About" (About stays last) -->
+  <div class="card mb" id="newsCard">
+    <h2><span id="ncTitle">News</span> <small id="ncInfo"></small></h2>
+    <div class="chips" id="ncChips"></div>
+    <ul class="news" id="ncList"><li><span></span>Loading…</li></ul>
+  </div>
+  <div class="card mb" id="aboutCard">
+    <h2 id="faqTitle">About</h2>
+    <div id="faq"></div>
+  </div>
+  </div>
+  <div id="newsView" class="hide"></div>
+  <div id="spotView" class="hide">
+    <div class="card mb">
+      <h2>NCDEX spot prices – all commodities <small id="spInfo"></small>
+        <input id="spQ" placeholder="Search commodity or centre" style="margin-left:auto;min-width:200px"></h2>
+      <div class="expbox" id="spSum"></div>
+      <div class="tw"><table id="spTbl"></table></div>
+      <div class="note" id="spNote"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer>
+  <b>Disclaimer:</b> This page is for information only. It is not a buy or sell recommendation. Prices come from TradingView (some are delayed), MCX / NCDEX bhavcopies and Open-Meteo weather, and may have errors. Trade at your own risk.<br>
+  <b>KEDIA ADVISORY</b> · Kedia Stocks and Commodities Research Pvt Ltd · SEBI Research Analyst Reg. No. INH000006156
+</footer>
+</div>
+</div>
+
+<div id="shot"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ------------------------------------------------------------ helpers */
+const $ = id => document.getElementById(id);
+const IST = 19800;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+/* PD = price decimals of the open commodity (S[ck].dec: natural gas 1, copper 2, most 0) - the default for every price number;
+   counts (volume, OI, tonnes) pass 0 themselves */
+let PD = 0;
+const nf = (v, d = PD, loc = 'en-IN') => v == null || isNaN(v) ? '—' : Number(v).toLocaleString(loc, { minimumFractionDigits: d, maximumFractionDigits: d });
+const sgn = v => v > 0 ? '+' : '';
+const cls = v => v > 0 ? 'up' : v < 0 ? 'dn' : 'na';
+const arrow = v => v > 0 ? '▲' : v < 0 ? '▼' : '•';
+const pc = (v, d = 2) => v == null || isNaN(v) ? '—' : sgn(v) + v.toFixed(d) + '%';
+const cell = (v, d = 2, suf = '%', loc) => v == null || isNaN(v) ? '<td class="na">—</td>' : `<td class="${cls(v)}">${sgn(v)}${nf(v, d, loc)}${suf}</td>`;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+/* opened as a file (double-click on Gold Live.html): talk to the server on 127.0.0.1:8898 instead */
+const BASE = '';
+/* Google version: every data call goes to Code.gs api(path) */
+/* APP version: data straight from the Google web app (same data as the Google page) */
+const API_URL = 'https://script.google.com/macros/s/AKfycbzq9mNbXAyGSI42_WJ4yheS4eDZF7Wg1yjyts9Qm73M1u25aXIM3OdRewQ1HA6IA_Hs/exec';
+const api = async p => { const r = await fetch(API_URL + '?api=' + encodeURIComponent(p), { cache: 'no-store' }); if (!r.ok) throw new Error(p.split('?')[0] + ' ' + r.status); const j = await r.json(); if (j && j.__error) throw new Error(j.__error); return j; };
+const dstr = t => new Date(t * 1000).toISOString().slice(0, 10);
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2400); }
+function segInit(id, fn) {
+  const el = $(id);
+  el.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); fn(b.dataset.v); });
+}
+function segSet(id, v) { $(id).querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.v === v)); }
+function fmtDate(s) { const [Y, M, Dd] = s.slice(0, 10).split('-'); return Dd + '-' + MON[+M - 1] + '-' + Y; }
+function fmtDT(s) { if (!s) return '—'; const [d, t] = s.split(' '); const [Y, M, Dd] = d.split('-'); let [h, mi] = t.split(':'); h = +h; return `${+Dd} ${MON[+M - 1]} ${((h + 11) % 12) + 1}:${mi} ${h >= 12 ? 'PM' : 'AM'}`; }
+$('logo').src = window.KEDIA_LOGO || '';
+
+/* ------------------------------------------------------------ per-commodity page settings (server side: COMM in gold_server.py) */
+const CFG = {
+  GOLD: { tab: 'Gold', title: 'Gold <span>Live</span>', sub: 'MCX Gold · Spot &amp; COMEX · charts · technicals · levels · parity', fut: 'MCX Gold',
+    src: [['fut', 'MCX ₹'], ['intl', 'Spot $']], chartTitles: ['MCX Gold – ₹ per 10 g', 'Spot Gold (XAU/USD) – $ per oz'], src2: 'intl', src2Name: 'Spot $', loc2: 'en-US', dec2: 2, techName: 'MCX Gold, near month',
+    retNote: 'MCX = near-month futures in rupees (includes the rupee move). Spot = international price in dollars.',
+    faq: `<details open><summary>What is MCX Gold?</summary><p>Gold futures on the Multi Commodity Exchange of India, priced in rupees per 10 grams of <b>995</b> purity gold. Gold (1 kg) and Gold Mini (100 g) are 995; Gold Ten (10 g) and Gold Petal (1 g) are 999; Gold Guinea (8 g) is 916 (22 carat).</p></details>
+      <details><summary>MCX and COMEX trading hours (IST)</summary><ul><li>MCX: Monday to Friday, 9:00 AM to 11:30 PM (US summer) or 11:55 PM (US winter, Nov to Mar).</li><li>COMEX gold (CME Globex): almost 23 hours a day on weekdays — about 4:30 AM to 3:30 AM next day in US winter, 3:30 AM to 2:30 AM in US summer.</li><li>Spot gold (XAU/USD) trades round the clock on weekdays.</li></ul></details>
+      <details><summary>How is the expected opening worked out?</summary><p>Expected = last MCX close (settlement) × (spot gold now ÷ spot gold at MCX close) × (USDINR now ÷ USDINR at MCX close). Same method as the KEDIA Expected Opening page.</p></details>
+      <details><summary>What moves the gold price?</summary><ul><li>US dollar and US bond yields: when they fall, gold usually rises.</li><li>Central bank buying, ETF flows, war and crisis news.</li><li>For MCX: the rupee (USDINR) and import duty.</li><li>US data: CPI, jobs report, Fed rate decisions.</li></ul></details>
+      <details><summary>Why is MCX different from spot × USDINR?</summary><p>MCX adds import duty, the cost of carry till expiry and the local premium or discount. See "MCX vs import parity".</p></details>` },
+  DHANIYA: { tab: 'Dhaniya', title: 'Dhaniya <span>Live</span>', sub: 'NCDEX Dhaniya (coriander) · Kota / Gondal / Jaipur spot · crop weather impact · charts · levels · news', fut: 'NCDEX Dhaniya',
+    src: [['fut', 'NCDEX futures'], ['spot', 'Kota spot']], chartTitles: ['NCDEX Dhaniya futures – ₹ per quintal', 'Dhaniya Kota spot – ₹ per quintal'], src2: 'spot', src2Name: 'Kota spot', loc2: 'en-IN', dec2: 0, techName: 'NCDEX Dhaniya, near month',
+    retNote: 'Futures = NCDEX near month. Spot = NCDEX spot price of that centre.',
+    faq: `<details open><summary>What is NCDEX Dhaniya?</summary><p>Coriander seed futures on the National Commodity &amp; Derivatives Exchange, priced in rupees per quintal. Kota (Rajasthan) is the main price centre; Gondal (Gujarat) and Jaipur spot prices are shown too. Check NCDEX for the current lot size and delivery centres.</p></details>
+      <details><summary>Trading hours</summary><p>NCDEX agri futures: Monday to Friday, 9:00 AM to 5:00 PM.</p></details>
+      <details><summary>Crop calendar</summary><ul><li>Sowing: October – November (rabi crop).</li><li>Growing: December; flowering and seed setting: January.</li><li>Harvest and new-crop arrivals: February – April (peak March).</li><li>Main states: Madhya Pradesh (Guna, Shajapur), Gujarat (Rajkot, Junagadh), Rajasthan (Kota, Baran, Jhalawar).</li></ul></details>
+      <details><summary>How is the weather impact worked out?</summary><p>For each main district the page takes the 16-day forecast and the ECMWF seasonal outlook (days 17–30), compares rain and temperature with normal, and applies simple crop rules for the current stage: frost, unseasonal rain and humidity (disease), heat at flowering and rain at harvest are bullish (crop damage = less supply); normal weather means a good crop outlook, which is mildly bearish. Districts are weighted by their state's share of production. Weather is one factor only — arrivals, stocks, sowing area and exports also move the price.</p></details>
+      <details><summary>What moves the dhaniya price?</summary><ul><li>Sowing area and crop weather (frost, unseasonal rain).</li><li>Arrivals in Kota, Ramganj, Gondal and Guna mandis.</li><li>Carry-forward stocks and NCDEX warehouse stock.</li><li>Export demand and spice-trade buying before festivals.</li></ul></details>` },
+};
+let S = null, ck = 'GOLD', C = CFG.GOLD;
+/* commodities without a hand-made CFG entry (21-Nov-2026: Silver, Crude, Natural Gas, Copper, Turmeric, Jeera, Castor, Guar):
+   labels made from the server list (gold_server.py COMM: name, exch, intl, spots, sub, faq) */
+function autoCfg() {
+  Object.keys(S).forEach(k => {
+    if (CFG[k]) return;
+    const c = S[k], I = c.intl, sp = (c.spots || [])[0], unitW = c.unit.replace('₹/', '₹ per ');
+    if (c.spotOnly) {
+      /* 21-Nov-2026: spot-only tab (no NCDEX futures) - main price = spot of the first centre (Google: mandi price / world price) */
+      const main = c.mainLabel || `${c.name} ${c.mainName}`, iu = I ? I.unit.replace('$/', '$ per ').replace('¢/', '¢ per ') : '';
+      CFG[k] = { tab: c.name, title: '', sub: c.sub || '', fut: main,
+        src: [['fut', c.mainName]].concat(I ? [['intl', I.name.replace(' futures', '')]] : sp ? [['spot', sp[0]]] : []),
+        chartTitles: [`${main} – ${unitW}`].concat(I ? [`${I.name} – ${iu}`] : sp ? [`${c.name} ${sp[0]} – ${unitW}`] : []),
+        src2: I ? 'intl' : sp ? 'spot' : null, src2Name: I ? I.name.replace(' futures', '') : (sp ? sp[0] : ''), loc2: I ? 'en-US' : 'en-IN', dec2: I ? (I.dec == null ? 2 : I.dec) : 0,
+        techName: main, retNote: `${main} = ${c.mandi ? 'Agmarknet mandi modal price' : 'NCDEX polled spot price'}.` + (I ? ` ${I.name} = international price.` : sp ? ` ${sp[0]} = NCDEX spot of that centre.` : ''),
+        faq: c.faq || '' };
+      return;
+    }
+    CFG[k] = { tab: c.name, title: '', sub: c.sub || '', fut: c.exch + ' ' + c.name,
+      /* no international price and no spot (e.g. Mentha Oil): one chart, one seasonality card, no second price box */
+      src: I ? [['fut', c.exch + ' ₹'], ['intl', I.name.split(' (')[0] + ' $']] : sp ? [['fut', c.exch + ' futures'], ['spot', sp[0]]] : [['fut', c.exch + ' futures']],
+      chartTitles: I ? [`${c.exch} ${c.name} – ${unitW}`, `${I.name} – ${I.unit.replace('$/', '$ per ')}`] : sp ? [`${c.exch} ${c.name} futures – ${unitW}`, `${c.name} ${sp[0]} – ${unitW}`] : [`${c.exch} ${c.name} futures – ${unitW}`],
+      src2: I ? 'intl' : sp ? 'spot' : null, src2Name: I ? I.name.split(' (')[0] : (sp ? sp[0] : ''), loc2: I ? 'en-US' : 'en-IN', dec2: I ? (I.dec == null ? 2 : I.dec) : 0,
+      techName: `${c.exch} ${c.name}, near month`,
+      retNote: I ? `${c.exch} = near-month futures in rupees (includes the rupee move). ${I.name} = international price in dollars.` : `Futures = ${c.exch} near month. Spot = ${c.exch} spot price of that centre.`,
+      faq: c.faq || '' };
+  });
+}
+
+/* ------------------------------------------------------------ indicators */
+function sma(a, n) { const o = Array(a.length).fill(null); let s = 0; for (let i = 0; i < a.length; i++) { s += a[i]; if (i >= n) s -= a[i - n]; if (i >= n - 1) o[i] = s / n; } return o; }
+function ema(a, n) { const o = Array(a.length).fill(null), k = 2 / (n + 1); let e = null;
+  for (let i = 0; i < a.length; i++) { if (i === n - 1) { e = a.slice(0, n).reduce((x, y) => x + y, 0) / n; o[i] = e; } else if (i >= n) { e = a[i] * k + e * (1 - k); o[i] = e; } } return o; }
+function rsi(a, n = 14) { const o = Array(a.length).fill(null); let g = 0, l = 0;
+  for (let i = 1; i < a.length; i++) { const d = a[i] - a[i - 1], up = Math.max(d, 0), dn = Math.max(-d, 0);
+    if (i <= n) { g += up; l += dn; if (i === n) { g /= n; l /= n; o[i] = l === 0 ? 100 : 100 - 100 / (1 + g / l); } }
+    else { g = (g * (n - 1) + up) / n; l = (l * (n - 1) + dn) / n; o[i] = l === 0 ? 100 : 100 - 100 / (1 + g / l); } } return o; }
+function macd(a) { const f = ema(a, 12), s = ema(a, 26), m = a.map((_, i) => f[i] != null && s[i] != null ? f[i] - s[i] : null);
+  const first = m.findIndex(v => v != null), sig = Array(a.length).fill(null);
+  if (first >= 0) { const e = ema(m.slice(first), 9); e.forEach((v, i) => sig[first + i] = v); }
+  return { m, sig, h: m.map((v, i) => v != null && sig[i] != null ? v - sig[i] : null) }; }
+function bb(a, n = 20, k = 2) { const mid = sma(a, n), up = [], lo = [];
+  for (let i = 0; i < a.length; i++) { if (mid[i] == null) { up.push(null); lo.push(null); continue; }
+    let s = 0; for (let j = i - n + 1; j <= i; j++) s += (a[j] - mid[i]) ** 2; const sd = Math.sqrt(s / n); up.push(mid[i] + k * sd); lo.push(mid[i] - k * sd); }
+  return { mid, up, lo }; }
+function atr(b, n = 14) { const tr = b.map((x, i) => i ? Math.max(x.h - x.l, Math.abs(x.h - b[i - 1].c), Math.abs(x.l - b[i - 1].c)) : x.h - x.l);
+  let a = null; const o = []; for (let i = 0; i < tr.length; i++) { if (i === n - 1) a = tr.slice(0, n).reduce((x, y) => x + y, 0) / n; else if (i >= n) a = (a * (n - 1) + tr[i]) / n; o.push(i >= n - 1 ? a : null); } return o; }
+/* Choppiness Index (TradingView formula): 100 * log10(sum of true range over n / (highest high - lowest low)) / log10(n) */
+function chop(b, n = 14) { const tr = b.map((x, i) => i ? Math.max(x.h, b[i - 1].c) - Math.min(x.l, b[i - 1].c) : x.h - x.l), o = Array(b.length).fill(null);
+  for (let i = n; i < b.length; i++) { let s = 0, hh = -Infinity, ll = Infinity;
+    for (let j = i - n + 1; j <= i; j++) { s += tr[j]; hh = Math.max(hh, b[j].h); ll = Math.min(ll, b[j].l); }
+    if (hh > ll) o[i] = 100 * Math.log10(s / (hh - ll)) / Math.log10(n); } return o; }
+/* RSI divergence like TradingView's built-in: RSI pivots 5 bars left / 5 right, 5 to 60 bars apart.
+   Bullish = price lower low but RSI higher low; bearish = price higher high but RSI lower high (shows 5 bars after the pivot). */
+function pivIdx(a, L, R, low) { const out = [];
+  for (let i = L; i < a.length - R; i++) { const v = a[i]; if (v == null) continue; let ok = true;
+    for (let j = i - L; j <= i + R && ok; j++) { if (j === i || a[j] == null) continue; if (low ? a[j] < v : a[j] > v) ok = false; }
+    if (ok) out.push(i); } return out; }
+function divergences(b, r) {
+  const res = [], lo = pivIdx(r, 5, 5, true), hi = pivIdx(r, 5, 5, false);
+  for (let k = 1; k < lo.length; k++) { const i = lo[k - 1], j = lo[k]; if (j - i >= 5 && j - i <= 60 && r[j] > r[i] && b[j].l < b[i].l) res.push({ t: 'bull', i, j }); }
+  for (let k = 1; k < hi.length; k++) { const i = hi[k - 1], j = hi[k]; if (j - i >= 5 && j - i <= 60 && r[j] < r[i] && b[j].h > b[i].h) res.push({ t: 'bear', i, j }); }
+  return res.sort((a, b) => a.j - b.j);
+}
+function stdev(a) { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); }
+function corr(x, y) { const n = x.length; if (n < 10) return null; const mx = x.reduce((a, b) => a + b, 0) / n, my = y.reduce((a, b) => a + b, 0) / n;
+  let sxy = 0, sx = 0, sy = 0; for (let i = 0; i < n; i++) { sxy += (x[i] - mx) * (y[i] - my); sx += (x[i] - mx) ** 2; sy += (y[i] - my) ** 2; } return sxy / Math.sqrt(sx * sy); }
+function agg(b, tf) {
+  if (tf !== 'W' && tf !== 'M') return b;
+  const out = []; let cur = null, key = null;
+  for (const x of b) { const d = new Date(x.time * 1000);
+    let k; if (tf === 'M') k = d.getUTCFullYear() * 100 + d.getUTCMonth();
+    else { const m = new Date(d); m.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); k = m.toISOString().slice(0, 10); }
+    if (k !== key) { if (cur) out.push(cur); key = k; cur = { time: x.time, o: x.o, h: x.h, l: x.l, c: x.c }; }
+    else { cur.h = Math.max(cur.h, x.h); cur.l = Math.min(cur.l, x.l); cur.c = x.c; } }
+  if (cur) out.push(cur); return out;
+}
+const toBars = a => (a || []).map(r => ({ time: r[0] + IST, o: r[1], h: r[2], l: r[3], c: r[4] }));
+/* daily bars: a stamp later than 09:00 (e.g. NCDEX 09:00 IST session start) is moved to that day's 00:00 so intraday bars of the day sit inside it */
+const normDaily = b => b.map(x => { const s = x.time % 86400; return s >= 9 * 3600 ? { ...x, time: x.time - s } : x; });
+function ticksToBars(tk, step) {
+  /* rows [t, price] (price samples) or [t, o, h, l, c] (small candles, e.g. Google's own 5-minute / 1-hour bars) */
+  const out = []; let cur = null;
+  for (const r of tk) { const t = r[0], o = r.length > 2 ? r[1] : r[1], h = r.length > 2 ? r[2] : r[1], l = r.length > 2 ? r[3] : r[1], c = r.length > 2 ? r[4] : r[1];
+    const k = Math.floor(t / step) * step + IST;
+    if (!cur || cur.time !== k) { if (cur) out.push(cur); cur = { time: k, o, h, l, c }; } else { cur.h = Math.max(cur.h, h); cur.l = Math.min(cur.l, l); cur.c = c; } }
+  if (cur) out.push(cur); return out;
+}
+
+/* ------------------------------------------------------------ data */
+let D = {}; const SC = {};
+function resetData() { D = { live: null, news: [], peers: {}, weather: null, base: null }; }
+resetData();
+const futRow = () => D.live && D.live.fut[S[ck].root];
+const futPrice = () => { const g = futRow(); return g ? g.close : null; };
+const ttlFor = tf => tf === 'D' ? 10 * 60000 : 60000;
+async function getSeries(src, tf) {
+  /* tf: 1 5 15 60 120 240 D W M -> [{time,o,h,l,c}] (W / M built from daily) */
+  const base = (tf === 'W' || tf === 'M') ? 'D' : tf, key = ck + '|' + src + '|' + base;
+  let hit = SC[key];
+  if (!hit || Date.now() - hit.at > ttlFor(base)) {
+    const r = await api(`/api/series?c=${ck}&src=${src}&tf=${base}&n=5000`);
+    let b = toBars(r.bars);
+    if (base === 'D') b = normDaily(b);
+    else if (r.ticks && r.ticks.length) {
+      const tb = ticksToBars(r.ticks, +base * 60), last = b.length ? b[b.length - 1].time : 0;
+      for (const x of tb) { if (x.time > last) b.push(x); else if (x.time === last) { const l = b[b.length - 1]; l.h = Math.max(l.h, x.h); l.l = Math.min(l.l, x.l); l.c = x.c; } }
+    }
+    hit = SC[key] = { at: Date.now(), bars: b, info: r };
+  }
+  let b = hit.bars;
+  if (base === 'D' && src === 'fut') b = withLive(b);
+  if (base === 'D' && src !== 'fut') b = withQuote(b, src);
+  return { bars: agg(b, tf), info: hit.info };
+}
+function withLive(b) {
+  /* add / update today's session from the live futures row */
+  const g = futRow(); b = b.slice();
+  if (g && g.update_time && g.open && g.src === 'live') { const day = dstr(g.update_time + IST), last = b.length ? dstr(b[b.length - 1].time) : '';
+    const bar = { time: Date.parse(day + 'T00:00:00Z') / 1000, o: g.open, h: g.high, l: g.low, c: g.close };
+    if (day > last) b.push(bar); else if (day === last) b[b.length - 1] = bar; }
+  return b;
+}
+/* sign in front of the international price: '$' unless the commodity says otherwise (CBOT ¢ quotes: none, Bursa CPO: 'RM ') */
+const ipre = () => S[ck].intl && S[ck].intl.pre != null ? S[ck].intl.pre : '$';
+function src2Sym() { return C.src2 === 'intl' ? S[ck].intl.sym : (S[ck].spots[0] || [])[1]; }
+function withQuote(b, src) {
+  const q = D.live && D.live.quotes[src === 'intl' ? S[ck].intl.sym : (S[ck].spots[0] || [])[1]];
+  if (q && q.lp && b.length) { b = b.slice(); const l = b[b.length - 1]; b[b.length - 1] = { ...l, c: q.lp, h: Math.max(l.h, q.lp), l: Math.min(l.l, q.lp) }; }
+  return b;
+}
+
+/* ------------------------------------------------------------ tabs */
+function buildTabs() {
+  autoCfg();
+  /* 21-Nov-2026 (user): left menu grouped by complex; a commodity added later and not listed here goes under "Others" */
+  const G = [['Bullion', ['GOLD', 'SILVER']], ['Energy', ['CRUDEOIL', 'NATURALGAS']], ['Base Metals', ['COPPER', 'ZINC', 'ALUMINIUM', 'LEAD', 'NICKEL']],
+    ['Spices', ['DHANIYA', 'JEERA', 'TURMERIC', 'PEPPER', 'MENTHAOIL', 'ISABGOL']], ['Pulses', ['CHANA', 'MOONG', 'MASOOR', 'YELLOWP']],
+    ['Oilseeds &amp; Oils', ['SOYABEAN', 'MUSTARD', 'GROUNDNUT', 'SESAME', 'CASTOR', 'CASTOROIL', 'CPO', 'SOYOIL', 'SUNOIL', 'SOYMEAL']],
+    ['Cereals &amp; Sugar', ['WHEAT', 'PADDY', 'MAIZE', 'BAJRA', 'BARLEY', 'SUGAR']], ['Cotton', ['KAPAS', 'COTTON', 'COCUD', 'COTWASOIL']],
+    ['Guar', ['GUARSEED', 'GUARGUM', 'GUARKORMA']]];
+  const listed = new Set(G.flatMap(g => g[1])), rest = Object.keys(S).filter(k => !listed.has(k));
+  if (rest.length) G.push(['Others', rest]);
+  const link = k => `<a href="#${k.toLowerCase()}" data-c="${k}" class="${k === ck ? 'on' : ''}">${CFG[k].tab}${S[k].spotOnly ? ' <small style="opacity:.6;font-weight:400">spot</small>' : ''}</a>`;
+  /* 21-Nov-2026 (user): search box on top of the menu - typing filters the list, Enter opens the first match */
+  $('tabs').innerHTML = '<div class="msearch"><input id="mSearch" type="search" placeholder="🔍 Search commodity" autocomplete="off"></div>' + G.map(([g, ks]) => { ks = ks.filter(k => S[k] && CFG[k]); return ks.length ? `<span class="tg">${g}</span>` + ks.map(link).join('') : ''; }).join('') +
+    '<span class="tg">More</span><a href="#spot" data-c="SPOT">NCDEX Spot (all)</a><a href="#news" data-c="NEWS">News</a>' +
+    '<div class="mnone" id="mNone" style="display:none">No commodity found</div>';
+  const box = $('mSearch'), nav = $('tabs');
+  const filt = () => {
+    const q = box.value.trim().toLowerCase(); let shown = 0, head = null, headHas = false;
+    const close = () => { if (head) head.style.display = headHas ? '' : 'none'; };
+    for (const el of nav.children) {
+      if (el.classList.contains('tg')) { close(); head = el; headHas = false; continue; }
+      if (el.tagName !== 'A') continue;
+      /* matches the menu name, the group name and the code (e.g. "cocud", "soya", "oil") */
+      const hit = !q || (el.textContent + ' ' + el.dataset.c + ' ' + (head ? head.textContent : '') + ' ' + ((S[el.dataset.c] || {}).full || '')).toLowerCase().includes(q);
+      el.style.display = hit ? '' : 'none'; if (hit) { shown++; headHas = true; }
+    }
+    close(); $('mNone').style.display = shown ? 'none' : '';
+  };
+  box.addEventListener('input', filt);
+  box.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { const q = box.value.trim().toLowerCase(), vis = [...nav.querySelectorAll('a')].filter(x => x.style.display !== 'none');
+      const a = vis.find(x => x.textContent.toLowerCase().startsWith(q)) || vis.find(x => x.textContent.toLowerCase().includes(q)) || vis[0];   /* own name first, then group */
+      if (a) { location.hash = a.getAttribute('href'); box.value = ''; filt(); } }
+    if (e.key === 'Escape') { box.value = ''; filt(); }
+  });
+}
+let view = 'comm';
+function applyTab() {
+  const h = (location.hash || '').slice(1).toUpperCase();
+  const other = h === 'NEWS' || h === 'SPOT';
+  document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.c === (other ? h : (S[h] && CFG[h] ? h : 'GOLD'))));
+  $('commView').classList.toggle('hide', other); $('jumpBar').classList.toggle('hide', other); $('jumpSelBox').classList.toggle('hide', other); $('newsView').classList.toggle('hide', h !== 'NEWS'); $('spotView').classList.toggle('hide', h !== 'SPOT');
+  if (other) {
+    $('track').innerHTML = ''; $('pEx').classList.add('hide'); $('pIntl').classList.add('hide'); $('cloudBar').classList.add('hide');
+    if (h === 'NEWS') { view = 'news'; document.title = 'Commodity News';
+      $('title').innerHTML = 'Commodity <span>News</span>'; $('subTitle').innerHTML = 'Latest news for every commodity on this page · Google News'; loadAllNews(); }
+    else { view = 'spot'; document.title = 'NCDEX Spot';
+      $('title').innerHTML = 'NCDEX <span>Spot</span>'; $('subTitle').innerHTML = 'Spot price of every NCDEX commodity at its delivery centre · from the NCDEX bhavcopy'; loadSpotTab(); }
+    return;
+  }
+  view = 'comm'; $('pEx').classList.remove('hide');
+  ck = S[h] && CFG[h] ? h : 'GOLD'; C = Object.assign({}, CFG[ck]); PD = S[ck].dec || 0;
+  /* spot names come from the server list (desktop: Kota first; Google: Gondal from the NCDEX bhavcopy) */
+  if (C.src2 === 'spot' && S[ck].spots.length) { const sn = S[ck].spots[0][0];
+    C.src = C.src.map(s => s[0] === 'spot' ? ['spot', sn] : s); C.src2Name = sn;
+    C.chartTitles = C.chartTitles.map((t, i) => C.src[i][0] === 'spot' ? `${C.tab} ${sn} – ${S[ck].unit.replace('₹/', '₹ per ')}` : t); }
+  /* 21-Nov-2026 (user): the page is "Commodity Live"; the open commodity is named first in the sub-line */
+  document.title = 'Commodity Live – ' + C.tab;
+  $('title').innerHTML = 'Commodity <span>Live</span>'; $('subTitle').innerHTML = `<b>${C.tab}</b> · ` + C.sub;
+  $('futLab').textContent = C.fut; $('futUnit').textContent = S[ck].unit;
+  /* box 3 (crop weather) only where there is one; gold: 2 boxes (expected opening removed 21-Nov) */
+  const has2 = !!(S[ck].intl || S[ck].spots.length), boxes = 1 + (has2 ? 1 : 0) + (S[ck].weather ? 1 : 0);
+  $('box2').classList.toggle('hide', !has2); $('box3').classList.toggle('hide', !S[ck].weather);
+  $('box3').parentElement.classList.toggle('two', boxes === 2); $('box3').parentElement.classList.toggle('one', boxes === 1);
+  resetData(); buildCharts(); buildSeasons();
+  $('techSrc').textContent = C.techName; $('momSrc').textContent = C.techName; $('retNote').textContent = C.retNote;
+  $('faqTitle').textContent = 'About ' + (S[ck].full || C.tab); $('faq').innerHTML = C.faq;
+  PD = S[ck].dec || 0;
+  const PR = S[ck].parity;
+  $('parityCard').classList.toggle('hide', !PR); $('basisCard').classList.toggle('hide', !S[ck].spots.length);
+  if (PR) { $('duty').value = PR.duty || 0; $('parTitle').textContent = PR.title || 'MCX vs import parity'; $('parNote').textContent = PR.text || ''; }
+  $('weatherCard').classList.toggle('hide', !S[ck].weather);
+  $('arrCard').classList.toggle('hide', !S[ck].agmark); $('arbCard').classList.toggle('hide', !S[ck].bm);
+  $('trCard').classList.toggle('hide', !S[ck].trade); TR = null; $('trSyn').innerHTML = S[ck].trade ? 'Loading…' : ''; $('trTiles').innerHTML = ''; $('trTbl').innerHTML = ''; $('trCty').innerHTML = ''; ARB = null; $('arbTbl').innerHTML = ''; $('ecoCard').classList.toggle('hide', !S[ck].eco); $('ecoFor').textContent = C.tab.toLowerCase();
+  const SO = !!S[ck].spotOnly;
+  $('famCard').classList.toggle('hide', S[ck].family.length < 2);
+  $('curveCard').classList.toggle('solo', S[ck].family.length < 2);
+  $('crossCard').classList.toggle('solo', !S[ck].parity && (!S[ck].spots.length || SO));
+  /* spot-only: no expiries, contracts, basis, volume or open interest */
+  $('curveCard').classList.toggle('hide', SO); if (SO) $('basisCard').classList.add('hide');
+  ['fV', 'fOI'].forEach(id => $(id).parentElement.classList.toggle('hide', SO));
+  $('futContract').textContent = '';
+  $('pIntl').classList.toggle('hide', !S[ck].intl);
+  $('curveTitle').textContent = C.fut + ' – all expiries'; $('famTitle').textContent = S[ck].exch + ' ' + C.tab.toLowerCase() + ' contracts';
+  $('track').innerHTML = '';
+  ['fLtp', 'b2Ltp', 'b3Val'].forEach(id => $(id).textContent = '—');
+  $('ncTitle').textContent = (S[ck].full || C.tab) + ' news'; commNews = []; commNewsCat = 'all'; $('ncChips').innerHTML = ''; $('ncList').innerHTML = '<li><span></span>Loading…</li>';
+  buildJump(); addCardBtns(); loadCommNews();
+  firstLive = true; refreshLive().then(() => { loadSlow(); if (S[ck].agmark) loadArrivals(); if (S[ck].trade) loadTrade(); if (S[ck].weather) loadWeather(); if (S[ck].eco) loadEco(); });
+}
+window.addEventListener('hashchange', applyTab);
+
+/* ------------------------------------------------------------ live boxes */
+function setNum(id, v, d = PD, loc) { const el = $(id), s = nf(v, d, loc); if (el.textContent !== s) el.textContent = s; }
+function renderTicker() {
+  const L = D.live; if (!L) return;
+  const items = [];
+  for (const f of S[ck].family.slice(0, 2)) { const v = L.fut[f[0]]; if (v) items.push([S[ck].exch + ' ' + f[1], nf(v.close), v.change]); }
+  for (const [name, sym] of S[ck].ticker) { const q = L.quotes[sym]; if (!q) continue;
+    const d = /US10Y|USDINR/.test(sym) ? 3 : q.lp > 10 ? 2 : 3; items.push([name, nf(q.lp, d, 'en-US'), q.chp]); }
+  const html = items.map(([n, v, c]) => `<span class="tk"><b>${n}</b><span class="num">${v}</span> <span class="${cls(c)} num">${arrow(c)} ${pc(c)}</span></span>`).join('');
+  $('track').innerHTML = html + html;
+}
+function renderHero() {
+  const L = D.live; if (!L) return;
+  const g = futRow() || {}, q = L.quotes;
+  $('pEx').className = 'pill ' + (L.live ? 'on' : 'off'); $('pEx').textContent = S[ck].exch + (L.live ? ' OPEN' : ' CLOSED');
+  if (g.expiry) { const e = new Date(g.expiry + 'T00:00:00'); $('futContract').textContent = '· ' + MON[e.getMonth()] + ' ' + e.getFullYear() + ' contract'; }
+  setNum('fLtp', g.close);
+  $('fChg').innerHTML = g.change_abs != null ? `<span class="${cls(g.change_abs)}">${arrow(g.change_abs)} ${sgn(g.change_abs)}${nf(g.change_abs)} (${pc(g.change)})</span>` : '&nbsp;';
+  setNum('fO', g.open); setNum('fH', g.high); setNum('fL', g.low); setNum('fP', g.prev); setNum('fV', g.volume, 0); setNum('fOI', g.open_interest, 0);
+  if (D.base && D.base.length) { const y = D.base.filter(b => b.time >= D.base[D.base.length - 1].time - 365 * 86400); setNum('f52h', Math.max(...y.map(b => b.h))); setNum('f52l', Math.min(...y.map(b => b.l))); }
+  if (g.high && g.low && g.high > g.low) { $('rngMk').style.left = Math.min(100, Math.max(0, (g.close - g.low) / (g.high - g.low) * 100)) + '%'; $('rngL').textContent = nf(g.low); $('rngH').textContent = nf(g.high); }
+  if (S[ck].spotOnly) {
+    /* spot-only: when the second box shows the world price, the other spot centres are listed here */
+    const oth = S[ck].intl ? S[ck].spots : [], M = S[ck].mainNote ? esc(S[ck].mainNote) + '<br>' : '';
+    $('futNote').innerHTML = M + (S[ck].mandi || S[ck].bhavMain ? `${S[ck].mandi ? 'Mandi price' : 'NCDEX spot'} of <b>${g.ltt ? fmtDate(g.ltt) : '—'}</b>` : `${S[ck].quoteMain ? 'Updated' : 'Spot updated'} ${g.ltt ? fmtDT(g.ltt) : '—'}`) +
+      (oth.length ? '<br>' + oth.map(([n, s]) => { const x = q[s] || {}; return `${n} <b class="num">${nf(x.lp)}</b> <span class="${cls(x.chp)}">${pc(x.chp)}</span>`; }).join(' · ') : '');
+  } else
+  $('futNote').innerHTML = `Last trade ${g.ltt ? fmtDT(g.ltt) : '—'} · contract expires ${g.expiry ? fmtDate(g.expiry) : '—'}` + (L.meta.scanErr ? ` · <span class="dn">${esc(L.meta.scanErr)}</span>` : '');
+  if (S[ck].intl) {
+    const I = S[ck].intl, sp = q[I.sym] || {}, gc = q[I.fut] || {}, inr = q['FX:USDINR'] || {};
+    const on = sp.session === 'market'; $('pIntl').className = 'pill ' + (on ? 'on' : 'off'); $('pIntl').textContent = on ? (S[ck].spotOnly ? 'WORLD OPEN' : 'SPOT OPEN') : (S[ck].spotOnly ? 'WORLD CLOSED' : 'SPOT CLOSED');
+    $('b2Lab').textContent = I.name + ' · ' + I.unit;
+    const ID = I.dec == null ? 2 : I.dec, PR = S[ck].parity;
+    $('b2Ltp').textContent = sp.lp ? ipre() + nf(sp.lp, ID, 'en-US') : '—';
+    $('b2Chg').innerHTML = sp.ch != null ? `<span class="${cls(sp.ch)}">${arrow(sp.ch)} ${sgn(sp.ch)}${nf(sp.ch, ID, 'en-US')} (${pc(sp.chp)})</span>` : '&nbsp;';
+    $('b2Kv').innerHTML = [['Open', sp.o], ['High', sp.h], ['Low', sp.l], ['Prev close', sp.prev]].map(([k, v]) => `<div><span>${k}</span><b>${nf(v, ID, 'en-US')}</b></div>`).join('');
+    /* base metals (21-Nov-2026, user): LME big, then Shanghai and CME under it (like Dhaniya: Kota big, Gondal / Jaipur under it) */
+    const BMq = S[ck].bm, cny = (q['FX_IDC:USDCNY'] || {}).lp, sh = BMq ? q[BMq.shfe] || {} : {};
+    const shLine = BMq ? `<div>Shanghai (SHFE) <b class="num">${sh.lp ? '¥' + nf(sh.lp, 0, 'en-US') : '—'}</b> <span class="${cls(sh.chp)}">${pc(sh.chp)}</span>` +
+      (sh.lp && cny ? ` <small class="na">≈ $${nf(sh.lp / 1.13 / cny, 0, 'en-US')}/t without 13% VAT</small>` : '') + '</div>' : '';
+    $('b2Lines').innerHTML = shLine + (I.fut && I.fut !== I.sym ? `<div>${I.futName} <b class="num">${gc.lp ? '$' + nf(gc.lp, ID === 1 ? 3 : ID, 'en-US') : '—'}</b> <span class="${cls(gc.chp)}">${pc(gc.chp)}</span>` +
+      (BMq && BMq.cmeMult && gc.lp ? ` <small class="na">≈ $${nf(gc.lp * BMq.cmeMult, 0, 'en-US')}/t</small>` : '') + ` <small class="na">(10-min delay)</small></div>` : '') +
+      `<div>USDINR <b class="num">${nf(inr.lp, 3, 'en-US')}</b> <span class="${cls(inr.chp)}">${pc(inr.chp)}</span></div>` +
+      (PR ? `<div>${PR.short || 'In rupees'} <b class="num">${sp.lp && inr.lp ? '₹' + nf(sp.lp * inr.lp * PR.conv * (PR.purity || 1)) : '—'}</b> <small class="na">${S[ck].unit}, no duty</small></div>` : '');
+  } else if (S[ck].spots.length) {
+    const [n0, s0] = S[ck].spots[0], sp = q[s0] || {};
+    $('b2Lab').textContent = n0 + ' · ' + S[ck].unit;
+    $('b2Ltp').textContent = sp.lp ? nf(sp.lp, 0) : '—';
+    $('b2Chg').innerHTML = sp.ch != null ? `<span class="${cls(sp.ch)}">${arrow(sp.ch)} ${sgn(sp.ch)}${nf(sp.ch, 0)} (${pc(sp.chp)})</span>` : '&nbsp;';
+    const bas = sp.lp && g.close ? sp.lp - g.close : null;
+    $('b2Kv').innerHTML = [['Open', sp.o], ['High', sp.h], ['Low', sp.l], ['Prev', sp.prev]].map(([k, v]) => `<div><span>${k}</span><b>${nf(v, 0)}</b></div>`).join('');
+    $('b2Lines').innerHTML = S[ck].spots.slice(1).map(([n, s]) => { const x = q[s] || {}; return `<div>${n} <b class="num">${nf(x.lp, 0)}</b> <span class="${cls(x.chp)}">${pc(x.chp)}</span></div>`; }).join('') +
+      `<div>${S[ck].spotOnly ? `Spread (${n0} − ${S[ck].mainName})` : `Basis (${n0} − futures)`} <b class="${cls(bas)}">${bas == null ? '—' : sgn(bas) + nf(bas)}</b></div>` +
+      `<div class="na" style="font-size:12px">Spot updated ${sp.t ? fmtDT(new Date((sp.t + IST) * 1000).toISOString().replace('T', ' ').slice(0, 16)) : '—'}</div>`;
+  }
+  if (S[ck].weather) renderWeatherBox();
+}
+function renderExpected() {
+  const e = D.live && D.live.expected; if (!e) return;
+  if (e.error) { $('b3Val').textContent = '—'; $('b3Note').textContent = e.error; return; }
+  if (e.live) {
+    $('b3Lab').textContent = 'MCX Gold is trading now';
+    $('b3Val').textContent = nf(futPrice());
+    const diff = e.opened && e.lastExpected ? e.opened - e.lastExpected : null;
+    $('b3Chg').innerHTML = e.opened ? `Opened at <b>${nf(e.opened)}</b>` : '&nbsp;';
+    $('b3Gap').innerHTML = e.lastExpected ? `Expected was ${nf(e.lastExpected)}${diff != null ? ` · difference <span class="${cls(diff)}">${sgn(diff)}${nf(diff)}</span>` : ''}` : '';
+    $('b3Note').textContent = e.lastExpectedAt ? 'Expected value as last worked out at ' + fmtDT(e.lastExpectedAt) + '.' : '';
+  } else {
+    $('b3Lab').textContent = 'Expected MCX Gold opening';
+    $('b3Val').textContent = e.value != null ? nf(e.value) : '—';
+    $('b3Chg').innerHTML = e.chg != null ? `<span class="${cls(e.chg)}">${arrow(e.chg)} ${sgn(e.chg)}${nf(e.chg)} (${pc(e.pct)})</span>` : '&nbsp;';
+    $('b3Gap').innerHTML = e.pct == null ? '' : e.pct >= 0.25 ? '<span class="up">Gap-up opening likely</span>' : e.pct <= -0.25 ? '<span class="dn">Gap-down opening likely</span>' : '<span class="na">Flat opening likely</span>';
+    $('b3Note').innerHTML = `MCX close <b>${nf(e.close)}</b> (${fmtDT(e.closeAt)}) · spot gold since then <span class="${cls(e.gpct)}">${pc(e.gpct)}</span> · USDINR <span class="${cls(e.ipct)}">${pc(e.ipct, 3)}</span>`;
+  }
+}
+const impCls = s => s >= 0.35 ? 'imp-bull' : s <= -0.35 ? 'imp-bear' : 'imp-neu';
+function renderWeatherBox() {
+  const w = D.weather;
+  $('b3Lab').textContent = 'Crop weather – price impact';
+  if (!w) { $('b3Val').textContent = 'Loading…'; $('b3Chg').innerHTML = '&nbsp;'; $('b3Gap').innerHTML = ''; $('b3Note').textContent = ''; return; }
+  const o = w.overall, o7 = o['7'] || {};
+  $('b3Val').innerHTML = `<span class="${impCls(o7.score)}">${o7.impact || '—'}</span>`;
+  $('b3Chg').innerHTML = '<span style="font-size:13px;font-weight:400">next 7 days</span>';
+  $('b3Gap').innerHTML = ['15', '30'].map(k => o[k] ? `${k} days: <span class="${impCls(o[k].score)}">${o[k].impact}</span>` : '').join(' · ');
+  $('b3Count').innerHTML = `Crop stage now: <b>${esc(w.stageNow)}</b>`;
+  $('b3Note').innerHTML = (o7.risks && o7.risks.length ? 'Watch: ' + o7.risks.map(esc).join('; ') : 'No big weather risk in the main areas this week.') + ' <a href="#weatherCard" onclick="$(\'weatherCard\').scrollIntoView({behavior:\'smooth\'});return false">Details ↓</a>';
+}
+function tickClock() {
+  const now = new Date(); $('clock').textContent = now.toLocaleTimeString('en-IN', { hour12: true });
+  const e = D.live && (D.live.expected || null);
+  const nx = e ? (!e.live && e.next ? { at: e.next, kind: e.nextKind } : null) : (D.live && !D.live.live ? D.live.next : null);
+  if (S && S[ck] && S[ck].expected) {
+    if (nx && nx.at) { const t = new Date(nx.at.replace(' ', 'T') + ':00'), s = Math.max(0, Math.floor((t - now) / 1000));
+      const dd = Math.floor(s / 86400), hh = Math.floor(s % 86400 / 3600), mm = Math.floor(s % 3600 / 60), ss = s % 60;
+      $('b3Count').innerHTML = `Opens ${fmtDT(nx.at)}${nx.kind === 'special' ? ' (special session)' : ''} · in <b>${dd ? dd + 'd ' : ''}${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}</b>`; }
+    else $('b3Count').textContent = '';
+  }
+}
+
+/* ------------------------------------------------------------ chart */
+const LWC = window.LightweightCharts;
+function chartTheme() {
+  return { layout: { background: { type: 'solid', color: css('--surface') }, textColor: css('--ink2'), fontFamily: 'Century Gothic, sans-serif' },
+    grid: { vertLines: { visible: false }, horzLines: { visible: false } }, rightPriceScale: { borderColor: css('--axis'), minimumWidth: 86 },
+    timeScale: { borderColor: css('--axis'), timeVisible: true, secondsVisible: false }, crosshair: { mode: 0 } };
+}
+const mkChart = (el, extra = {}) => LWC.createChart(el, Object.assign({ autoSize: true }, chartTheme(), extra));
+function priceSeries(chart, type, dec) {
+  const priceFormat = { type: 'price', precision: dec, minMove: dec ? 1 / 10 ** dec : 1 };
+  return type === 'l' ? chart.addLineSeries({ color: css('--c2'), lineWidth: 2, priceFormat })
+    : chart.addCandlestickSeries({ upColor: css('--good'), downColor: css('--bad'), wickUpColor: css('--good'), wickDownColor: css('--bad'), borderVisible: false, priceFormat });
+}
+/* Heikin Ashi: close = (O+H+L+C)/4, open = average of the previous HA open and close, high / low include both */
+function heikin(b) { const out = []; let po = null, pc = null;
+  for (const x of b) { const c = (x.o + x.h + x.l + x.c) / 4, o = po == null ? (x.o + x.c) / 2 : (po + pc) / 2;
+    out.push({ time: x.time, o, h: Math.max(x.h, o, c), l: Math.min(x.l, o, c), c }); po = o; pc = c; }
+  return out; }
+const toData = (b, type) => b.map(x => type === 'l' ? { time: x.time, value: x.c } : { time: x.time, open: x.o, high: x.h, low: x.l, close: x.c });
+const lineData = (b, v) => b.map((x, i) => v[i] == null ? { time: x.time } : { time: x.time, value: v[i] });
+function addLine(chart, b, v, color, w = 1.5, dash) { const s = chart.addLineSeries({ color, lineWidth: w, lineStyle: dash ? 2 : 0, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false }); s.setData(lineData(b, v)); return s; }
+const leg = items => items.map(([c, n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
+function pivots(h, l, c) { const p = (h + l + c) / 3, r = h - l; return { P: p, R1: 2 * p - l, S1: 2 * p - h, R2: p + r, S2: p - r, R3: h + 2 * (p - l), S3: l - 2 * (h - p) }; }
+const DEF_RNG = { 1: '1D', 5: '5D', 15: '1M', 60: '3M', 120: '6M', 240: '1Y', D: '2Y', W: '5Y', M: 'ALL' };
+const TF_NAME = { 1: '1 min', 5: '5 min', 15: '15 min', 60: '1 hour', 120: '2 hours', 240: '4 hours', D: 'daily', W: 'weekly', M: 'monthly' };
+function rangeFrom(last, r) {
+  const d = new Date(last * 1000);
+  if (r === 'ALL') return 0;
+  if (r === 'YTD') return Date.UTC(d.getUTCFullYear(), 0, 1) / 1000;
+  if (r === '1D') return last - 86400;
+  if (r === '5D') return last - 5 * 86400;
+  const m = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24, '5Y': 60, '10Y': 120 }[r];
+  const x = new Date(d); x.setUTCMonth(x.getUTCMonth() - m); return x.getTime() / 1000;
+}
+/* 21-Nov-2026 (user): TWO full chart systems per tab - 1st the exchange futures (MCX / NCDEX), 2nd the $ / spot price */
+let CB = [];
+const IND = [['sma50', 'SMA 50', 1, 'var(--sma50)', 3], ['sma200', 'SMA 200', 1, 'var(--sma200)', 4], ['ema20', 'EMA 20', 0, 'var(--c3)', 3], ['bb', 'Bollinger', 0, 'var(--c5)', 3],
+  ['prev', 'Prev day H/L/C', 0], ['piv', 'Pivots', 0], ['chop', 'Choppiness 14', 1], ['rsi', 'RSI 14', 1], ['div', 'RSI divergence', 1], ['macd', 'MACD 12,26,9', 1]];
+class ChartBlock {
+  constructor(k, src, title) {
+    this.k = k; this.src = src; this.title = title; this.st = { tf: 'D', rng: '2Y', type: 'c' }; this.charts = []; this.bars = []; this.drawing = 0; this.info = null;
+    this.locked = true;            /* user 21-Nov: charts open LOCKED (no zoom / move by accident); the button unlocks */
+    const box = document.createElement('div'); box.className = 'card mb'; box.id = k + 'Card';
+    box.innerHTML = `<h2>${title} <small id="${k}Info"></small></h2>
+      <div class="ctl">
+        <div class="seg" id="${k}Tf"><button data-v="5">5m</button><button data-v="15">15m</button><button data-v="60">1h</button><button data-v="120">2h</button><button data-v="240">4h</button><button data-v="D" class="on">Daily</button><button data-v="W">Weekly</button><button data-v="M">Monthly</button></div>
+        <div class="seg" id="${k}Rng"><button data-v="1D">1D</button><button data-v="5D">5D</button><button data-v="1M">1M</button><button data-v="3M">3M</button><button data-v="6M">6M</button><button data-v="1Y">1Y</button><button data-v="2Y" class="on">2Y</button><button data-v="5Y">5Y</button><button data-v="ALL">All</button></div>
+        <div class="seg" id="${k}Type"><button data-v="c" class="on">Candles</button><button data-v="l">Line</button><button data-v="h" title="Heikin Ashi candles: smoothed, show the trend more clearly (indicators still use the real prices)">Heikin Ashi</button></div>
+        <span class="seg"><button id="${k}ZoomIn" title="Zoom in">+</button><button id="${k}ZoomOut" title="Zoom out">−</button><button id="${k}Reset" title="Back to the chosen range">Reset</button></span>
+        <button id="${k}Lock" class="brand"></button>
+      </div>
+      <div class="ctl">${IND.map(([key, n, on, col, h]) => `<label><input type="checkbox" data-k="${key}" ${on ? 'checked' : ''}>${col ? `<i style="background:${col};height:${h}px"></i>` : ''} ${n}</label>`).join('')}</div>
+      <div class="loginbar hide" id="${k}Login"></div>
+      <div class="chart" id="${k}Main"><div class="chartmsg" id="${k}Msg">Loading…</div><div class="plabel" id="${k}LbMain"></div></div>
+      <div class="chart sm" id="${k}Chop"><div class="plabel" id="${k}LbChop"></div></div>
+      <div class="chart sm" id="${k}Rsi"><div class="plabel" id="${k}LbRsi"></div></div>
+      <div class="chart sm" id="${k}Macd"><div class="plabel" id="${k}LbMacd"></div></div>`;
+    $('chartsBox').appendChild(box); this.box = box;
+    segInit(k + 'Tf', v => { this.st.tf = v; this.st.rng = DEF_RNG[v]; segSet(k + 'Rng', this.st.rng); this.draw(); });
+    segInit(k + 'Rng', v => { this.st.rng = v; this.draw(true); });
+    segInit(k + 'Type', v => { this.st.type = v; this.draw(true); });
+    box.querySelectorAll('[data-k]').forEach(c => c.addEventListener('change', () => this.draw(true)));
+    this.$('Lock').onclick = () => { this.locked = !this.locked; this.applyLock(); };
+    this.$('ZoomIn').onclick = () => this.zoom(0.6);
+    this.$('ZoomOut').onclick = () => this.zoom(1 / 0.6);
+    this.$('Reset').onclick = () => this.draw(true);
+    this.applyLock();
+  }
+  /* locked (default): the mouse wheel scrolls the PAGE, but drag still moves the chart, dragging the date axis zooms,
+     + / − / Reset work (user 21-Nov: "after locking I am not able to adjust"); unlocked: the wheel zooms too */
+  lockOpts() {
+    return { handleScroll: { mouseWheel: !this.locked, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
+             handleScale: { mouseWheel: !this.locked, pinch: true, axisPressedMouseMove: { time: true, price: true }, axisDoubleClickReset: true } };
+  }
+  applyLock() {
+    const b = this.$('Lock'), main = this.paneMap && this.paneMap.Main;
+    b.textContent = this.locked ? '🔒 Wheel zoom off – click to turn on' : '🔓 Wheel zoom on – click to turn off';
+    b.title = this.locked ? 'Mouse wheel scrolls the page. Drag the chart to move it, drag the date axis or use + / − to zoom.' : 'Mouse wheel zooms the chart. Click to stop it.';
+    if (main) main.applyOptions(this.lockOpts());
+  }
+  zoom(f) {
+    const main = this.paneMap && this.paneMap.Main; if (!main) return;
+    const r = main.timeScale().getVisibleLogicalRange(); if (!r) return;
+    const w = Math.max(10, (r.to - r.from) * f);                          /* keep the right edge, change the width */
+    main.timeScale().setVisibleLogicalRange({ from: r.to - w, to: r.to });
+  }
+  $(id) { return document.getElementById(this.k + id); }
+  on(key) { return this.box.querySelector(`[data-k="${key}"]`).checked; }
+  intraday() { return /^\d+$/.test(this.st.tf); }
+  needLogin() { return S[ck].tvLogin && this.src === 'fut' && this.intraday(); }
+  destroy() { this.charts.forEach(c => c.remove()); this.charts = []; }
+  loginBar(info) {
+    const lb = this.$('Login'), need = this.needLogin();
+    lb.classList.toggle('hide', !need); if (!need) return;
+    const st = (D.live && D.live.tvlogin) || {}, running = st.running || (info && info.running);
+    lb.innerHTML = `<span>MCX intraday bars come from your TradingView login${info && info.fetched ? ` · last loaded <b>${esc(info.fetched)}</b>` : ' · <b>not loaded yet</b>'}; live ticks are added after that.</span>
+      <button class="brand" ${running ? 'disabled' : ''}>${running ? 'Loading… (TradingView Chrome is open)' : 'Load / refresh MCX intraday'}</button>
+      <span class="na">Opens the TradingView Chrome for about 30 seconds.</span>${(st.error || (info && info.loginError)) ? ` <span class="dn">Last try: ${esc(st.error || info.loginError)}</span>` : ''}`;
+    const b = lb.querySelector('button'); if (b) b.onclick = () => startLogin(this);
+  }
+  async draw(redrawOnly) {
+    const my = ++this.drawing, msg = this.$('Msg'), st = this.st, on = k => this.on(k);
+    try {
+      if (!redrawOnly || !this.bars.length) { msg.style.display = 'flex'; msg.textContent = 'Loading…';
+        const r = await getSeries(this.src, st.tf); if (my !== this.drawing) return; this.bars = r.bars; this.info = r.info; }
+    } catch (e) { msg.style.display = 'flex'; msg.textContent = 'Chart error: ' + e.message; return; }
+    this.loginBar(this.info);
+    this.destroy();
+    const b = this.bars;
+    if (!b.length) { msg.style.display = 'flex'; msg.textContent = this.needLogin() ? 'Press "Load / refresh MCX intraday" above to get MCX intraday bars.' : (this.info && this.info.note) || 'No bars for this view.'; return; }
+    msg.style.display = 'none';
+    const intraday = this.intraday(), dec = this.src === 'intl' ? (S[ck].intl.dec == null ? 2 : S[ck].intl.dec) : PD;
+    const main = mkChart(this.$('Main'), Object.assign({ timeScale: { borderColor: css('--axis'), timeVisible: intraday } }, this.lockOpts())); this.charts.push(main);
+    /* 21-Nov-2026 (user): Heikin Ashi = smoothed candles for the price pane only; SMA / RSI / MACD etc. stay on the real prices */
+    const ps = priceSeries(main, st.type === 'h' ? 'c' : st.type, dec); ps.setData(toData(st.type === 'h' ? heikin(b) : b, st.type === 'h' ? 'c' : st.type));
+    const c = b.map(x => x.c), L = [], last = (a) => { for (let i = a.length - 1; i >= 0; i--) if (a[i] != null) return a[i]; return null; };
+    const sw = (col, h = 3) => `<i style="background:${col};height:${h}px"></i>`, v2 = (v, d = 2) => `<b>${v == null ? '—' : nf(v, d, 'en-US')}</b>`;
+    if (on('sma50')) { const s = sma(c, 50); addLine(main, b, s, css('--sma50'), 2); L.push(`${sw(css('--sma50'))}Red line = 50 MA ${v2(last(s), dec)}`); }
+    if (on('sma200')) { const s = sma(c, 200); addLine(main, b, s, css('--sma200'), 3); L.push(`${sw(css('--sma200'), 4)}Black line = 200 MA ${v2(last(s), dec)}`); }
+    if (on('ema20')) { const s = ema(c, 20); addLine(main, b, s, css('--c3')); L.push(`${sw(css('--c3'))}EMA 20 ${v2(last(s), dec)}`); }
+    if (on('bb')) { const B = bb(c); addLine(main, b, B.up, css('--c5'), 1, true); addLine(main, b, B.lo, css('--c5'), 1, true); L.push(`${sw(css('--c5'))}Bollinger 20,2`); }
+    this.$('LbMain').innerHTML = L.map(x => `<span>${x}</span>`).join('');
+    if (on('prev') || on('piv')) {
+      const pv = await prevSession(this.src, b[b.length - 1].time);
+      if (my !== this.drawing) return;
+      if (pv && on('prev')) [['Prev H', pv.h, css('--good')], ['Prev L', pv.l, css('--bad')], ['Prev C', pv.c, css('--muted')]].forEach(([t, p, col]) => ps.createPriceLine({ price: p, color: col, lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: t }));
+      if (pv && on('piv')) { const P = pivots(pv.h, pv.l, pv.c); for (const k of ['R2', 'R1', 'P', 'S1', 'S2']) ps.createPriceLine({ price: P[k], color: k === 'P' ? css('--c1') : k[0] === 'R' ? css('--bad') : css('--good'), lineWidth: 1, lineStyle: 1, axisLabelVisible: true, title: k }); }
+    }
+    const subs = [], ink = css('--sma200'), red = css('--sma50');
+    const pane = (id, k) => { const el = this.$(id); el.style.display = on(k) ? '' : 'none'; if (!on(k)) { el.querySelector('.plabel').innerHTML = ''; return null; }
+      /* lower panes follow the price chart only: no own scroll / zoom (user 21-Nov) */
+      const r = mkChart(el, { timeScale: { visible: false }, handleScroll: false, handleScale: false }); this.charts.push(r); subs.push(r); return r; };
+    const dashed = (s, p) => s.createPriceLine({ price: p, color: ink, lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
+    /* 1. Choppiness Index: above 61.8 = sideways / choppy, below 38.2 = trending */
+    const cp = pane('Chop', 'chop');
+    if (cp) { const v = chop(b), s = addLine(cp, b, v, css('--chop'), 2); s.applyOptions({ lastValueVisible: true }); dashed(s, 61.8); dashed(s, 38.2);
+      this.$('LbChop').innerHTML = `<span>${sw(css('--chop'))}CHOP 14 ${v2(last(v))}</span>`; }
+    /* 2. RSI: bold black line, RSI-based MA 14 in red, dashed 70 / 50 / 30, last 2 divergences */
+    const rp = pane('Rsi', 'rsi');
+    if (rp) { const rv = rsi(c), rma = sma(rv.map(x => x == null ? 0 : x), 14).map((x, i) => i < 27 ? null : x);
+      const fix = () => ({ priceRange: { minValue: 5, maxValue: 95 } });
+      const s = rp.addLineSeries({ color: ink, lineWidth: 3, priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: false, autoscaleInfoProvider: fix });
+      s.setData(lineData(b, rv)); addLine(rp, b, rma, red, 1).applyOptions({ autoscaleInfoProvider: fix });
+      [70, 50, 30].forEach(p => dashed(s, p));
+      let dtxt = '';
+      if (on('div')) { const dv = divergences(b, rv).slice(-2), mk = [];
+        for (const d of dv) { const col = d.t === 'bull' ? css('--good') : css('--bad');
+          const ls = rp.addLineSeries({ color: col, lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false, autoscaleInfoProvider: fix });
+          ls.setData([{ time: b[d.i].time, value: rv[d.i] }, { time: b[d.j].time, value: rv[d.j] }]);
+          mk.push(d.t === 'bull' ? { time: b[d.j].time, position: 'belowBar', color: col, shape: 'arrowUp', text: 'Bull' } : { time: b[d.j].time, position: 'aboveBar', color: col, shape: 'arrowDown', text: 'Bear' }); }
+        s.setMarkers(mk);
+        const lastD = dv[dv.length - 1];
+        dtxt = lastD ? `<span>Last divergence: <b class="${lastD.t === 'bull' ? 'up' : 'dn'}">${lastD.t === 'bull' ? 'Bullish' : 'Bearish'}</b> ${fmtDate(dstr(b[lastD.j].time))}${intraday ? ' ' + new Date(b[lastD.j].time * 1000).toISOString().slice(11, 16) : ''}</span>` : '<span class="na">No divergence in view</span>'; }
+      this.$('LbRsi').innerHTML = `<span>${sw(ink, 4)}RSI 14 ${v2(last(rv))}</span><span>${sw(red)}RSI MA 14 ${v2(last(rma))}</span>${dtxt}`; }
+    /* 3. MACD 12,26,9: MACD black, signal red, histogram dark / light green above 0, red / pink below 0 */
+    const mp = pane('Macd', 'macd');
+    if (mp) { const M = macd(c), h = mp.addHistogramSeries({ priceLineVisible: false, lastValueVisible: false });
+      h.setData(b.map((x, i) => { const v = M.h[i], p = M.h[i - 1]; if (v == null) return { time: x.time };
+        const col = v >= 0 ? (p == null || v >= p ? '#1B7F3B' : '#A8D5BA') : (p == null || v <= p ? '#E53935' : '#F5B7B1'); return { time: x.time, value: v, color: col }; }));
+      const ms = addLine(mp, b, M.m, ink, 2); addLine(mp, b, M.sig, red, 1.5).applyOptions({ lastValueVisible: true }); ms.applyOptions({ lastValueVisible: true }); dashed(ms, 0);
+      const hv = last(M.h);
+      this.$('LbMacd').innerHTML = `<span>MACD 12,26,9</span><span>${sw(ink)}MACD ${v2(last(M.m))}</span><span>${sw(red)}Signal ${v2(last(M.sig))}</span><span>Histogram <b class="${cls(hv)}">${hv == null ? '—' : nf(hv, 2, 'en-US')}</b></span>`; }
+    this.paneMap = { Main: main, Chop: cp, Rsi: rp, Macd: mp };          /* for the PDF: each chart's own snapshot */
+    main.timeScale().subscribeVisibleLogicalRangeChange(rg => { if (rg) subs.forEach(s => s.timeScale().setVisibleLogicalRange(rg)); });
+    const lastT = b[b.length - 1].time, from = rangeFrom(lastT, st.rng);
+    /* set the range after the panes have their size (set at once, the extra panes made it fall back to a wide view) */
+    const applyRange = () => { if (!this.charts.includes(main)) return; if (from && from > b[0].time) main.timeScale().setVisibleRange({ from, to: lastT + (intraday ? 0 : 86400 * 2) }); else main.timeScale().fitContent(); };
+    applyRange(); requestAnimationFrame(() => setTimeout(applyRange, 0)); setTimeout(applyRange, 350);
+    this.$('Info').textContent = `${TF_NAME[st.tf]} · ${this.info && this.info.source ? this.info.source : ''}${intraday ? ' · times in IST' : ''}`;
+  }
+}
+function buildCharts() {
+  CB.forEach(b => b.destroy()); $('chartsBox').innerHTML = '';
+  CB = C.src.map(([s], i) => new ChartBlock('cb' + i, s, C.chartTitles[i]));
+  /* Google spot-only tabs: the mandi price is one number a day -> a line reads better than flat candles */
+  CB.forEach(b => { if (b.src === 'fut' && (S[ck].mandi || S[ck].bhavMain)) { b.st.type = 'l'; segSet(b.k + 'Type', 'l'); } });
+}
+async function startLogin(block) {
+  try { await api(`/api/tvlogin?c=${ck}&go=1`); toast('TradingView Chrome opening – about 30 seconds'); } catch (e) { toast(e.message); return; }
+  block.loginBar({ running: true });
+  const poll = setInterval(async () => {
+    try { const st = await api(`/api/tvlogin?c=${ck}`);
+      if (!st.running) { clearInterval(poll); Object.keys(SC).forEach(k => { if (/\|(fut)\|\d+$/.test(k)) delete SC[k]; });
+        toast(st.error ? 'MCX intraday failed: ' + st.error : 'MCX intraday bars loaded'); CB.filter(x => x.src === 'fut').forEach(x => x.draw()); renderTech(); renderMom(); } } catch (e) {}
+  }, 3000);
+}
+async function prevSession(src, lastT) {
+  /* previous finished session before the one holding lastT */
+  const d = (await getSeries(src, 'D')).bars, cur = d.filter(x => x.time <= lastT);
+  return cur.length > 1 ? cur[cur.length - 2] : null;
+}
+
+
+/* ------------------------------------------------------------ technicals, momentum, levels, returns */
+const sig = v => v > 0 ? '<span class="tag b">Buy</span>' : v < 0 ? '<span class="tag s">Sell</span>' : '<span class="tag n">Neutral</span>';
+function techRows(b) {
+  const c = b.map(x => x.c), p = c[c.length - 1], n = c.length - 1, rows = [];
+  for (const k of [20, 50, 100, 200]) { const v = sma(c, k)[n]; rows.push([`SMA ${k}`, v, v == null ? 0 : p > v ? 1 : -1]); }
+  { const v = ema(c, 20)[n]; rows.push(['EMA 20', v, v == null ? 0 : p > v ? 1 : -1]); }
+  { const v = rsi(c)[n]; rows.push(['RSI 14', v, v == null ? 0 : v > 70 ? -1 : v < 30 ? 1 : v > 50 ? 1 : -1, v == null ? '' : v > 70 ? 'overbought' : v < 30 ? 'oversold' : '']); }
+  { const M = macd(c); rows.push(['MACD vs signal', M.m[n], M.m[n] == null || M.sig[n] == null ? 0 : M.m[n] > M.sig[n] ? 1 : -1]); }
+  { const B = bb(c); rows.push(['Bollinger 20,2', B.mid[n], B.up[n] == null ? 0 : p > B.up[n] ? -1 : p < B.lo[n] ? 1 : p > B.mid[n] ? 1 : -1, B.up[n] == null ? '' : p > B.up[n] ? 'above upper band' : p < B.lo[n] ? 'below lower band' : '']); }
+  return rows;
+}
+function verdictOf(rows) { const s = rows.reduce((a, r) => a + r[2], 0) / rows.length;
+  return s > 0.5 ? ['Strong Buy', 'up'] : s > 0.15 ? ['Buy', 'up'] : s < -0.5 ? ['Strong Sell', 'dn'] : s < -0.15 ? ['Sell', 'dn'] : ['Neutral', 'na']; }
+const TECH_TFS = [['60', '1H'], ['120', '2H'], ['240', '4H'], ['D', 'Daily'], ['W', 'Weekly'], ['M', 'Monthly']];
+let tTf = 'D', mTf = 'D';
+segInit('tTf', v => { tTf = v; renderTech(); });
+segInit('mTf', v => { mTf = v; renderMom(); });
+async function barsFor(tf) { try { const r = await getSeries('fut', tf); return r.bars; } catch (e) { return []; } }
+async function renderTech() {
+  const b = await barsFor(tTf), n = TECH_TFS.find(t => t[0] === tTf)[1];
+  if (b.length < 30) {
+    $('techVerdict').innerHTML = '<span class="na">' + n + ': not enough bars</span>';
+    $('techTbl').innerHTML = ''; $('techNote').innerHTML = S[ck].tvLogin && /^\d+$/.test(tTf) ? 'MCX intraday needs the TradingView login bars: use "Load / refresh MCX intraday" in the chart (pick 1h there).' : '';
+  } else {
+    const rows = techRows(b), v = verdictOf(rows), p = b[b.length - 1].c;
+    $('techVerdict').innerHTML = `${n}: <span class="${v[1]}">${v[0]}</span> <small class="na" style="font-size:12px;font-weight:400">(${rows.filter(x => x[2] > 0).length} buy · ${rows.filter(x => x[2] < 0).length} sell · price ${nf(p)})</small>`;
+    $('techTbl').innerHTML = `<thead><tr><th>Indicator (${n})</th><th>Value</th><th>Signal</th><th>Note</th></tr></thead><tbody>` + rows.map(x =>
+      `<tr><td>${x[0]}</td><td>${x[1] == null ? '—' : x[0].startsWith('RSI') ? x[1].toFixed(1) : nf(x[1])}</td><td>${sig(x[2])}</td><td class="l na">${x[3] || ''}</td></tr>`).join('') + '</tbody>';
+    const g = futRow(); let tv = '';
+    if (tTf === 'D' && g && g['Recommend.All'] != null) { const r = g['Recommend.All']; tv = `TradingView daily rating: <b class="${cls(r)}">${r > 0.5 ? 'Strong Buy' : r > 0.1 ? 'Buy' : r < -0.5 ? 'Strong Sell' : r < -0.1 ? 'Sell' : 'Neutral'}</b> (${r.toFixed(2)}). `; }
+    $('techNote').innerHTML = tv + 'Buy = price above the average / RSI above 50 / MACD above signal. RSI above 70 or below 30 and price outside the Bollinger bands count against the trend.';
+  }
+  /* one-line verdict for every timeframe */
+  const parts = [];
+  for (const [tf, nm] of TECH_TFS) { const bb2 = tf === tTf ? b : await barsFor(tf);
+    if (bb2.length < 30) { parts.push(`<span>${nm}: <b class="na">—</b></span>`); continue; }
+    const v = verdictOf(techRows(bb2)); parts.push(`<span>${nm}: <b class="${v[1]}">${v[0]}</b></span>`); }
+  $('techStrip').innerHTML = parts.join('');
+}
+const BARS_PER_YEAR = { D: 252, W: 52, M: 12 };
+async function renderMom() {
+  const b = await barsFor(mTf), n = TECH_TFS.find(t => t[0] === mTf)[1];
+  if (b.length < 40) { $('momTbl').innerHTML = `<tbody><tr><td class="l na">${n}: not enough bars${S[ck].tvLogin && /^\d+$/.test(mTf) ? ' – load MCX intraday in the chart first' : ''}</td></tr></tbody>`; return; }
+  const c = b.map(x => x.c), k = c.length - 1, p = c[k];
+  const r = c.slice(1).map((v, i) => Math.log(v / c[i]));
+  let perDay = 1;
+  if (/^\d+$/.test(mTf)) { const days = new Set(b.slice(-200).map(x => dstr(x.time))).size; perDay = Math.max(1, Math.round(Math.min(200, b.length) / days)); }
+  const perYear = BARS_PER_YEAR[mTf] || perDay * 252;
+  const s20 = stdev(r.slice(-20)), s60 = stdev(r.slice(-60)), a = atr(b)[k], rs = rsi(c)[k];
+  const y = b.filter(x => x.time >= b[k].time - 365 * 86400), hi = Math.max(...y.map(x => x.h)), lo = Math.min(...y.map(x => x.l));
+  const steps = { 60: [['1 hour', 1], ['1 day', perDay]], 120: [['2 hours', 1], ['1 day', perDay]], 240: [['4 hours', 1], ['1 week', perDay * 5]], D: [['1 day', 1], ['1 week', 5]], W: [['1 week', 1], ['1 month', 4]], M: [['1 month', 1], ['3 months', 3]] }[mTf];
+  const rows = [
+    [`RSI 14 (${n})`, rs.toFixed(1), rs > 70 ? 'Overbought' : rs < 30 ? 'Oversold' : 'Normal'],
+    [`ATR 14 (average ${n} range)`, nf(a), (a / p * 100).toFixed(2) + '% of price'],
+    ['Volatility, last 20 bars (yearly)', (s20 * Math.sqrt(perYear) * 100).toFixed(1) + '%', 'per bar ±' + (s20 * 100).toFixed(2) + '%'],
+    ['Volatility, last 60 bars (yearly)', (s60 * Math.sqrt(perYear) * 100).toFixed(1) + '%', s20 > s60 * 1.15 ? 'Rising' : s20 < s60 * 0.85 ? 'Falling' : 'Steady'],
+    ...steps.map(([lab, m]) => { const mv = p * s20 * Math.sqrt(m); return [`Expected move – next ${lab}`, '±' + nf(mv), nf(p - mv) + ' – ' + nf(p + mv)]; }),
+    ['Place in last-12-months range', ((p - lo) / (hi - lo) * 100).toFixed(0) + '%', '0% = low ' + nf(lo) + ', 100% = high ' + nf(hi)],
+  ];
+  $('momTbl').innerHTML = `<thead><tr><th>Measure</th><th>Value</th><th>Read</th></tr></thead><tbody>` + rows.map(x => `<tr><td>${x[0]}</td><td>${x[1]}</td><td class="l">${x[2]}</td></tr>`).join('') + '</tbody>';
+}
+function renderLevels() {
+  const L = D.live, d = D.base; if (!L || !d || d.length < 30) return;
+  const g = futRow(); if (!g) return;
+  let base;
+  if (L.live) { const today = dstr(g.update_time + IST); const prev = d.filter(b => dstr(b.time) < today); base = prev[prev.length - 1]; }
+  else base = d[d.length - 1];
+  if (!base) return;
+  const P = pivots(base.h, base.l, base.c), price = g.close;
+  const rows = [['R3', P.R3], ['R2', P.R2], ['R1', P.R1], ['Pivot', P.P], ['S1', P.S1], ['S2', P.S2], ['S3', P.S3]].map(([n, v]) => ({ n, v }));
+  rows.push({ n: 'Price now', v: price, here: true }); rows.sort((a, b) => b.v - a.v);
+  $('pivTbl').innerHTML = '<thead><tr><th>Pivot</th><th>Level</th><th>Away</th></tr></thead><tbody>' + rows.map(r => `<tr class="${r.here ? 'here' : ''}"><td>${r.n}</td><td>${nf(r.v)}</td>${r.here ? '<td></td>' : cell((r.v / price - 1) * 100)}</tr>`).join('') + '</tbody>';
+  const y = d.filter(b => b.time >= d[d.length - 1].time - 365 * 86400), hi = Math.max(...y.map(b => b.h)), lo = Math.min(...y.map(b => b.l)), ath = Math.max(...d.map(b => b.h));
+  const f = [['52W high', hi], ['78.6%', lo + (hi - lo) * 0.786], ['61.8%', lo + (hi - lo) * 0.618], ['50%', lo + (hi - lo) * 0.5], ['38.2%', lo + (hi - lo) * 0.382], ['23.6%', lo + (hi - lo) * 0.236], ['52W low', lo]].map(([n, v]) => ({ n, v }));
+  if (ath > hi) f.unshift({ n: 'Highest in data', v: ath });
+  f.push({ n: 'Price now', v: price, here: true }); f.sort((a, b) => b.v - a.v);
+  $('fibTbl').innerHTML = '<thead><tr><th>52-week / Fibonacci</th><th>Level</th><th>Away</th></tr></thead><tbody>' + f.map(r => `<tr class="${r.here ? 'here' : ''}"><td>${r.n}</td><td>${nf(r.v)}</td>${r.here ? '<td></td>' : cell((r.v / price - 1) * 100)}</tr>`).join('') + '</tbody>';
+  $('lvInfo').textContent = `pivots from session ${fmtDate(dstr(base.time))} (H ${nf(base.h)} · L ${nf(base.l)} · C ${nf(base.c)})`;
+  D.pivots = P;
+}
+function retAt(b, from) { for (let i = b.length - 1; i >= 0; i--) if (b[i].time <= from) return b[i].c; return null; }
+async function renderReturns() {
+  const m = D.base; let s = [];
+  if (C.src2) { try { s = (await getSeries(C.src2, 'D')).bars; } catch (e) {} }
+  if (!m || !m.length) return;
+  const per = [['1 day'], ['1 week', 7], ['1 month', '1M'], ['3 months', '3M'], ['6 months', '6M'], ['This year', 'YTD'], ['1 year', '1Y'], ['2 years', '2Y'], ['5 years', '5Y'], ['10 years', '10Y']];
+  const one = (b, p, prev1) => { if (!b.length) return [null, null]; const last = b[b.length - 1], now = last.c; let ref;
+    if (!p[1]) ref = prev1 != null ? prev1 : (b[b.length - 2] || {}).c;
+    else if (typeof p[1] === 'number') ref = retAt(b, last.time - p[1] * 86400);
+    else { const fr = rangeFrom(last.time, p[1]); ref = p[1] === 'YTD' ? retAt(b, fr - 1) : retAt(b, fr); }
+    if (ref && b[0].time > last.time - 86400 * ({ '5Y': 1826, '10Y': 3652, '2Y': 730, '1Y': 365 }[p[1]] || 0) + 86400 * 20) ref = null;
+    return ref ? [now - ref, (now / ref - 1) * 100] : [null, null]; };
+  const g = futRow(), q = C.src2 && D.live && D.live.quotes[src2Sym()], two = !!C.src2;
+  $('retTbl').innerHTML = `<thead><tr><th>Period</th><th>${C.src[0][1]}</th><th>%</th>${two ? `<th>${C.src2Name}</th><th>%</th>` : ''}</tr></thead><tbody>` + per.map(p => {
+    const a = one(m, p, g && g.prev), b = two ? one(s, p, q && q.prev) : null;
+    return `<tr><td>${p[0]}</td>${cell(a[0], PD, '')}${cell(a[1])}${two ? cell(b[0], C.dec2, '', C.loc2) + cell(b[1]) : ''}</tr>`; }).join('') + '</tbody>';
+}
+
+/* ------------------------------------------------------------ weather */
+async function loadWeather() {
+  try { D.weather = await api(`/api/weather?c=${ck}`); renderWeather(); renderWeatherBox(); }
+  catch (e) { $('wNote').innerHTML = `<span class="dn">Weather error: ${esc(e.message)}</span>`; }
+}
+function renderWeather() {
+  const w = D.weather; if (!w) return;
+  const lab = { '7': 'Next 7 days', '15': 'Next 15 days', '30': 'Next 30 days' };
+  $('wTiles').innerHTML = ['7', '15', '30'].map(k => { const o = w.overall[k]; if (!o) return '';
+    return `<div class="wt"><div class="h">${lab[k]} · confidence ${o.conf.toLowerCase()}</div><div class="v ${impCls(o.score)}">${o.impact}</div>
+      <ul>${o.risks.length ? o.risks.map(r => `<li>${esc(r)}</li>`).join('') : '<li>No big weather risk in the main areas</li>'}</ul></div>`; }).join('');
+  const W = k => r => { const x = r.win[k]; if (!x) return '<td class="na">—</td><td></td>';
+    return `<td>${nf(x.rain, 0)} <small class="na">/ ${nf(x.norm.rain, 0)} mm</small><br><small class="na">low ${x.tminLow == null ? '—' : x.tminLow.toFixed(0)}° · high ${x.tmax == null ? '—' : x.tmax.toFixed(0)}°</small></td><td class="l"><b class="${impCls(x.score)}">${x.impact}</b><br><small class="na">${x.why.map(esc).join('; ')}</small></td>`; };
+  $('wTbl').innerHTML = `<thead><tr><th>District</th><th>Weight</th><th>Stage</th><th>7 days: rain / normal</th><th>7-day impact</th><th>15 days</th><th>15-day impact</th><th>30 days</th><th>30-day impact</th></tr></thead><tbody>` +
+    w.rows.map(r => `<tr><td>${esc(r.district)}<br><small class="na" style="font-weight:400">${esc(r.state)}</small></td><td>${r.weight}%</td><td class="l">${esc((r.win['7'] || {}).stageName || '')}</td>${W('7')(r)}${W('15')(r)}${W('30')(r)}</tr>`).join('') + '</tbody>';
+  $('wInfo').textContent = `crop stage now: ${w.stageNow} · updated ${fmtDT(w.built)}`;
+  $('wNote').innerHTML = `Weight = the state's share of ${esc(w.crop)} production (${esc(w.shareYear || '')}, horticulture estimates) split over its districts. Days 1–16: Open-Meteo forecast; days 17–30: ECMWF seasonal outlook (average of members), so the 30-day view is a rough guide. Crop damage (frost, unseasonal rain, heat at flowering, rain at harvest) = less supply = bullish; normal weather = good crop = mildly bearish. Weather is one factor — arrivals, stocks and demand also move the price.`;
+}
+
+/* ------------------------------------------------------------ important economic data (Gold first, 21-Nov-2026) */
+async function loadEco() {
+  try { D.eco = await api(`/api/eco?c=${ck}`); renderEco(); }
+  catch (e) { $('ecoSum').innerHTML = `<span class="dn">Economic data error: ${esc(e.message)}</span>`; }
+}
+function ecoWhen(s) { const [d, t] = s.split(' '); const dt = new Date(d + 'T00:00:00'); let [h, mi] = t.split(':'); h = +h;
+  return `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dt.getDay()]} ${dt.getDate()} ${MON[dt.getMonth()]}, ${((h + 11) % 12) + 1}:${mi} ${h >= 12 ? 'PM' : 'AM'}`; }
+function renderEco() {
+  const E = D.eco; if (!E) return;
+  const imp = (s, lab) => `<span class="tag ${s > 0 ? 'b' : s < 0 ? 's' : 'n'}">${esc(lab || '—')}</span>`, sm = E.summary;
+  /* next US release time; when several come together, show the one gold traders watch most */
+  const PRI = r => /Interest Rate|Fed/i.test(r.title) ? 5 : /Non Farm|Payroll/i.test(r.title) ? 4 : /Core PCE|Core Inflation|CPI/i.test(r.title) ? 3 : r.kind === 'infl' ? 2 : /GDP|ISM/i.test(r.title) ? 1 : 0;
+  const us = E.next.filter(r => r.us), nxUS = us.length ? us.filter(r => r.t === us[0].t).sort((a, b) => PRI(b) - PRI(a))[0] : null;
+  let cd = ''; E.nextUS = nxUS;
+  if (nxUS) { const s = Math.max(0, nxUS.t - Date.now() / 1000), dd = Math.floor(s / 86400), hh = Math.floor(s % 86400 / 3600), mm = Math.floor(s % 3600 / 60);
+    cd = `<div style="margin-top:4px">Next big US event: <b>${esc(nxUS.title)}</b> · ${ecoWhen(nxUS.ist)} IST <span class="na">(in ${dd ? dd + 'd ' : ''}${hh}h ${mm}m)</span> · forecast <b>${esc(nxUS.forecast || '—')}</b>, previous ${esc(nxUS.previous || '—')}</div>`; }
+  const cn = C.tab.toLowerCase();
+  $('ecoSum').innerHTML = `<div style="font-weight:700">Data of the last 7 days, read for ${esc(cn)}: <span class="${impCls(sm.score / 2)}">${esc(sm.label)}</span>
+    <small class="na" style="font-weight:400">(${sm.bull} bullish · ${sm.bear} bearish · ${sm.released} released)</small></div>${cd}`;
+  const row = (r, done) => `<tr${r.us ? ' style="font-weight:600"' : ''}><td class="l">${ecoWhen(r.ist)}</td><td>${esc(r.country)}</td><td class="l">${esc(r.title)}${r.period ? ` <small class="na" style="font-weight:400">${esc(r.period)}</small>` : ''}</td>` +
+    (done ? `<td><b>${esc(r.actual || '—')}</b></td>` : '') + `<td>${esc(r.forecast || '—')}</td><td>${esc(r.previous || '—')}</td>` +
+    (done ? `<td class="l">${imp(r.score, r.impact)} <small class="na" style="font-weight:400">${esc(r.why || '')}</small></td>` : `<td class="l na" style="font-weight:400">${esc(r.watch)}</td>`) + '</tr>';
+  $('ecoNext').innerHTML = `<thead><tr><th>Coming up (next 14 days)</th><th>Country</th><th style="text-align:left">Event</th><th>Forecast</th><th>Previous</th><th style="text-align:left">What it means for ${esc(cn)}</th></tr></thead><tbody>` +
+    (E.next.length ? E.next.slice(0, 15).map(r => row(r, false)).join('') : '<tr><td colspan="6" class="l na">No high-importance event in the next 14 days</td></tr>') + '</tbody>';
+  $('ecoDone').innerHTML = `<thead><tr><th>Released (last 7 days)</th><th>Country</th><th style="text-align:left">Event</th><th>Actual</th><th>Forecast</th><th>Previous</th><th style="text-align:left">Impact on ${esc(cn)}</th></tr></thead><tbody>` +
+    (E.done.length ? E.done.slice(0, 15).map(r => row(r, true)).join('') : '<tr><td colspan="7" class="l na">Nothing released in the last 7 days</td></tr>') + '</tbody>';
+  $('ecoInfo').textContent = (E.countries || 'US · China · Euro area · India') + ' · updated ' + fmtDT(E.built);
+  $('ecoNote').textContent = 'High-importance events (TradingView economic calendar), times in IST. ' + (E.rule || '') + ' A guide only – the price can react differently.';
+}
+
+/* ------------------------------------------------------------ mandi arrivals (agri tabs) */
+let arrChartObj = null;
+async function loadArrivals() {
+  try { D.arr = await api(`/api/arrivals?c=${ck}`); renderArrivals(); }
+  catch (e) { $('arrSyn').innerHTML = `<span class="dn">Arrivals error: ${esc(e.message)}</span>`; }
+}
+function renderArrivals() {
+  const A = D.arr; if (!A || A.error) { $('arrSyn').innerHTML = `<span class="dn">${esc(A && A.error)}</span>`; return; }
+  const sg = A.signal || {}, t = v => v == null ? '—' : nf(v, 0) + ' t';
+  $('arrInfo').textContent = `Agmarknet "${A.name}" · data up to ${fmtDate(A.through)}`;
+  $('arrSyn').innerHTML = `<div style="font-weight:700;margin-bottom:4px">Arrivals read: <span class="${impCls(sg.score)}">${esc(sg.label)}</span> <small class="na" style="font-weight:400">for the price</small></div><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6">${A.synopsis.map(p => `<li>${esc(p)}</li>`).join('')}</ul>`;
+  const w7 = A.win['7'], w30 = A.win['30'];
+  const tile = (h, w) => `<div class="wt"><div class="h">${h}</div><div class="v">${t(w.cur && w.cur.a)}</div><ul style="list-style:none;padding:0">
+      <li>vs week / month before: <b class="${cls(w.vsPrev)}">${pc(w.vsPrev, 0)}</b></li><li>vs last year: <b class="${cls(w.vsLy)}">${pc(w.vsLy, 0)}</b></li><li>vs 5-year normal (${t(w.norm)}): <b class="${cls(w.vsNorm)}">${pc(w.vsNorm, 0)}</b></li></ul></div>`;
+  $('arrTiles').innerHTML = tile('Arrivals – last 7 days', w7) + tile('Arrivals – last 30 days', w30) +
+    `<div class="wt"><div class="h">Modal price – last 7 days</div><div class="v">₹${nf(w7.cur && w7.cur.p)}</div><ul style="list-style:none;padding:0"><li>vs week before: <b class="${cls(w7.pVsPrev)}">${pc(w7.pVsPrev, 1)}</b></li><li>vs last year: <b class="${cls(w7.pVsLy)}">${pc(w7.pVsLy, 1)}</b></li><li>30-day average: ₹${nf(w30.cur && w30.cur.p)}</li></ul></div>`;
+  $('arrWeeks').innerHTML = '<thead><tr><th>Week ending</th><th>Arrivals</th><th>Last year</th><th>5-yr normal</th><th>vs normal</th><th>Modal ₹/qtl</th></tr></thead><tbody>' +
+    A.weeks.map(w => `<tr><td>${fmtDate(w.end)}</td><td>${t(w.a)}</td><td>${t(w.ly)}</td><td>${t(w.norm)}</td>${cell(w.a != null && w.norm ? (w.a / w.norm - 1) * 100 : null, 0)}<td>${nf(w.p)}</td></tr>`).join('') + '</tbody>';
+  $('arrStates').innerHTML = '<thead><tr><th>State (30 days)</th><th>Arrivals</th><th>Share</th><th>vs last year</th><th>Modal ₹/qtl</th></tr></thead><tbody>' +
+    A.states.slice(0, 10).map(s => `<tr><td>${esc(s.state)}</td><td>${t(s.a)}</td><td>${s.share}%</td>${s.ly != null && s.ly >= 10 ? cell((s.a / s.ly - 1) * 100, 0) : '<td class="na">new</td>'}<td>${nf(s.p)}</td></tr>`).join('') + '</tbody>';
+  /* daily arrivals (bars, left axis) + modal price (line, right axis) */
+  if (arrChartObj) { arrChartObj.remove(); arrChartObj = null; }
+  arrChartObj = mkChart($('arrChart'), { leftPriceScale: { visible: true, borderColor: css('--axis') }, timeScale: { borderColor: css('--axis') }, handleScroll: false, handleScale: false });
+  const hs = arrChartObj.addHistogramSeries({ priceScaleId: 'left', color: 'rgba(232,163,23,.75)', priceLineVisible: false, lastValueVisible: false, priceFormat: { type: 'volume' } });
+  hs.setData(A.daily.map(d => ({ time: d[0], value: d[1] })));
+  const ls = arrChartObj.addLineSeries({ color: css('--sma200'), lineWidth: 2, priceLineVisible: false, priceFormat: { type: 'price', precision: 0, minMove: 1 } });
+  ls.setData(A.daily.filter(d => d[3]).map(d => ({ time: d[0], value: d[3] })));
+  arrChartObj.timeScale().fitContent();
+  $('lbArr').innerHTML = `<span><i style="background:rgba(232,163,23,.75);height:8px"></i>Daily arrivals, tonnes (left)</span><span><i style="background:${css('--sma200')}"></i>Modal price, 7-day average ₹/qtl (right)</span>`;
+}
+
+/* ------------------------------------------------------------ exports & imports (21-Nov-2026, user; data = TradeStat Google copy)
+   tiles: latest month vs same month last year and vs the 5-year average of that month, last 3 months vs last year, financial
+   year to date (Apr ->) vs last year, average $ per tonne; read: exports up / imports down = supportive, the reverse = pressure */
+let TR = null, trFlow = 'export', trChartObj = null;
+const trKey = (y, m) => y + '-' + String(m).padStart(2, '0');
+const trAdd = (k, n) => { let y = +k.slice(0, 4), m = +k.slice(5, 7) + n; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } return trKey(y, m); };
+const trName = k => MON[+k.slice(5, 7) - 1] + ' ' + k.slice(0, 4);
+function trSum(m, from, to) { let q = 0, u = 0, n = 0; for (let k = from; k <= to; k = trAdd(k, 1)) { const v = m[k]; if (v) { q += v[2]; u += v[0]; n++; } } return n ? { q, u, n } : null; }
+function trStats(f) {
+  const F = TR.flows[f] || { m: {} }, m = F.m, L = TR.latest && TR.latest[f] ? trKey(TR.latest[f].y, TR.latest[f].m) : Object.keys(m).sort().pop();
+  if (!L || !m[L]) return null;
+  const ly = trAdd(L, -12), cur = m[L], last = m[ly];
+  const avg5 = (() => { const a = []; for (let i = 1; i <= 5; i++) { const v = m[trAdd(L, -12 * i)]; if (v) a.push(v[2]); } return a.length ? a.reduce((s, x) => s + x, 0) / a.length : null; })();
+  const q3 = trSum(m, trAdd(L, -2), L), q3ly = trSum(m, trAdd(L, -14), trAdd(L, -12));
+  const fyStart = trKey(+L.slice(5, 7) >= 4 ? +L.slice(0, 4) : +L.slice(0, 4) - 1, 4), fy = trSum(m, fyStart, L), fyly = trSum(m, trAdd(fyStart, -12), ly);
+  const y12 = trSum(m, trAdd(L, -11), L), y12ly = trSum(m, trAdd(L, -23), ly);
+  const pct = (a, b) => a != null && b ? (a / b - 1) * 100 : null, ppt = s => s && s.q ? s.u * 1e6 / s.q : null;      /* US$ Mn ÷ tonnes = $ per tonne */
+  return { L, cur, last, avg5, vsLy: pct(cur[2], last && last[2]), vs5: pct(cur[2], avg5), q3, q3ly, v3: pct(q3 && q3.q, q3ly && q3ly.q), fy, fyly, vfy: pct(fy && fy.q, fyly && fyly.q),
+    fyStart, y12, y12ly, v12: pct(y12 && y12.q, y12ly && y12ly.q), px3: ppt(q3), px3ly: ppt(q3ly) };
+}
+async function loadTrade() {
+  try { TR = await api(`/api/trade?c=${ck}`);
+    /* open on the flow that matters more for this commodity (bigger value in the last 12 months): jeera = exports, palm oil = imports */
+    const e = trStats('export'), i = trStats('import'); trFlow = (i && i.y12 ? i.y12.u : 0) > (e && e.y12 ? e.y12.u : 0) ? 'import' : 'export'; segSet('trFlow', trFlow);
+    renderTrade(); }
+  catch (e) { $('trSyn').innerHTML = `<span class="dn">Export / import error: ${esc(e.message)}</span>`; }
+}
+segInit('trFlow', v => { trFlow = v; renderTrade(); });
+function renderTrade() {
+  if (!TR) return;
+  const t = v => v == null ? '—' : nf(v, 0) + ' t', E = trStats('export'), I = trStats('import'), S = trStats(trFlow), fl = trFlow === 'export' ? 'Exports' : 'Imports';
+  $('trTitle').textContent = `India ${fl.toLowerCase()} – ${S_TR()}`;
+  $('trInfo').textContent = `Commerce Ministry, HS ${TR.codes.join(', ')} · data up to ${S ? trName(S.L) : '—'} · ${TR.source || 'TradeStat'} saved ${TR.updated ? fmtDT(TR.updated) : '—'}`;
+  /* read: both flows */
+  let score = 0; const pts = [];
+  const flowTxt = (s, name, sign) => { if (!s) return;
+    if (s.v3 != null) { const big = s.v3 >= 15 ? 1 : s.v3 <= -15 ? -1 : 0; score += big * sign;
+      pts.push(`${name}, last 3 months (${trName(s.q3 ? trAdd(s.L, -2) : s.L)} – ${trName(s.L)}): ${nf(s.q3.q, 0)} t, ${s.v3 >= 0 ? '+' : ''}${s.v3.toFixed(0)}% vs last year` +
+        (big ? (big * sign > 0 ? ' – supportive for the price.' : ' – pressure on the price.') : ' – about normal.')); }
+    if (s.vfy != null) pts.push(`${name} this financial year (Apr – ${MON[+s.L.slice(5, 7) - 1]}): ${nf(s.fy.q, 0)} t, ${s.vfy >= 0 ? '+' : ''}${s.vfy.toFixed(0)}% vs last year.`); };
+  flowTxt(E, 'Exports', 1); flowTxt(I, 'Imports', -1);
+  const S2 = trFlow === 'export' ? E : I; if (S2 && S2.px3 && S2.px3ly) pts.push(`Average ${fl.toLowerCase()} price: $${nf(S2.px3, 0, 'en-US')}/t, ${pc((S2.px3 / S2.px3ly - 1) * 100, 1)} vs last year.`);
+  const F = TR.flows[trFlow]; if (F && F.top && F.top.length) { const tot = F.top.reduce((s, r) => s + r[1], 0) || 1; pts.push(`Main ${trFlow === 'export' ? 'buyers' : 'suppliers'} (12 months): ` + F.top.slice(0, 3).map(r => `${tcase(r[0])} ${Math.round(r[1] / (S2 && S2.y12 ? S2.y12.q : tot) * 100)}%`).join(', ') + '.'); }
+  pts.push('Monthly data comes about 1–2 months late: it shows the trend of demand and supply, not today.');
+  const lab = score >= 2 ? 'Bullish' : score >= 1 ? 'Mildly bullish' : score <= -2 ? 'Bearish' : score <= -1 ? 'Mildly bearish' : 'Neutral';
+  $('trSyn').innerHTML = `<div style="font-weight:700;margin-bottom:4px">Trade read: <span class="${impCls(score / 2)}">${lab}</span> <small class="na" style="font-weight:400">more exports or fewer imports = supportive; the reverse = pressure</small></div><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6">${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul>`;
+  if (!S) { $('trTiles').innerHTML = ''; $('trTbl').innerHTML = `<tbody><tr><td class="l na">No ${fl.toLowerCase()} recorded for these HS codes.</td></tr></tbody>`; $('trCty').innerHTML = ''; if (trChartObj) { trChartObj.remove(); trChartObj = null; } return; }
+  const tile = (h, v, rows) => `<div class="wt"><div class="h">${h}</div><div class="v">${v}</div><ul style="list-style:none;padding:0">${rows.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
+  $('trTiles').innerHTML = tile(`${fl} – ${trName(S.L)}`, t(S.cur[2]), [`vs ${trName(trAdd(S.L, -12))}: <b class="${cls(S.vsLy)}">${pc(S.vsLy, 0)}</b>`, `vs 5-year average of ${MON[+S.L.slice(5, 7) - 1]} (${t(S.avg5)}): <b class="${cls(S.vs5)}">${pc(S.vs5, 0)}</b>`, `Value: $${nf(S.cur[0], 1, 'en-US')} Mn · ₹${nf(S.cur[1], 0)} Cr`]) +
+    tile(`${fl} – last 3 months`, t(S.q3 && S.q3.q), [`vs same months last year: <b class="${cls(S.v3)}">${pc(S.v3, 0)}</b>`, `Average price: $${nf(S.px3, 0, 'en-US')}/t`, `Last year: $${nf(S.px3ly, 0, 'en-US')}/t`]) +
+    tile(`${fl} – financial year so far`, t(S.fy && S.fy.q), [`Apr – ${MON[+S.L.slice(5, 7) - 1]} vs last year: <b class="${cls(S.vfy)}">${pc(S.vfy, 0)}</b>`, `Last 12 months: ${t(S.y12 && S.y12.q)} (<b class="${cls(S.v12)}">${pc(S.v12, 0)}</b> vs year before)`]);
+  /* month table: last 12 months */
+  const m = F.m, rows = []; for (let i = 0; i < 12; i++) { const k = trAdd(S.L, -i), v = m[k], l = m[trAdd(k, -12)]; rows.push([k, v, l]); }
+  $('trTbl').innerHTML = `<thead><tr><th>Month</th><th>Quantity</th><th>vs last year</th><th>US$ Mn</th><th>₹ Cr</th><th>$ per t</th></tr></thead><tbody>` +
+    rows.map(([k, v, l]) => `<tr><td>${trName(k)}</td><td>${v ? t(v[2]) : '—'}</td>${cell(v && l && l[2] ? (v[2] / l[2] - 1) * 100 : null, 0)}<td>${v ? nf(v[0], 1, 'en-US') : '—'}</td><td>${v ? nf(v[1], 0) : '—'}</td><td>${v && v[2] ? nf(v[0] * 1e6 / v[2], 0, 'en-US') : '—'}</td></tr>`).join('') + '</tbody>';
+  const tm = F.topMonths ? `${trName(F.topMonths[0])} – ${trName(F.topMonths[1])}` : '12 months';
+  $('trCty').innerHTML = `<thead><tr><th>${trFlow === 'export' ? 'Buyer' : 'Supplier'} country (${tm})</th><th>Quantity</th><th>Share</th><th>vs year before</th></tr></thead><tbody>` +
+    (F.top.length ? F.top.map(r => { const tot = F.top.reduce((s, x) => s + x[1], 0); return `<tr><td>${esc(tcase(r[0]))}</td><td>${t(r[1])}</td><td>${(r[1] / (S.y12 && S.y12.q > tot ? S.y12.q : tot) * 100).toFixed(1)}%</td>${r[3] >= 10 ? cell((r[1] / r[3] - 1) * 100, 0) : '<td class="na">new</td>'}</tr>`; }).join('')
+      : '<tr><td colspan="4" class="l na">No country data</td></tr>') + '</tbody>';
+  /* chart: monthly quantity (bars, last 3 years) + $ per tonne (line, right axis) */
+  if (trChartObj) { trChartObj.remove(); trChartObj = null; }
+  trChartObj = mkChart($('trChart'), { leftPriceScale: { visible: true, borderColor: css('--axis') }, timeScale: { borderColor: css('--axis') }, handleScroll: false, handleScale: false });
+  const ks = Object.keys(m).sort().filter(k => k > trAdd(S.L, -36) && k <= S.L);
+  const hs = trChartObj.addHistogramSeries({ priceScaleId: 'left', color: 'rgba(232,163,23,.8)', priceLineVisible: false, lastValueVisible: false, priceFormat: { type: 'volume' } });
+  hs.setData(ks.map(k => ({ time: k + '-15', value: m[k][2] })));
+  const ls = trChartObj.addLineSeries({ color: css('--sma200'), lineWidth: 2, priceLineVisible: false, priceFormat: { type: 'price', precision: 0, minMove: 1 } });
+  ls.setData(ks.filter(k => m[k][2] > 0).map(k => ({ time: k + '-15', value: m[k][0] * 1e6 / m[k][2] })));
+  trChartObj.timeScale().fitContent();
+  $('lbTr').innerHTML = `<span><i style="background:rgba(232,163,23,.8);height:8px"></i>${fl} per month, tonnes (left)</span><span><i style="background:${css('--sma200')}"></i>Average price, $ per tonne (right)</span>`;
+  $('trNote').textContent = `Source: Ministry of Commerce (tradestat.commerce.gov.in) by HS code ${TR.codes.join(', ')}, through the KEDIA TradeStat Google copy (it adds each new month by itself). Quantity in tonnes; "vs last year" = the same month a year before. The newest month can be revised next month.`;
+}
+const S_TR = () => S[ck].tradeName || C.tab;
+
+/* ------------------------------------------------------------ cross, parity, basis, curve, family */
+async function loadPeers() {
+  /* spot-only tabs: the link is worked out on the main price itself (on Google there is no NCDEX spot symbol to ask for) */
+  if (S[ck].spotOnly) D.peerBaseBars = (D.base || []).slice(-121);
+  else try { const r = await api(`/api/bars?sym=${encodeURIComponent(S[ck].peerBase)}&res=1D&n=120`); D.peerBaseBars = normDaily(toBars(r.bars)); } catch (e) {}
+  for (const [, sym] of S[ck].peers) { try { const r = await api(`/api/bars?sym=${encodeURIComponent(sym)}&res=1D&n=120`); D.peers[sym] = normDaily(toBars(r.bars)); renderCross(); } catch (e) {} }
+}
+function renderCross() {
+  const L = D.live; if (!L) return;
+  const gd = {}; (D.peerBaseBars || []).forEach((b, i, a) => { if (i) gd[dstr(b.time)] = b.c / a[i - 1].c - 1; });
+  const useI = S[ck].intl && !S[ck].spotOnly;
+  const baseName = useI ? S[ck].intl.name : C.fut + (S[ck].spotOnly ? '' : ' (near)');
+  const bq = useI ? L.quotes[S[ck].intl.sym] || {} : (() => { const g = futRow() || {}; return { lp: g.close, ch: g.change_abs, chp: g.change }; })();
+  const bd = useI ? 2 : PD;
+  let h = `<thead><tr><th>Market</th><th>Last</th><th>Change</th><th>Change %</th><th>60-day link</th></tr></thead><tbody><tr class="here"><td>${baseName}</td><td>${nf(bq.lp, bd, 'en-US')}</td>${cell(bq.ch, bd, '', 'en-US')}${cell(bq.chp)}<td>—</td></tr>`;
+  for (const [n, sym] of S[ck].peers) { const q = L.quotes[sym] || {}, pb = D.peers[sym]; let cr = null;
+    if (pb && pb.length > 30) { const x = [], y = []; pb.slice(-61).forEach((b, i, a) => { if (!i) return; const k = dstr(b.time); if (gd[k] != null) { x.push(gd[k]); y.push(b.c / a[i - 1].c - 1); } }); cr = corr(x, y); }
+    const d = /US10Y|USDINR|SILVER/.test(sym) ? 3 : /^NCDEX:/.test(sym) ? 0 : 2;
+    h += `<tr><td>${n}</td><td>${nf(q.lp, d, 'en-US')}</td>${cell(q.ch, d, '', 'en-US')}${cell(q.chp)}<td class="${cr == null ? 'na' : cr > 0.3 ? 'up' : cr < -0.3 ? 'dn' : 'na'}">${cr == null ? '—' : (cr > 0 ? '+' : '') + cr.toFixed(2)}</td></tr>`; }
+  $('crossTbl').innerHTML = h + '</tbody>';
+}
+function renderParity() {
+  /* generic since 21-Nov-2026: S[ck].parity = {sym, conv (₹ per MCX unit = intl × USDINR × conv), purity, duty, label, text} */
+  const L = D.live, PR = S[ck].parity; if (!L || !PR) return;
+  const I = S[ck].intl, ID = I.dec == null ? 2 : I.dec;
+  const sp = (L.quotes[PR.sym] || {}).lp, inr = (L.quotes['FX:USDINR'] || {}).lp, m = futPrice(), g = futRow();
+  if (!sp || !inr || !m) return;
+  const f = PR.conv * (PR.purity || 1), duty = (+$('duty').value || 0) / 100, par = sp * inr * f, land = par * (1 + duty), prem = m - land, impl = m / (inr * f);
+  const days = g && g.expiry ? Math.max(0, Math.round((new Date(g.expiry + 'T23:59:00') - new Date()) / 86400000)) : null;
+  const rows = [[I.name, '$' + nf(sp, ID, 'en-US') + ' ' + I.unit.replace('$', '')], ['USDINR', nf(inr, 3, 'en-US')], [PR.label + ' (no duty)', '₹' + nf(par)]];
+  if (duty > 0) rows.push([`Landed (+${(duty * 100).toFixed(2)}% duty)`, '₹' + nf(land)]);
+  rows.push([C.fut + ' near month', '₹' + nf(m)], [`MCX premium (+) / discount (−) vs ${duty > 0 ? 'landed' : 'parity'}`, `<span class="${cls(prem)}">${sgn(prem)}₹${nf(prem)} (${pc(prem / land * 100)})</span>`],
+    [`MCX price in ${I.unit}`, '$' + nf(impl, ID, 'en-US') + ` <small class="na">(${pc((impl / sp - 1) * 100)} vs ${I.name})</small>`],
+    ['Days to MCX expiry', days != null ? days + ' days' : '—']);
+  $('parTbl').innerHTML = '<thead><tr><th>Item</th><th>Value</th></tr></thead><tbody>' + rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') + '</tbody>';
+}
+function renderBasis() {
+  const L = D.live; if (!L || !S[ck].spots.length || S[ck].spotOnly) return;
+  const cv = L.curve || [], near = cv[0], next = cv[1];
+  $('basisTbl').innerHTML = `<thead><tr><th>Spot centre</th><th>Spot</th><th>Change %</th><th>Basis vs ${near ? MON[+near.expiry.slice(5, 7) - 1] : 'near'}</th><th>%</th>${next ? `<th>Basis vs ${MON[+next.expiry.slice(5, 7) - 1]}</th>` : ''}</tr></thead><tbody>` +
+    S[ck].spots.map(([n, s]) => { const q = L.quotes[s] || {}, b1 = q.lp && near ? q.lp - near.close : null, b2 = q.lp && next ? q.lp - next.close : null;
+      return `<tr><td>${n}</td><td>${nf(q.lp)}</td>${cell(q.chp)}${cell(b1, PD, '')}${cell(b1 != null ? b1 / near.close * 100 : null)}${next ? cell(b2, PD, '') : ''}</tr>`; }).join('') + '</tbody>';
+}
+function renderCurve() {
+  const cv = D.live && D.live.curve; if (!cv || !cv.length) return;
+  const n0 = cv[0];
+  $('curveTbl').innerHTML = '<thead><tr><th>Expiry</th><th>Price</th><th>Change %</th><th>Spread vs near</th><th>Carry %/yr</th><th>OI</th><th>Volume</th></tr></thead><tbody>' + cv.map((c, i) => {
+    const sp = c.close - n0.close, dd = (new Date(c.expiry) - new Date(n0.expiry)) / 86400000, carry = i && dd > 0 ? (c.close / n0.close - 1) * 365 / dd * 100 : null;
+    return `<tr><td>${fmtDate(c.expiry)}</td><td>${nf(c.close)}</td>${cell(c.chp)}<td>${i ? sgn(sp) + nf(sp) : '—'}</td><td>${carry == null ? '—' : carry.toFixed(2) + '%'}</td><td>${nf(c.oi, 0)}</td><td>${nf(c.vol, 0)}</td></tr>`; }).join('') + '</tbody>';
+}
+function renderFamily() {
+  const m = D.live && D.live.fut; if (!m || S[ck].family.length < 2) return;
+  const rows = S[ck].family.map(f => m[f[0]]).filter(Boolean);
+  $('famTbl').innerHTML = '<thead><tr><th>Contract</th><th>Grade / purity</th><th>Lot</th><th>Quote</th><th>Expiry</th><th>Price</th><th>Change %</th><th>High</th><th>Low</th><th>OI</th></tr></thead><tbody>' +
+    rows.map(v => `<tr><td>${v.name}${v.src !== 'live' ? ' <small class="na" style="font-weight:400">*</small>' : ''}</td><td>${v.purity}</td><td>${v.lot}</td><td>${v.unit}</td><td>${v.expiry ? fmtDate(v.expiry) : '—'}</td><td>${nf(v.close)}</td>${cell(v.change)}<td>${nf(v.high)}</td><td>${nf(v.low)}</td><td>${nf(v.open_interest, 0)}</td></tr>`).join('') + '</tbody>';
+  const off = rows.filter(v => v.src !== 'live');
+  $('famNote').textContent = off.length ? '* ' + off.map(v => v.name + ': ' + v.src + ' (no live quote available; change vs the previous bhavcopy)').join('; ') : '';
+}
+/* ------------------------------------------------------------ News tab (21-Nov-2026: news moved out of the commodity tabs, one card per commodity) */
+const ago = t => { const s = Date.now() / 1000 - t; return s < 3600 ? Math.max(1, Math.round(s / 60)) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' d ago'; };
+/* 21-Nov-2026 (user): news types, picked by words in the headline (one story can be in more than one type) */
+const NEWS_CATS = [
+  ['price', 'Price', /\bprices?\b|\brates?\b|\bbhav\b|\brall(y|ies)\b|surge|jump|soar|slump|plunge|tumble|\bfalls?\b|\bdrops?\b|\bdecline|\bgains?\b|\bhighs?\b|\blows?\b|futures|\bcheaper\b|costlier|record|₹|\$/i],
+  ['export', 'Export', /export|shipment|overseas (demand|buyers)|outbound/i],
+  ['import', 'Import', /import|landed|inbound|duty-free|\bduty\b/i],
+  ['prod', 'Production & Crop', /production|\boutput\b|\bcrop\b|harvest|sowing|acreage|\byield|arrival|estimate|\bmines?\b|mining|smelter|refiner|\bopec\b|supply/i],
+  ['weather', 'Weather', /weather|\brain|monsoon|drought|frost|heatwave|heat wave|\bflood|cyclone|el ni|la ni|temperature|dry spell/i],
+  ['policy', 'Govt & Policy', /government|\bgovt\b|policy|\bban\b|\bmsp\b|procurement|stock limit|nafed|\bfci\b|regulat|\btax|\bgst\b|tariff|\brbi\b|\bfed\b|central bank|sebi|margin|ministry|minister|\bcuts? rates?\b|rate cut|rate hike|sanction/i],
+  ['demand', 'Demand & Stocks', /demand|consumption|\bstocks?\b|inventor|buying|festiv|offtake|\betf\b|purchas|wedding|crush/i],
+];
+const newsCats = t => NEWS_CATS.filter(c => c[2].test(t)).map(c => c[0]);
+const newsLi = n => `<li><span>${ago(n.ts)}</span><div><a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a><em>${esc(n.source)}</em>` +
+  newsCats(n.title).map(c => `<span class="ntag">${NEWS_CATS.find(x => x[0] === c)[1]}</span>`).join('') + '</div></li>';
+/* filter buttons with counts; on(cat) is called with the picked type ('all' = everything) */
+function newsChips(el, items, cur, on) {
+  const cnt = c => items.filter(n => c === 'all' || newsCats(n.title).includes(c)).length;
+  el.innerHTML = [['all', 'All']].concat(NEWS_CATS).map(c => `<button data-c="${c[0]}" class="${c[0] === cur ? 'on' : ''}">${c[1]}<b>${cnt(c[0])}</b></button>`).join('');
+  el.onclick = e => { const b = e.target.closest('button'); if (b) on(b.dataset.c); };
+}
+/* 22-Nov-2026 (user, STRICT): our own stories ("... By Kedia Advisory") are never shown - checked here too, not only on the server */
+const notOurs = items => (items || []).filter(n => !/kedia/i.test((n.title || '') + ' ' + (n.source || '') + ' ' + (n.link || '')));
+const pickNews = (items, cat) => notOurs(items).filter(n => cat === 'all' || newsCats(n.title).includes(cat));
+/* News tab: one card per commodity, one row of filters for all */
+let allNewsCat = 'all';
+const ALLNEWS = {};
+function renderAllNews() {
+  const all = Object.values(ALLNEWS).flat();
+  if ($('nAllChips')) newsChips($('nAllChips'), all, allNewsCat, c => { allNewsCat = c; renderAllNews(); });
+  Object.entries(ALLNEWS).forEach(([k, items]) => { const el = $('nList' + k); if (!el) return; const p = pickNews(items, allNewsCat);
+    el.innerHTML = p.slice(0, 20).map(newsLi).join('') || `<li class="na">${allNewsCat === 'all' ? 'No news this week.' : 'No news of this type.'}</li>`;
+    el.closest('.card').style.display = allNewsCat !== 'all' && !p.length ? 'none' : ''; });
+}
+async function loadAllNews() {
+  const ks = Object.keys(S).filter(k => CFG[k]);
+  $('newsView').innerHTML = '<div class="card mb"><h2>Filter news by type</h2><div class="chips" id="nAllChips"></div></div>' +
+    ks.map(k => `<div class="card mb"><h2>${CFG[k].tab} news <small id="nInfo${k}"></small></h2><ul class="news" id="nList${k}"><li><span></span>Loading…</li></ul></div>`).join('');
+  await Promise.all(ks.map(async k => {
+    try { const r = await api(`/api/news?c=${k}`);
+      ALLNEWS[k] = notOurs(r.items); renderAllNews();
+      $('nInfo' + k).textContent = 'Google News · updated ' + (r.at ? fmtDT(r.at) : '—');
+    } catch (e) { $('nList' + k).innerHTML = `<li class="dn">News error: ${esc(e.message)}</li>`; }
+  }));
+}
+/* commodity tab: its own news card at the end of the page */
+let commNews = [], commNewsCat = 'all';
+function renderCommNews() {
+  newsChips($('ncChips'), commNews, commNewsCat, c => { commNewsCat = c; renderCommNews(); });
+  const p = pickNews(commNews, commNewsCat);
+  $('ncList').innerHTML = p.slice(0, 40).map(newsLi).join('') || `<li class="na">${commNewsCat === 'all' ? 'No news in the last 14 days.' : 'No news of this type in the last 14 days.'}</li>`;
+}
+async function loadCommNews() {
+  const my = ck;
+  try { const r = await api(`/api/news?c=${ck}`); if (my !== ck) return;
+    commNews = notOurs(r.items); renderCommNews(); $('ncInfo').textContent = 'Google News, last 14 days · updated ' + (r.at ? fmtDT(r.at) : '—'); }
+  catch (e) { $('ncList').innerHTML = `<li class="dn">News error: ${esc(e.message)}</li>`; }
+}
+/* ------------------------------------------------------------ base metals arbitrage (21-Nov-2026, user)
+   Shanghai $/t = SHFE yuan ÷ 1.13 (VAT) ÷ USDCNY · MCX $/t = MCX ₹/kg × 1000 ÷ USDINR · landed = LME × USDINR ÷ 1000 × (1 + duty)
+   carry %/yr = (next ÷ near − 1) × 365 ÷ days between the two expiries */
+let ARB = null; const arbDuty = {};
+try { Object.assign(arbDuty, JSON.parse(localStorage.getItem('kediaArbDuty') || '{}')); } catch (e) {}
+async function loadArb() { try { ARB = await api('/api/basearb'); renderArb(); } catch (e) { $('arbNote').innerHTML = `<span class="dn">Arbitrage error: ${esc(e.message)}</span>`; } }
+function arbCalc(r) {
+  const inr = ARB.usdinr, cny = ARB.usdcny, duty = arbDuty[r.ck] != null ? arbDuty[r.ck] : r.duty;
+  const shUsd = r.shfe && cny ? r.shfe / 1.13 / cny : null, mcx = r.near && r.near.close, mcxUsd = mcx && inr ? mcx * 1000 / inr : null;
+  const landed = r.lme && inr ? r.lme * inr / 1000 * (1 + duty / 100) : null;
+  let carry = null; if (r.near && r.next && r.near.close) { const d = (new Date(r.next.expiry) - new Date(r.near.expiry)) / 864e5; if (d > 0) carry = (r.next.close / r.near.close - 1) * 365 / d * 100; }
+  return { duty, shUsd, shPrem: shUsd && r.lme ? (shUsd / r.lme - 1) * 100 : null, mcx, mcxUsd, mPrem: mcxUsd && r.lme ? (mcxUsd / r.lme - 1) * 100 : null,
+    landed, vsLand: mcx && landed ? (mcx / landed - 1) * 100 : null, carry };
+}
+function renderArb() {
+  if (!ARB) return;
+  const fund = +$('arbFund').value || 0, f = (v, d = 0) => v == null || isNaN(v) ? '—' : nf(v, d, 'en-US');
+  const tag = (t, s) => `<span class="tag ${s > 0 ? 'b' : s < 0 ? 's' : 'n'}" style="margin:1px 0;display:inline-block">${t}</span>`;
+  $('arbTbl').innerHTML = '<thead><tr><th>Metal</th><th>LME $/t</th><th>Shanghai ¥/t</th><th>Shanghai $/t<br>without VAT</th><th>Shanghai<br>vs LME</th>' +
+    '<th>MCX near ₹/kg</th><th>MCX in $/t</th><th>MCX vs LME</th><th>Import<br>duty %</th><th>Landed LME<br>₹/kg</th><th>MCX vs<br>landed</th><th>Carry<br>near → next<br>% a year</th><th style="text-align:left">Read</th></tr></thead><tbody>' +
+    ARB.rows.map(r => { const x = arbCalc(r), reads = [];
+      if (x.vsLand != null) reads.push(x.vsLand > 1 ? tag('MCX rich vs landed LME', -1) : x.vsLand < -1 ? tag('MCX cheap vs landed LME', 1) : tag('MCX at import parity', 0));
+      if (x.shPrem != null) reads.push(x.shPrem > 1 ? tag('China premium – strong demand', 1) : x.shPrem < -1 ? tag('China discount – weak demand', -1) : tag('Shanghai ≈ LME', 0));
+      if (x.carry != null) reads.push(x.carry > fund ? tag(`Good carry: ${x.carry.toFixed(1)}% > ${fund}% funding`, 1) : x.carry < 0 ? tag('Backwardation – near month tight', -1) : tag('Carry below funding cost', 0));
+      const nm = r.near ? MON[+r.near.expiry.slice(5, 7) - 1] : '', nx = r.next ? MON[+r.next.expiry.slice(5, 7) - 1] : '';
+      return `<tr class="${r.ck === ck ? 'here' : ''}"><td>${esc(r.name)}</td><td>${f(r.lme)} ${r.lmeChp != null ? `<small class="${cls(r.lmeChp)}">${pc(r.lmeChp)}</small>` : ''}</td>` +
+        `<td>${f(r.shfe)} ${r.shfeChp != null ? `<small class="${cls(r.shfeChp)}">${pc(r.shfeChp)}</small>` : ''}</td><td>${f(x.shUsd)}</td>${cell(x.shPrem)}` +
+        `<td>${f(x.mcx, 2)} <small class="na">${nm}</small></td><td>${f(x.mcxUsd)}</td>${cell(x.mPrem)}` +
+        `<td><input type="number" data-arb="${r.ck}" value="${x.duty}" step="0.5" min="0" max="30" style="width:58px"></td><td>${f(x.landed, 2)}</td>${cell(x.vsLand)}` +
+        `${cell(x.carry)}<td class="l">${reads.join('<br>')} <small class="na">${nm && nx ? nm + '→' + nx : ''}</small></td></tr>`; }).join('') + '</tbody>';
+  $('arbInfo').textContent = `USDINR ${f(ARB.usdinr, 3)} · USDCNY ${f(ARB.usdcny, 4)} · updated ${fmtDT(ARB.at)}`;
+  const lsrc = (ARB.rows.find(r => r.ck === 'COPPER') || {}).lmeSrc || '';
+  $('arbNote').innerHTML = 'Shanghai $/t = SHFE price in yuan ÷ 1.13 (China VAT) ÷ USDCNY. MCX $/t = MCX near month ₹/kg × 1000 ÷ USDINR. Landed LME = LME × USDINR ÷ 1000 × (1 + import duty); duty boxes start at the basic customs duty – check the current rate and change it, your numbers are kept on this computer. ' +
+    'Carry = next MCX contract over the near one, as % a year: above your funding cost = buy near / sell next (cash-and-carry) pays; negative = backwardation. LME and Shanghai prices are near-month / LME-linked quotes and can be delayed; a guide only.' +
+    (/CME/.test(lsrc) ? ' <b>Copper on the Google version: LME is not available, CME copper in $/t is used.</b>' : '');
+}
+$('arbFund').oninput = renderArb;
+$('arbTbl').addEventListener('change', e => { const i = e.target.closest('input[data-arb]'); if (!i) return; arbDuty[i.dataset.arb] = +i.value || 0;
+  try { localStorage.setItem('kediaArbDuty', JSON.stringify(arbDuty)); } catch (er) {} renderArb(); });
+/* "Jump to" bar: one link per block that is shown on this tab */
+function buildJump() {
+  const J = [['heroBox', 'Price'], ['ecoCard', 'Eco data'], ['arbCard', 'Arbitrage'], ...CB.map((b, i) => [b.k + 'Card', 'Chart: ' + C.src[i][1]]), ['techCard', 'Technicals'], ['lvCard', 'Levels'],
+    ['momCard', 'Momentum'], ['retCard', 'Returns'], ['weatherCard', 'Weather'], ['crossCard', 'Other markets'], ['parityCard', 'Parity'], ['basisCard', 'Basis'],
+    ['curveCard', 'Expiries'], ['famCard', 'Contracts'], ['arrCard', 'Arrivals'], ['trCard', 'Exports & imports'], ...SB.map((s, i) => [s.k + 'Card', 'Seasonality: ' + C.src[i][1]]), ['newsCard', 'News'], ['aboutCard', 'About']];
+  const JV = J.filter(([id]) => $(id) && !$(id).classList.contains('hide'));
+  $('jumpSel').innerHTML = '<option value="">Go to: Price, Charts, News …</option>' + JV.map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join('');
+  $('jumpBar').innerHTML = J.filter(([id]) => $(id) && !$(id).classList.contains('hide')).map(([id, n]) => `<a href="#${ck.toLowerCase()}" data-j="${id}">${esc(n)}</a>`).join('');
+}
+$('jumpBar').addEventListener('click', e => { const a = e.target.closest('a[data-j]'); if (!a) return; e.preventDefault(); $(a.dataset.j).scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+/* phone / tablet (21-Nov-2026): jump drop-down, ☰ commodity menu that slides in, ⋯ header buttons */
+$('jumpSel').onchange = e => { const id = e.target.value; if (id && $(id)) $(id).scrollIntoView({ behavior: 'smooth', block: 'start' }); e.target.value = ''; };
+const sideOpen = on => { $('tabs').classList.toggle('open', on); $('sideShade').classList.toggle('open', on); if (on) setTimeout(() => { try { $('mSearch').focus({ preventScroll: true }); } catch (e) {} }, 220); };
+$('btnMenu').onclick = () => sideOpen(!$('tabs').classList.contains('open'));
+$('sideShade').onclick = () => sideOpen(false);
+$('tabs').addEventListener('click', e => { if (e.target.closest('a')) sideOpen(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') sideOpen(false); });
+$('btnMore').onclick = () => $('hBtns').classList.toggle('open');
+/* the block now on screen is marked in the list (cream, gold line) */
+let jumpT = 0;
+window.addEventListener('scroll', () => { clearTimeout(jumpT); jumpT = setTimeout(() => {
+  const links = [...$('jumpBar').querySelectorAll('a[data-j]')]; let cur = links[0];
+  for (const a of links) { const el = $(a.dataset.j); if (el && el.getBoundingClientRect().top < 120) cur = a; }
+  links.forEach(a => a.classList.toggle('on', a === cur)); }, 80); }, { passive: true });
+
+/* ------------------------------------------------------------ NCDEX Spot tab (21-Nov-2026: every NCDEX commodity, delivery-centre spot from the bhavcopy) */
+const SP_NAME = { CASTORSEEDNEW: 'Castor Seed', COTTONSEEDOILCAKEAKOLA: 'Cottonseed Oil Cake', COTTON29MM: 'Cotton (29 mm)', GUARGUM_5MT: 'Guar Gum', GUAR_SEED10: 'Guar Seed',
+  KAPASNEW: 'Kapas', 'GROUNDNUT (IN SHELL)': 'Groundnut (in shell)', 'REFINED CASTOR OIL': 'Castor Oil (refined)', JEERAMINI: 'Jeera Mini', SESAMESEED: 'Sesame Seed',
+  'CRUDE SUNFLOWER OIL': 'Sunflower Oil (crude)', 'COTTON WASH OIL': 'Cotton Wash Oil', 'ISABGOL SEED': 'Isabgol Seed', 'YELLOW PEAS': 'Yellow Peas', 'GUAR KORMA': 'Guar Korma', CORIANDER: 'Dhaniya (Coriander)' };
+const tcase = s => String(s || '').toLowerCase().replace(/(^|[\s(\-])\w/g, c => c.toUpperCase());
+const spUnit = u => ({ 'RS/QUINTAL': '₹/quintal', 'RS/10KG': '₹/10 kg', 'RS/BALES': '₹/bale', 'RS/20KGS': '₹/20 kg', 'RS/KG': '₹/kg' }[String(u || '').toUpperCase()] || u || '');
+let SPOT = null;
+async function loadSpotTab() {
+  try { SPOT = await api('/api/ncdexspot'); renderSpotTab(); }
+  catch (e) { $('spSum').innerHTML = `<span class="dn">${esc(e.message)}</span>`; $('spTbl').innerHTML = ''; }
+}
+function renderSpotTab() {
+  if (!SPOT) return;
+  const q = ($('spQ').value || '').trim().toLowerCase();
+  const rows = SPOT.rows.filter(r => !/^RAIN/.test(r.sym)).map(r => Object.assign({}, r, { nm: SP_NAME[r.name] || tcase(r.name), ct: tcase(r.centre) }))
+    .filter(r => !q || (r.nm + ' ' + r.ct + ' ' + r.sym).toLowerCase().includes(q)).sort((a, b) => a.nm < b.nm ? -1 : 1);
+  const all = SPOT.rows.filter(r => !/^RAIN/.test(r.sym)), up = all.filter(r => r.chg > 0).length, dn = all.filter(r => r.chg < 0).length;
+  const best = all.filter(r => r.chp != null).sort((a, b) => b.chp - a.chp);
+  $('spSum').innerHTML = `<b>Spot on ${fmtDate(SPOT.date)}</b>${SPOT.prevDate ? ` vs ${fmtDate(SPOT.prevDate)}` : ''}: <span class="up">${up} up</span> · <span class="dn">${dn} down</span> · ${all.length - up - dn} unchanged` +
+    (best.length ? ` · biggest rise <b>${esc(SP_NAME[best[0].name] || tcase(best[0].name))} ${pc(best[0].chp)}</b> · biggest fall <b>${esc(SP_NAME[best[best.length - 1].name] || tcase(best[best.length - 1].name))} ${pc(best[best.length - 1].chp)}</b>` : '');
+  $('spTbl').innerHTML = '<thead><tr><th>Commodity</th><th style="text-align:left">Centre</th><th style="text-align:left">Unit</th><th>Spot</th><th>Change</th><th>Change %</th><th>Near futures</th><th>Expiry</th><th>Basis (spot − fut)</th><th>Basis %</th></tr></thead><tbody>' +
+    (rows.length ? rows.map(r => { const d = r.spot < 100 ? 2 : r.spot < 1000 ? 1 : 0;
+      return `<tr><td>${esc(r.nm)} <small class="na" style="font-weight:400">${esc(r.sym)}</small></td><td class="l">${esc(r.ct)}</td><td class="l">${esc(spUnit(r.unit))}</td><td><b>${nf(r.spot, d)}</b></td>${cell(r.chg, d, '')}${cell(r.chp)}<td>${nf(r.fut, d)}</td><td>${r.exp ? fmtDate(r.exp) : '—'}</td>${cell(r.basis, d, '')}${cell(r.basis != null && r.fut ? r.basis / r.fut * 100 : null)}</tr>`; }).join('')
+      : '<tr><td colspan="10" class="l na">No commodity matches the search.</td></tr>') + '</tbody>';
+  $('spInfo').textContent = `${all.length} commodities · ${esc(SPOT.source || '')}`;
+  $('spNote').textContent = 'Spot = the NCDEX polled spot price at the delivery centre, as printed in the NCDEX bhavcopy (one price a day, after the market). Basis = spot − near-month futures: negative = futures above spot.';
+}
+$('spQ').addEventListener('input', renderSpotTab);
+
+/* ------------------------------------------------------------ seasonality (21-Nov-2026: one card per price source, futures and $ / spot) */
+function heatBg(v, max = 8) { if (v == null) return ''; const a = Math.min(1, Math.abs(v) / max) * 0.55; return v >= 0 ? `background:rgba(46,125,50,${a})` : `background:rgba(179,38,30,${a})`; }
+let SB = [];
+class SeasonBlock {
+  constructor(k, src, title) {
+    this.k = k; this.src = src; this.tab = 'heat';
+    const box = document.createElement('div'); box.className = 'card mb'; box.id = k + 'Card';
+    box.innerHTML = `<h2>Behaviour &amp; seasonality – ${title}
+      <span class="seg" id="${k}Tab"><button data-v="heat" class="on">Monthly returns</button><button data-v="avg">Month average</button><button data-v="wd">Weekday</button><button data-v="big">Big moves</button></span></h2>
+      <div class="tw" id="${k}Box"></div><div class="note" id="${k}Note"></div>`;
+    $('seasonsBox').appendChild(box);
+    segInit(k + 'Tab', v => { this.tab = v; this.render(); });
+  }
+  $(id) { return document.getElementById(this.k + id); }
+  async render() {
+    const src = this.src, box = this.$('Box'), note = this.$('Note');
+    let daily = [];
+    try { daily = (await getSeries(src, 'D')).bars; } catch (e) {}
+    let monthly = agg(daily, 'M');
+    if (src === 'intl') { try { if (!D.longM) D.longM = toBars((await api(`/api/bars?sym=${encodeURIComponent(S[ck].intl.sym)}&res=1M&n=700`)).bars);
+      if (monthly.length) monthly = D.longM.filter(b => b.time < monthly[0].time - 20 * 86400).concat(monthly); } catch (e) {} }
+    if (monthly.length < 13) {
+      /* a young contract (Guar Korma: futures since Jul-2026) loads fine but has under 13 months: say so instead of "Loading…"
+         (a table, so the PDF completeness check counts the card as done) */
+      box.innerHTML = daily.length ? `<table><tbody><tr><td class="l">Seasonality needs at least 13 months of prices; this price starts ${fmtDate(dstr(daily[0].time))} (${monthly.length} months so far).</td></tr></tbody></table>`
+        : '<p class="note" style="padding:10px">Loading…</p>';
+      return; }
+    const ret = {}; for (let i = 1; i < monthly.length; i++) { const d = new Date(monthly[i].time * 1000), y = d.getUTCFullYear(), m = d.getUTCMonth();
+      (ret[y] = ret[y] || {})[m] = (monthly[i].c / monthly[i - 1].c - 1) * 100; }
+    const years = Object.keys(ret).map(Number).sort((a, b) => b - a);
+    const stat = m => { const v = years.map(y => ret[y][m]).filter(x => x != null); return { avg: v.reduce((a, b) => a + b, 0) / (v.length || 1), up: v.filter(x => x > 0).length / (v.length || 1) * 100, n: v.length }; };
+    const nowM = new Date().getMonth(), label = (C.src.find(s => s[0] === src) || [])[1];
+    const dec = src === 'intl' ? (S[ck].intl.dec == null ? 2 : S[ck].intl.dec) : PD, loc = src === 'intl' ? 'en-US' : 'en-IN';
+    if (this.tab === 'heat') {
+      const ys = years.slice(0, 25);
+      let h = '<table class="heat"><thead><tr><th>Year</th>' + MON.map(m => `<th>${m}</th>`).join('') + '<th>Year</th></tr></thead><tbody>';
+      for (const y of ys) { const yr = Object.values(ret[y]).reduce((a, v) => a * (1 + v / 100), 1);
+        h += `<tr><td>${y}</td>` + MON.map((_, m) => { const v = ret[y][m]; return v == null ? '<td></td>' : `<td style="${heatBg(v)}">${v.toFixed(1)}</td>`; }).join('') + `<td class="${cls(yr - 1)}"><b>${((yr - 1) * 100).toFixed(1)}</b></td></tr>`; }
+      h += '<tr><td>Average</td>' + MON.map((_, m) => { const s = stat(m); return `<td style="${heatBg(s.avg, 3)}"><b>${s.avg.toFixed(1)}</b></td>`; }).join('') + '<td></td></tr></tbody></table>';
+      box.innerHTML = h; note.textContent = `${label}: % change each month (last ${ys.length} years; average uses all ${years.length}).`;
+    } else if (this.tab === 'avg') {
+      box.innerHTML = '<table><thead><tr><th>Month</th><th>Average %</th><th>Up years</th><th>Years</th></tr></thead><tbody>' + MON.map((m, i) => { const s = stat(i);
+        return `<tr class="${i === nowM ? 'here' : ''}"><td>${m}</td>${cell(s.avg)}<td>${s.up.toFixed(0)}%</td><td>${s.n}</td></tr>`; }).join('') + '</tbody></table>';
+      note.textContent = `${label}: average monthly change and how often the month closed higher. Highlighted = this month.`;
+    } else if (this.tab === 'wd') {
+      const cut = daily.length ? daily[daily.length - 1].time - 5 * 365 * 86400 : 0, w = [[], [], [], [], []];
+      for (let i = 1; i < daily.length; i++) { if (daily[i].time < cut) continue; const wd = new Date(daily[i].time * 1000).getUTCDay(); if (wd >= 1 && wd <= 5) w[wd - 1].push((daily[i].c / daily[i - 1].c - 1) * 100); }
+      box.innerHTML = '<table><thead><tr><th>Day</th><th>Average %</th><th>Up days</th><th>Biggest up</th><th>Biggest down</th><th>Days</th></tr></thead><tbody>' + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((n, i) => { const v = w[i];
+        if (!v.length) return `<tr><td>${n}</td><td colspan="5" class="na">—</td></tr>`;
+        return `<tr><td>${n}</td>${cell(v.reduce((a, b) => a + b, 0) / v.length, 3)}<td>${(v.filter(x => x > 0).length / v.length * 100).toFixed(0)}%</td>${cell(Math.max(...v))}${cell(Math.min(...v))}<td>${v.length}</td></tr>`; }).join('') + '</tbody></table>';
+      note.textContent = `${label}: daily change by weekday, last 5 years.`;
+    } else {
+      const cut = daily.length ? daily[daily.length - 1].time - 5 * 365 * 86400 : 0, mv = [];
+      for (let i = 1; i < daily.length; i++) if (daily[i].time >= cut) mv.push({ t: daily[i].time, p: (daily[i].c / daily[i - 1].c - 1) * 100, c: daily[i].c });
+      const up = mv.slice().sort((a, b) => b.p - a.p).slice(0, 10), dn = mv.slice().sort((a, b) => a.p - b.p).slice(0, 10);
+      box.innerHTML = '<table><thead><tr><th>#</th><th>Biggest up day</th><th>Change</th><th>Close</th><th>Biggest down day</th><th>Change</th><th>Close</th></tr></thead><tbody>' +
+        up.map((u, i) => `<tr><td>${i + 1}</td><td class="l">${fmtDate(dstr(u.t))}</td>${cell(u.p)}<td>${nf(u.c, dec, loc)}</td><td class="l">${dn[i] ? fmtDate(dstr(dn[i].t)) : ''}</td>${dn[i] ? cell(dn[i].p) : '<td></td>'}<td>${dn[i] ? nf(dn[i].c, dec, loc) : ''}</td></tr>`).join('') + '</tbody></table>';
+      note.textContent = `${label}: the 10 biggest one-day rises and falls in the last 5 years.` + (src === 'fut' ? ' Days around a contract change can show a jump from the roll.' : '');
+    }
+  }
+}
+function buildSeasons() { $('seasonsBox').innerHTML = ''; SB = C.src.map(([s], i) => new SeasonBlock('sb' + i, s, C.chartTitles[i])); }
+
+
+/* ------------------------------------------------------------ export */
+function line2() {
+  const L = D.live, q = L.quotes;
+  if (S[ck].intl) { const I = S[ck].intl, sp = q[I.sym] || {}, d = I.dec == null ? 2 : I.dec;
+    return { name: I.name + ' ' + I.unit, v: ipre() + nf(sp.lp, d, 'en-US'), ch: sp.ch, chs: `${sgn(sp.ch)}${nf(sp.ch, d, 'en-US')} (${pc(sp.chp)})`, wa: `*${I.name}*: ${ipre()}${nf(sp.lp, d, 'en-US')} (${pc(sp.chp)})` }; }
+  if (!S[ck].spots.length) { const x = q['FX:USDINR'] || {};       /* no second price (Mentha Oil): show the rupee */
+    return { name: 'USDINR', v: nf(x.lp, 3, 'en-US'), ch: x.ch, chs: pc(x.chp), wa: `*USDINR*: ${nf(x.lp, 2, 'en-US')} (${pc(x.chp)})` }; }
+  const [n, s] = S[ck].spots[0], sp = q[s] || {}; return { name: n + ' ' + S[ck].unit, v: nf(sp.lp), ch: sp.ch, chs: `${sgn(sp.ch)}${nf(sp.ch)} (${pc(sp.chp)})`, wa: `*${n}*: ${nf(sp.lp)} (${pc(sp.chp)})` };
+}
+function waText() {
+  const L = D.live; if (!L) return '';
+  const g = futRow() || {}, e = L.expected, w = D.weather;
+  const now = new Date(), when = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const ic = v => v > 0 ? '🟢' : v < 0 ? '🔴' : '⚪', l2 = line2();
+  const T = [`*KEDIA Commodity Live – ${C.tab}* ${S[ck].intl && !S[ck].spotOnly ? '🟡' : '🌿'}`, '_' + when + '_', '',
+    `${ic(g.change_abs)} *${C.fut}*: ${nf(g.close)} (${arrow(g.change_abs)} ${sgn(g.change_abs)}${nf(g.change_abs)} | ${pc(g.change)})`, `${ic(l2.ch)} ${l2.wa}`];
+  if (S[ck].intl && !S[ck].spotOnly) { const q = L.quotes; T.push(`💱 USDINR ${nf((q['FX:USDINR'] || {}).lp, 2, 'en-US')} · DXY ${nf((q['TVC:DXY'] || {}).lp, 2, 'en-US')} · US10Y ${nf((q['TVC:US10Y'] || {}).lp, 3, 'en-US')}%`); }
+  if (D.eco && D.eco.next) { const n = D.eco.nextUS; if (n) T.push(`📅 *Next US data*: ${n.title} · ${ecoWhen(n.ist)} IST (forecast ${n.forecast || '—'})`); }
+  if (e && !e.live && e.value) T.push('', `🔔 *Expected MCX opening*: ${nf(e.value)} (${sgn(e.chg)}${nf(e.chg)} | ${pc(e.pct)})`);
+  if (w && w.overall) T.push('', `🌦️ *Crop weather impact*: 7d ${w.overall['7'].impact} · 15d ${w.overall['15'].impact} · 30d ${w.overall['30'].impact}`);
+  if (D.arr && D.arr.win) { const a7 = D.arr.win['7']; T.push(`🚚 *Mandi arrivals 7d*: ${nf(a7.cur && a7.cur.a, 0)} t (${pc(a7.vsLy, 0)} vs last year, ${pc(a7.vsNorm, 0)} vs normal) · read: ${D.arr.signal.label}`); }
+  if (D.pivots) { const P = D.pivots; T.push('', `📊 Pivot ${nf(P.P)} · R1 ${nf(P.R1)} · R2 ${nf(P.R2)} · S1 ${nf(P.S1)} · S2 ${nf(P.S2)}`); }
+  T.push('', '_Indicative only, not a trade call._', '*KEDIA ADVISORY*');
+  return T.join('\n');
+}
+$('btnWa').onclick = async () => { try { await navigator.clipboard.writeText(waText()); toast('WhatsApp text copied'); } catch (e) { toast('Copy failed: ' + e.message); } };
+$('btnImg').onclick = async () => {
+  const L = D.live; if (!L || !window.html2canvas) return toast('Not ready yet');
+  const g = futRow() || {}, e = L.expected, w = D.weather, P = D.pivots, l2 = line2();
+  const now = new Date(), when = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' + now.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const col = v => v > 0 ? '#2E7D32' : v < 0 ? '#B3261E' : '#6B7280', icol = s => s >= 0.35 ? '#2E7D32' : s <= -0.35 ? '#B3261E' : '#6B7280';
+  let b3 = '';
+  if (e) b3 = e.live ? `<div class="l">MCX trading now</div><div class="v">${nf(g.close)}</div><div class="s">Opened at ${nf(e.opened)}${e.lastExpected ? ' · expected was ' + nf(e.lastExpected) : ''}</div>`
+    : `<div class="l">Expected MCX opening</div><div class="v">${nf(e.value)}</div><div class="c" style="color:${col(e.chg)}">${sgn(e.chg)}${nf(e.chg)} (${pc(e.pct)})</div><div class="s">${e.next ? 'Opens ' + fmtDT(e.next) : ''}</div>`;
+  else if (w) b3 = `<div class="l">Crop weather impact</div><div class="v" style="font-size:22px;color:${icol(w.overall['7'].score)}">${w.overall['7'].impact}</div><div class="s">next 7 days · 15d ${w.overall['15'].impact} · 30d ${w.overall['30'].impact}</div><div class="s">Stage: ${esc(w.stageNow)}</div>`;
+  else { const q = L.quotes, inr = q['FX:USDINR'] || {}, dxy = q['TVC:DXY'] || {}, y10 = q['TVC:US10Y'] || {};
+    b3 = `<div class="l">USDINR</div><div class="v">${nf(inr.lp, 3, 'en-US')}</div><div class="c" style="color:${col(inr.chp)}">${pc(inr.chp)}</div><div class="s">Dollar Index ${nf(dxy.lp, 2, 'en-US')} (${pc(dxy.chp)}) · US 10Y ${nf(y10.lp, 3, 'en-US')}%</div>`; }
+  $('shot').innerHTML = `<div class="sh"><img src="${window.KEDIA_LOGO}"><div><h3>Commodity Live – ${C.tab}</h3><div>${when}</div></div></div>
+   <div class="sb">
+    <div class="bx"><div class="l">${C.fut} ${S[ck].unit}</div><div class="v">${nf(g.close)}</div><div class="c" style="color:${col(g.change_abs)}">${sgn(g.change_abs)}${nf(g.change_abs)} (${pc(g.change)})</div><div class="s">O ${nf(g.open)} · H ${nf(g.high)} · L ${nf(g.low)}</div></div>
+    <div class="bx"><div class="l">${l2.name}</div><div class="v">${l2.v}</div><div class="c" style="color:${col(l2.ch)}">${l2.chs}</div></div>
+    <div class="bx">${b3}</div>
+   </div>
+   ${P ? `<div style="padding:0 22px 16px"><table style="width:100%;border-collapse:collapse;font-size:14px;background:#fff"><thead><tr>${['S3', 'S2', 'S1', 'Pivot', 'R1', 'R2', 'R3'].map(k => `<th style="background:#1E2761;color:#fff;border-bottom:3px solid #E8A317;padding:7px;text-align:center">${k}</th>`).join('')}</tr></thead><tbody><tr>${[P.S3, P.S2, P.S1, P.P, P.R1, P.R2, P.R3].map(v => `<td style="padding:8px;text-align:center;font-weight:600">${nf(v)}</td>`).join('')}</tr></tbody></table></div>` : ''}
+   <div class="sf"><b>Disclaimer:</b> For information only, not a buy or sell recommendation. Prices from TradingView and ${S[ck].exch}; expected opening / weather impact are indicative.<br><b>KEDIA ADVISORY</b> · Kedia Stocks and Commodities Research Pvt Ltd · SEBI Research Analyst Reg. No. INH000006156</div>`;
+  try {
+    const cv = await html2canvas($('shot'), { scale: 2, backgroundColor: '#F4F6FA' }), p2 = v => String(v).padStart(2, '0');
+    const a = document.createElement('a'); a.download = `KEDIA Commodity Live ${C.tab} ${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())} ${p2(now.getHours())}${p2(now.getMinutes())}.png`; a.href = cv.toDataURL('image/png'); a.click();
+    toast('Image saved to Downloads');
+  } catch (err) { toast('Image failed: ' + err.message); }
+};
+
+/* ------------------------------------------------------------ copy / download image of ONE card (21-Nov-2026, user)
+   export layout rule: logo + card title + date on top, the card (no notes, no buttons), company + SEBI at the bottom */
+function addCardBtns() {
+  $('commView').querySelectorAll('.card').forEach(c => { if (c.id === 'srvBanner' || c.querySelector(':scope > .cardx')) return;
+    const d = document.createElement('div'); d.className = 'cardx';
+    d.innerHTML = '<button data-x="copy" title="Copy picture of this box">⧉</button><button data-x="dl" title="Download picture of this box">⬇</button>'; c.appendChild(d); });
+}
+function cardTitle(card) {
+  const h = card.querySelector('h2'), lab = card.querySelector('.lab');
+  if (h) { const x = h.cloneNode(true); x.querySelectorAll('small, .seg, input, button, .cardx').forEach(e => e.remove()); return x.textContent.replace(/\s+/g, ' ').trim(); }
+  return lab ? lab.textContent.replace(/\s+/g, ' ').trim() : C.tab;
+}
+async function cardCanvas(card) {
+  const title = cardTitle(card), now = new Date();
+  const when = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const body = await html2canvas(card, { scale: 2, backgroundColor: '#ffffff', logging: false, ignoreElements: el => PDF_SKIP(el) || (el.classList && el.classList.contains('cardx')), onclone: pdfOnClone, windowWidth: 1440 });
+  const W = Math.round(body.width / 2);
+  const head = await shotNode(`<div style="background:#ffffff;border-bottom:4px solid #E8A317;padding:12px 18px;display:flex;align-items:center;gap:16px">
+    <img src="${window.KEDIA_LOGO}" style="height:38px"><div style="flex:1;font-size:19px;font-weight:700;color:#1E2761">${esc(C.tab)} – ${esc(title)}</div>
+    <div style="font-size:13px;color:#4B5563;white-space:nowrap">${when}</div></div>`, W);
+  const foot = await shotNode(`<div style="border-top:2px solid #E5E7EB;padding:8px 18px 10px;font-size:12px;color:#4B5563;line-height:1.5">
+    <b style="color:#1E2761">${KEDIA_CO}</b> · ${KEDIA_SEBI}<br>For information only, not a buy or sell recommendation.</div>`, W);
+  const out = document.createElement('canvas'); out.width = body.width; out.height = head.height + body.height + foot.height;
+  const g = out.getContext('2d'); g.fillStyle = '#ffffff'; g.fillRect(0, 0, out.width, out.height);
+  g.drawImage(head, 0, 0, out.width, head.height); g.drawImage(body, 0, head.height); g.drawImage(foot, 0, head.height + body.height, out.width, foot.height);
+  return { cv: out, title };
+}
+$('commView').addEventListener('click', async e => {
+  const b = e.target.closest('.cardx button'); if (!b) return;
+  if (!window.html2canvas) return toast('Image library not loaded (check internet)');
+  const card = b.closest('.card'); b.disabled = true;
+  try {
+    const { cv, title } = await cardCanvas(card), now = new Date(), p2 = v => String(v).padStart(2, '0');
+    if (b.dataset.x === 'copy') {
+      const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); toast('Picture copied – paste it in WhatsApp / mail'); }
+      catch (er) { toast('This browser blocked copying – use ⬇ to download instead'); }
+    } else {
+      const a = document.createElement('a'); a.download = `KEDIA ${C.tab} – ${title.replace(/[\\/:*?"<>|]+/g, ' ').slice(0, 60)} ${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}.png`;
+      a.href = cv.toDataURL('image/png'); a.click(); toast('Picture saved to Downloads');
+    }
+  } catch (er) { toast('Picture failed: ' + er.message); }
+  finally { b.disabled = false; }
+});
+
+/* ------------------------------------------------------------ Download PDF (21-Nov-2026: client report of the open tab)
+   Export layout rule: header = logo + report title + report date only; no grey sub-lines, no note lines, no buttons;
+   every page ends with the company name + SEBI number; last page = Disclaimer & Contact Us.
+   Completeness rule: if any part is missing (price, chart, table, weather, arrivals ...) NOTHING is made - the list is shown. */
+const KEDIA_CO = 'Kedia Stocks & Commodities Research Pvt. Ltd.', KEDIA_SEBI = 'SEBI Registration Number: INH000006156';
+const DISC_FULL = 'This Report is prepared and distributed by Kedia Stocks & Commodities Research Pvt. Ltd. for information purposes only. The recommendations, if any, made herein are expressions of views and/or opinions and should not be deemed or construed to be neither advice for the purpose of purchase or sale through KSCRPL nor any solicitation or offering of any investment /trading opportunity. These information/opinions/ views are not meant to serve as a professional investment guide for the readers. No action is solicited based upon the information provided herein. Recipients of this Report should rely on information/data arising out of their own investigations. Readers are advised to seek independent professional advice and arrive at an informed trading/investment decision before executing any trades or making any investments. This Report has been prepared on the basis of publicly available information, internally developed data and other sources believed by KSCRPL to be reliable. KSCRPL or its directors, employees, affiliates or representatives do not assume any responsibility for or warrant the accuracy, completeness, adequacy and reliability of such information/opinions/ views. While due care has been taken to ensure that the disclosures and opinions given are fair and reasonable, none of the directors, employees, affiliates or representatives of KSCRPL shall be liable for any direct, indirect, special, incidental, consequential, punitive or exemplary damages, including lost profits arising in any way whatsoever from the information/opinions/views contained in this Report. The possession, circulation and/or distribution of this Report may be restricted or regulated in certain jurisdictions by appropriate laws. No action has been or will be taken by KSCRPL in any jurisdiction (other than India), where any action for such purpose (s) is required. Accordingly, this Report shall not be possessed, circulated and/ or distributed in any such country or jurisdiction unless such action is in compliance with all applicable laws and regulations of such country or jurisdiction. KSCRPL requires such a recipient to inform himself about and to observe any restrictions at his own expense, without any liability to KSCRPL. Any dispute arising out of this Report shall be subject to the exclusive jurisdiction of the Courts in India.';
+function pdfMissing() {
+  const miss = [], has = id => { const el = $(id); return el && el.innerText.trim().length > 0; };
+  const g = futRow();
+  if (!g || !g.close) miss.push(C.fut + ' price');
+  if (C.src2 && $('b2Ltp').textContent.trim() === '—') miss.push(C.src2Name + ' price');
+  CB.forEach(b => { if (!b.bars.length || b.$('Msg').style.display !== 'none') miss.push('Chart: ' + b.title + (b.needLogin() ? ' (load MCX intraday or pick Daily)' : '')); });
+  if (!has('techTbl')) miss.push('Technical summary'); if (!has('pivTbl')) miss.push('Key levels');
+  if (!/Measure/.test($('momTbl').innerText)) miss.push('Momentum & volatility'); if (!has('retTbl')) miss.push('Returns');
+  if (!has('crossTbl')) miss.push('Compared with other markets'); if (!S[ck].spotOnly && !has('curveTbl')) miss.push('All expiries');
+  if (S[ck].parity && !has('parTbl')) miss.push('MCX vs import parity');
+  if (S[ck].bm && !has('arbTbl')) miss.push('Base metals arbitrage');
+  if (S[ck].spots.length && !S[ck].spotOnly && !has('basisTbl')) miss.push('Spot vs futures (basis)');
+  if (S[ck].family.length > 1 && !has('famTbl')) miss.push('Contracts');
+  if (S[ck].weather && !(D.weather && D.weather.rows)) miss.push('Crop weather');
+  if (S[ck].agmark && !(D.arr && D.arr.win)) miss.push('Mandi arrivals');
+  if (S[ck].trade && !has('trTbl')) miss.push('Exports & imports');
+  if (S[ck].eco && !(D.eco && D.eco.summary)) miss.push('Important economic data');
+  SB.forEach(s => { if (!s.$('Box').querySelector('table')) miss.push('Seasonality: ' + s.$('Box').closest('.card').querySelector('h2').firstChild.textContent.trim()); });
+  return miss;
+}
+const PDF_SKIP = el => el.classList && (el.classList.contains('ctl') || el.classList.contains('seg') || el.classList.contains('loginbar') ||
+  el.classList.contains('note') || el.classList.contains('chartmsg') || el.tagName === 'SMALL' && el.parentElement && el.parentElement.tagName === 'H2' || el.tagName === 'BUTTON');
+function pdfOnClone(doc) {
+  /* html2canvas cannot copy the chart library's canvases -> put each chart's own snapshot in the copy; tables get room to fit */
+  const st = doc.createElement('style');
+  st.textContent = '.tw{overflow:visible!important} table{font-size:12px} th,td{padding:5px 7px!important} .g2:has(#famTbl){grid-template-columns:1fr!important}';
+  doc.head.appendChild(st);
+  const put = (id, ch) => { const el = doc.getElementById(id); if (!el || !ch) return;
+    let src; try { src = ch.takeScreenshot().toDataURL('image/png'); } catch (e) { return; }
+    [...el.children].forEach(c => { if (!c.classList.contains('plabel')) c.remove(); });
+    const img = doc.createElement('img'); img.src = src; img.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%'; el.appendChild(img); };
+  CB.forEach(b => Object.entries(b.paneMap || {}).forEach(([s, ch]) => put(b.k + s, ch)));
+  if (arrChartObj) put('arrChart', arrChartObj);
+  if (trChartObj) put('trChart', trChartObj);
+}
+function pdfBlocks() {
+  /* the open tab's parts, top to bottom (hidden ones and the About box are left out) */
+  const out = [];
+  for (const el of $('commView').children) {
+    if (el.id === 'srvBanner' || el.id === 'jumpBar' || el.id === 'newsCard' || el.classList.contains('hide') || el.offsetParent === null) continue;
+    if (el.id === 'chartsBox' || el.id === 'seasonsBox') { out.push(...[...el.children].filter(c => c.offsetParent !== null)); continue; }
+    if (el.querySelector('#faq')) continue;
+    out.push(el);
+  }
+  return out;
+}
+async function shotNode(html, width = 1100) {
+  const d = document.createElement('div'); d.style.cssText = `position:fixed;left:-4000px;top:0;width:${width}px;background:#fff;font-family:"Century Gothic",CenturyGothic,sans-serif;color:#1F2937`;
+  d.innerHTML = html; document.body.appendChild(d);
+  try { return await html2canvas(d, { scale: 2, backgroundColor: '#ffffff', logging: false }); } finally { d.remove(); }
+}
+$('btnPdf').onclick = async () => {
+  if (view !== 'comm') return toast('Open a commodity tab first');
+  if (!window.jspdf || !window.html2canvas) return toast('PDF library not loaded (check internet)');
+  const miss = pdfMissing();
+  if (miss.length) { alert('PDF not made - these parts are missing or still loading:\n\n- ' + miss.join('\n- ') + '\n\nWait for the page to finish loading (or fix the item), then try again.'); return; }
+  const btn = $('btnPdf'), old = btn.textContent, root = document.documentElement, oldTheme = root.getAttribute('data-theme');
+  btn.disabled = true; btn.textContent = 'Making PDF…';
+  try {
+    /* the PDF is always in the light look */
+    if (matchMedia('(prefers-color-scheme: dark)').matches && oldTheme !== 'light') { root.setAttribute('data-theme', 'light'); CB.forEach(b => b.draw(true)); await new Promise(r => setTimeout(r, 900)); }
+    const now = new Date(), p2 = v => String(v).padStart(2, '0');
+    const when = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const head = await shotNode(`<div style="background:#1E2761;color:#fff;border-bottom:5px solid #E8A317;padding:16px 26px;display:flex;align-items:center;gap:22px">
+      <img src="${window.KEDIA_LOGO}" style="height:52px"><div style="flex:1"><div style="font-size:28px;font-weight:700">${C.tab} <span style="color:#E8A317">Report</span></div></div>
+      <div style="font-size:15px;text-align:right">Report date: ${when}</div></div>`);
+    const blocks = pdfBlocks(), shots = [];
+    for (let i = 0; i < blocks.length; i++) {
+      btn.textContent = `Making PDF… ${i + 1}/${blocks.length}`;
+      shots.push(await html2canvas(blocks[i], { scale: 2, backgroundColor: '#F4F6FA', logging: false, ignoreElements: PDF_SKIP, onclone: pdfOnClone, windowWidth: 1440 }));
+    }
+    const disc = await shotNode(`<div style="padding:30px 34px">
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid #E8A317;padding-bottom:12px"><div style="font-size:26px;font-weight:700;color:#1E2761">Disclaimer &amp; Contact Us</div><img src="${window.KEDIA_LOGO}" style="height:48px"></div>
+      <div style="margin:22px 0;padding:16px 18px;background:#FBF0D2;border-radius:8px;line-height:1.7;font-size:15px">
+        <div style="font-weight:700;color:#1E2761;font-size:17px">KEDIA STOCKS &amp; COMMODITIES RESEARCH PVT LTD</div>
+        <div>Regd. Off.: Aadinath Commercial, Opp. Mumbai University, Vasant Valley Road, Khadakpada, Kalyan (W), Mumbai–421301</div>
+        <div>Mobile: +91 9619551022 &nbsp;|&nbsp; Email: info@kediaadvisory.com &nbsp;|&nbsp; www.kediaadvisory.com</div>
+        <div>${KEDIA_SEBI}</div></div>
+      <p style="font-size:13.5px;line-height:1.75;text-align:justify;color:#374151;margin:0">${esc(DISC_FULL)}</p></div>`);
+    /* lay the parts on A4 pages: 10 mm margins, header on top, company + SEBI at the bottom of every page */
+    const { jsPDF } = window.jspdf, pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+    const W = 190, X = 10, headH = head.height * W / head.width, top = 10 + headH + 5, bottom = 297 - 17, avail = bottom - top;
+    const pages = [[]]; let y = top;
+    for (const s of shots) {
+      let w = W, h = s.height * W / s.width;
+      if (h > avail) { w = W * avail / h; h = avail; }
+      if (y + h > bottom && pages[pages.length - 1].length) { pages.push([]); y = top; }
+      pages[pages.length - 1].push({ s, x: X + (W - w) / 2, y, w, h }); y += h + 4;
+    }
+    const total = pages.length + 1;
+    const foot = (n) => {
+      pdf.setDrawColor(232, 163, 23); pdf.setLineWidth(0.6); pdf.line(10, 297 - 14, 200, 297 - 14);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9.5); pdf.setTextColor(30, 39, 97); pdf.text(KEDIA_CO, 10, 297 - 9);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(107, 114, 128); pdf.text(KEDIA_SEBI, 10, 297 - 5);
+      pdf.text(`Page ${n} of ${total}`, 200, 297 - 7, { align: 'right' });
+    };
+    pages.forEach((pg, i) => {
+      if (i) pdf.addPage();
+      pdf.setFillColor(244, 246, 250); pdf.rect(0, 0, 210, 297, 'F');
+      pdf.addImage(head.toDataURL('image/jpeg', 0.92), 'JPEG', X, 10, W, headH);
+      for (const it of pg) pdf.addImage(it.s.toDataURL('image/jpeg', 0.9), 'JPEG', it.x, it.y, it.w, it.h);
+      foot(i + 1);
+    });
+    pdf.addPage(); const dh = Math.min(297 - 30, disc.height * W / disc.width);
+    pdf.addImage(disc.toDataURL('image/jpeg', 0.9), 'JPEG', X, 10, dh * disc.width / disc.height, dh); foot(total);
+    const name = `KEDIA ${C.tab} Report ${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())} ${p2(now.getHours())}${p2(now.getMinutes())}.pdf`;
+    pdf.save(name);
+    toast('PDF saved to Downloads: ' + name);
+  } catch (e) { toast('PDF failed: ' + e.message); }
+  finally {
+    if (root.getAttribute('data-theme') !== oldTheme) { if (oldTheme == null) root.removeAttribute('data-theme'); else root.setAttribute('data-theme', oldTheme); CB.forEach(b => b.draw(true)); }
+    btn.disabled = false; btn.textContent = old;
+  }
+};
+
+/* ------------------------------------------------------------ loops */
+let liveTimer = null, firstLive = true;
+async function refreshLive() {
+  const my = ck;
+  if (view !== 'comm') return;
+  try {
+    const L = await api(`/api/live?c=${ck}`); if (my !== ck) return;
+    D.live = L;
+    /* Google version only: where the numbers come from and how fresh the office PC copy is */
+    const cl = L.meta && L.meta.cloud;
+    $('cloudBar').classList.toggle('hide', !cl);
+    if (cl) $('cloudBar').innerHTML = `Google version · live prices every minute · Google saved its own prices at <b>${cl.snapAt ? fmtDT(cl.snapAt) : '—'}</b>` +
+      (cl.seededAt ? '' : ' · <span class="dn">old chart history not loaded yet</span>');
+    renderTicker(); renderHero(); renderParity(); renderBasis(); renderCurve(); renderFamily(); renderCross();
+    if (S[ck].bm) loadArb();
+    if (firstLive) { firstLive = false; }
+  } catch (e) { $('futNote').innerHTML = `<span class="dn">Server not reachable (${esc(e.message)}). Start "Commodity Live.bat".</span>`; }
+}
+async function loadSlow() {
+  const my = ck;
+  try { D.base = (await getSeries('fut', 'D')).bars; } catch (e) { D.base = []; }
+  if (my !== ck || view !== 'comm') return;
+  renderHero(); renderLevels(); CB.forEach(b => b.draw()); renderTech(); renderMom(); renderReturns(); SB.forEach(s => s.render()); loadPeers();
+}
+function setRefresh() { clearInterval(liveTimer); const s = +$('refSel').value; if (s) liveTimer = setInterval(refreshLive, s * 1000);
+  try { localStorage.setItem('goldLiveRefreshG', String(s)); } catch (e) {} }
+$('refSel').onchange = setRefresh;
+try { const s = localStorage.getItem('goldLiveRefreshG'); if (s != null) $('refSel').value = s; } catch (e) {}
+$('duty').oninput = renderParity;
+
+(async function start() {
+  setInterval(tickClock, 1000); tickClock();
+  if (BASE) {
+    /* opened as a file: if the server runs, move to the served page */
+    try { await fetch(BASE + '/api/ping', { mode: 'no-cors', cache: 'no-store' }); location.replace(BASE + '/' + location.hash); return; }  /* any answer (even 404) = server up */
+    catch (e) { $('srvBanner').style.display = 'block'; return; }
+  }
+  try { S = await api('/api/config'); } catch (e) { $('srvBanner').style.display = 'block'; return; }
+  buildTabs(); setRefresh(); applyTab();
+  setInterval(() => { if (view === 'comm') CB.forEach(b => { if (b.intraday()) b.draw(); }); }, 60000);   /* intraday charts: new bars every minute */
+  setInterval(() => { loadSlow(); }, 600000);
+  setInterval(() => { if (view === 'news') loadAllNews(); else if (view === 'spot') loadSpotTab(); else { if (S[ck].agmark) loadArrivals(); if (S[ck].eco) loadEco(); loadCommNews(); } }, 900000);
+  setInterval(() => { if (view === 'comm' && S[ck].weather) loadWeather(); }, 3 * 3600000);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => CB.forEach(b => b.draw(true)));
+})();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
+</body>
+</html>
