@@ -214,6 +214,11 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--navy); cur
 /* ---------- modal + toast ---------- */
 .modal { position: fixed; inset: 0; display: grid; place-items: center; z-index: 40; padding: 16px; }
 .mbox { background: #fff; border-radius: 14px; border-top: 4px solid var(--gold); width: min(440px, 100%); padding: 22px 22px 18px; box-shadow: 0 30px 80px rgba(0, 0, 0, .3); animation: pop .15s; position: relative; z-index: 41; }
+.mbox.wide { width: min(680px, 100%); max-height: 92vh; overflow-y: auto; }
+.mbox .opt { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; }
+.mbox .opt.on { border-color: var(--gold); background: #FFFBF0; }
+.mbox .opt b { color: var(--navy); }
+.mtag { display: inline-block; background: var(--navy); color: var(--gold); font-size: 10.5px; font-weight: 800; letter-spacing: .6px; padding: 1px 8px; border-radius: 20px; margin-left: 6px; vertical-align: middle; }
 .mbox h3 { margin: 0 0 8px; color: var(--navy); font-size: 18px; }
 .mbox p { margin: 0 0 14px; color: #475467; }
 .pw { display: flex; align-items: center; gap: 10px; background: var(--cream); border: 1px dashed var(--gold); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
@@ -391,6 +396,7 @@ const soon = u => u.eff === 'Active' && left(u) != null && left(u) >= 0 && left(
 const ini = s => (String(s || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
 const name = k => String((COMM[k] && (COMM[k].name || COMM[k].tab)) || k).replace(/&amp;/g, '&');
 const isAdmin = () => ME && ME.role === 'admin';
+const meMain = () => !!(ME && USERS.some(u => u.main && u.Email.toLowerCase() === String(ME.email).toLowerCase()));
 function groups() {
   const keys = Object.keys(COMM); const listed = new Set(GROUPS.flatMap(g => g[1]));
   const out = GROUPS.map(([g, ks]) => [g, ks.filter(k => !keys.length || COMM[k])]).filter(g => g[1].length);
@@ -417,7 +423,7 @@ function showLogin(mode, msg, ok) {
     $('lmain').innerHTML = `<h3>Set your own password</h3><div class="sub">For safety, please change the password we emailed you.</div>${m}
       <form id="lf">${ME && !ME.mustChange ? '<div class="fld"><label>Current password</label><input id="p0" type="password" autocomplete="current-password" required></div>' : ''}<div class="fld"><label>New password</label><input id="p1" type="password" autocomplete="new-password" required></div>
       <div class="fld"><label>New password again</label><input id="p2" type="password" autocomplete="new-password" required></div>
-      <div class="info" style="margin:-6px 0 14px">At least 8 characters, with letters and numbers.</div>
+      <div class="info" style="margin:-6px 0 14px">At least 6 characters (letters, numbers, anything).</div>
       <button class="btn gold wide" id="lb">Save password</button></form>`;
     $('lf').onsubmit = async e => { e.preventDefault(); const b = $('lb');
       if ($('p1').value !== $('p2').value) return showLogin('change', 'The two passwords are not the same.');
@@ -521,18 +527,19 @@ function viewDash() {
 function who(u) { return `<div class="who"><div class="av">${esc(ini(u.Name))}</div><div><b>${esc(u.Name || '—')}</b><small>${esc(u.Email)}</small></div></div>`; }
 function rowBtns(u, mini) {
   const e = esc(u.Email);
-  const needPlan = (u.Role || 'user') === 'user' && (u.eff === 'Expired' || u.Plan === FREE_PLAN);
+  const client = (u.Role || 'user') === 'user';
+  if (u.main) return `<div class="acts"><button class="ib" title="Edit details" data-a="edit" data-e="${e}">${ic('edit')}</button>${meMain() ? `<button class="ib" title="Password" data-a="reset" data-e="${e}">${ic('key')}</button>` : ''}</div>`;
   if (u.eff === 'Pending' && mini) return `<button class="btn gold sm" data-a="approve" data-e="${e}">${ic('ok')} Approve</button>`;
-  if (mini) return needPlan ? `<button class="btn gold sm" data-a="plan" data-e="${e}">${ic('rupee')} Give plan</button>` : `<button class="btn line sm" data-a="extend" data-e="${e}">Extend</button>`;
-  return `<div class="acts">${u.eff === 'Pending' ? `<button class="btn gold sm" data-a="approve" data-e="${e}">Approve</button>` : needPlan ? `<button class="btn gold sm" data-a="plan" data-e="${e}">Give plan</button>` : ''}
+  if (mini) return `<button class="btn gold sm" data-a="plan" data-e="${e}">${ic('plus')} Add plan</button>`;
+  return `<div class="acts">${u.eff === 'Pending' ? `<button class="btn gold sm" data-a="approve" data-e="${e}">Approve</button>` : client ? `<button class="btn gold sm" data-a="plan" data-e="${e}" title="Give a new plan / renew">${ic('plus')} Plan</button>` : ''}
     <button class="ib" title="Edit" data-a="edit" data-e="${e}">${ic('edit')}</button>
-    <button class="ib" title="Reset password" data-a="reset" data-e="${e}">${ic('key')}</button>
+    <button class="ib" title="Password (email or set)" data-a="reset" data-e="${e}">${ic('key')}</button>
     ${u.Status === 'Blocked' ? `<button class="ib" title="Unblock" data-a="unblock" data-e="${e}">${ic('ok')}</button>` : `<button class="ib r" title="Block" data-a="block" data-e="${e}">${ic('ban')}</button>`}</div>`;
 }
 function bindRowBtns() {
   document.querySelectorAll('[data-a]').forEach(b => b.onclick = e => { e.stopPropagation(); const u = USERS.find(x => x.Email === b.dataset.e); if (!u) return;
     const a = b.dataset.a;
-    if (a === 'edit') openDrawer(u); else if (a === 'approve') openDrawer(u, 'approve'); else if (a === 'extend') openDrawer(u, 'extend'); else if (a === 'plan') openDrawer(u, 'plan');
+    if (a === 'edit') openDrawer(u); else if (a === 'approve') openDrawer(u, 'approve'); else if (a === 'extend') openDrawer(u, 'extend'); else if (a === 'plan') openAddPlan(u);
     else if (a === 'reset') askReset(u); else if (a === 'block') askBlock(u, true); else if (a === 'unblock') askBlock(u, false); });
 }
 
@@ -543,6 +550,7 @@ function filtered(ignoreTab) {
   const q = F.q.trim().toLowerCase();
   return USERS.filter(u => {
     const staff = u.Role === 'admin' || u.Role === 'rm';
+    if (u.main && F.role !== 'staff') return false;                     /* main admin: only in Team (Admin / RM) */
     if (F.role === 'staff' ? !staff : (F.role ? (u.Role || 'user') !== F.role : false)) return false;
     if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
     if (F.plan && (u.Plan || '') !== F.plan) return false;
@@ -585,7 +593,7 @@ function drawTable() {
     return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td>
       <td>${u.Plan ? `<span class="tag g">${esc(u.Plan)}</span>` : '<span class="left">—</span>'}</td><td class="wrap">${accTags(u.Role === 'admin' ? 'ALL' : u.Access)}</td>
       <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${l != null && u.eff === 'Active' ? `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>` : ''}</td>
-      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${{ admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM</span>' }[u.Role] || 'Client'}</td>
+      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM</span>' }[u.Role] || 'Client'}</td>
       <td>${esc(u['Sales RM'] || '—')}</td><td>${esc(u['Service RM'] || '—')}</td><td class="left">${fmtT(u['Last login'])}</td><td class="left">${fmtT(u.Created)}</td>
       <td class="wrap left" style="max-width:220px">${esc(u.Remarks || '')}</td><td>${rowBtns(u)}</td></tr>`; }).join('')
     : `<tr><td colspan="${COLS.length}"><div class="empty">${USERS.length ? 'No client matches these filters.' : 'No clients yet. When someone signs up in the app, they appear here.'}</div></td></tr>`;
@@ -664,7 +672,9 @@ function openDrawer(u, mode) {
       ${isNew ? '' : `<div class="sec"><div class="st">Recent activity<span class="sp"></span><span class="left">last login ${fmtT(u['Last login']).replace(/<[^>]+>/g, '')}</span></div><div class="tl" id="act"><div><span><span class="spin"></span></span>Loading…</div></div></div>`}
     </div>
     <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}
-      ${!isNew && isAdmin() && String(x.Email).toLowerCase() !== String(ME.email).toLowerCase() ? `<button class="btn red sm" id="dDel">${ic('trash')} Delete</button>` : ''}<span class="sp"></span>
+      ${!isNew && (!u.main || meMain()) ? `<button class="btn line sm" id="dOutAll" title="Log this login out of every phone / computer">${ic('out')} Log out all devices</button>` : ''}
+      ${!isNew && !u.main && isAdmin() && String(x.Email).toLowerCase() !== String(ME.email).toLowerCase() ? `<button class="btn red sm" id="dDel">${ic('trash')} Delete</button>` : ''}<span class="sp"></span>
+      ${!isNew && (x.Role || 'user') === 'user' ? `<button class="btn navy sm" id="dPlan">${ic('plus')} Add plan</button>` : ''}
       <button class="btn line" id="dCancel">Cancel</button><button class="btn gold" id="dSave">${ic('ok')} Save</button></div></div>`;
   $('shade').onclick = $('dx').onclick = $('dCancel').onclick = closeLayer;
   segBind('xStatus', v => { x.Status = v; perSum(); }); segBind('xPlan', v => { x.Plan = v; if (v === 'Advance' && !String(x.Access).trim()) { x.Access = 'ALL'; drawAcc(); } });
@@ -676,8 +686,15 @@ function openDrawer(u, mode) {
   if ($('xRole')) $('xRole').onchange = e => { x.Role = e.target.value; roleInfo(); drawAcc(); };
   if ($('dReset')) $('dReset').onclick = () => askReset(u);
   if ($('dDel')) $('dDel').onclick = () => askDelete(u);
+  if ($('dOutAll')) $('dOutAll').onclick = () => askLogoutAll(u);
+  if ($('dPlan')) $('dPlan').onclick = () => openAddPlan(u);
   $('dSave').onclick = saveDrawer;
   roleInfo(); drawAcc(); perSum();
+  if (u && u.main) {                                                    /* main admin: details only - always Active, all access, no end date */
+    document.querySelectorAll('.drawer .sec').forEach(s => { const t = (s.querySelector('.st') || {}).textContent || ''; if (/^(Subscription|Segments)/i.test(t)) s.style.display = 'none'; });
+    if ($('xRole')) $('xRole').disabled = true;
+    $('roleInfo').innerHTML = '<span class="mtag" style="margin:0">MAIN ADMIN</span> Always active with all commodities and no end date. It can never be deleted, blocked or changed to RM / client.';
+  }
   if (mode === 'extend' && $('ext')) $('ext').scrollIntoView({ block: 'center' });
   if (!isNew) loadActivity(u.Email);
   document.addEventListener('keydown', escClose);
@@ -748,19 +765,86 @@ async function loadActivity(email) {
 }
 
 /* ---------- reset password / block ---------- */
-function modal(html) { $('layer').insertAdjacentHTML('beforeend', `<div class="modal" id="mdl"><div class="shade" id="mshade"></div><div class="mbox">${html}</div></div>`); $('mshade').onclick = closeModal; }
+function modal(html, cls) { $('layer').insertAdjacentHTML('beforeend', `<div class="modal" id="mdl"><div class="shade" id="mshade"></div><div class="mbox${cls ? ' ' + cls : ''}">${html}</div></div>`); $('mshade').onclick = closeModal; }
 function closeModal() { const m = $('mdl'); if (m) m.remove(); }
+/* 22-Nov-2026 (user): two ways - email a new password, or type one and give it on call / WhatsApp (any 6+ characters, 123456 allowed) */
 function askReset(u) {
-  modal(`<h3>Reset password?</h3><p>A new password will be made for <b>${esc(u.Name || u.Email)}</b> and emailed to <b>${esc(u.Email)}</b>. Their old password stops working.</p>
-    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('key')} Reset password</button></div>`);
+  const sug = 'Kedia@' + (String(u.Mobile || '').replace(/\D/g, '').slice(-4) || '1234');
+  modal(`<h3>Password for ${esc(u.Name || u.Email)}</h3><p>Choose one way. The old password stops working and the client is logged out of all devices.</p>
+    <label class="opt on" id="oMail"><input type="radio" name="pwm" value="mail" checked><div><b>Email a new password</b><br><span class="left">A new password is made and emailed to ${esc(u.Email)}. They set their own after logging in.</span></div></label>
+    <label class="opt" id="oSet"><input type="radio" name="pwm" value="set"><div style="flex:1"><b>Set the password myself</b><br><span class="left">Type any password (at least 6 characters, e.g. 123456) and give it to the client.</span>
+      <div class="fld" style="margin:10px 0 6px"><input id="mPw" value="${esc(sug)}" autocomplete="off"></div>
+      <label style="display:flex;gap:8px;align-items:center;font-size:12.5px"><input type="checkbox" id="mMust"> Ask the client to change it after logging in</label></div></label>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('key')} Save password</button></div>`);
+  const pick = () => { const set = document.querySelector('input[name=pwm]:checked').value === 'set'; $('oMail').classList.toggle('on', !set); $('oSet').classList.toggle('on', set); };
+  document.querySelectorAll('input[name=pwm]').forEach(r => r.onchange = pick);
+  $('mPw').onfocus = () => { document.querySelector('input[name=pwm][value=set]').checked = true; pick(); };
   $('mNo').onclick = closeModal;
-  $('mYes').onclick = async () => { busy($('mYes'), true); try { const j = await call('admin_reset', { email: u.Email }); closeModal(); showPw(u, j.tempPassword, j.mailed, 'New password made'); HIST = null; }
+  $('mYes').onclick = async () => {
+    const set = document.querySelector('input[name=pwm]:checked').value === 'set', pw = $('mPw').value;
+    if (set && pw.length < 6) return toast('Use at least 6 characters.', true);
+    busy($('mYes'), true);
+    try {
+      if (set) { await call('admin_setpw', { email: u.Email, password: pw, mustChange: $('mMust').checked }); closeModal(); showPw(u, pw, false, 'Password set', true); }
+      else { const j = await call('admin_reset', { email: u.Email }); closeModal(); showPw(u, j.tempPassword, j.mailed, 'New password made'); }
+      HIST = null;
+    } catch (e) { closeModal(); toast(e.message, true); } };
+}
+function askLogoutAll(u) {
+  modal(`<h3>Log out ${esc(u.Name || u.Email)} from all devices?</h3><p>Every phone and computer where this login is open is logged out now. They can log in again with the same password.</p>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('out')} Log out all devices</button></div>`);
+  $('mNo').onclick = closeModal;
+  $('mYes').onclick = async () => { busy($('mYes'), true);
+    try { const j = await call('admin_logout_all', { email: u.Email }); closeModal(); HIST = null; toast('Logged out of ' + j.count + ' device(s): ' + (u.Name || u.Email)); }
     catch (e) { closeModal(); toast(e.message, true); } };
 }
-function showPw(u, pw, mailed, head) {
-  modal(`<h3>${esc(head)}</h3><p>${mailed ? '📧 Emailed to <b>' + esc(u.Email) + '</b>. ' : '⚠️ The email could not be sent – please give it to the client yourself. '}You can also share it on WhatsApp / call. It is shown only now.</p>
+
+/* ---------- + Add plan (one small box: plan, start, period, amount, segments) ---------- */
+function openAddPlan(u) {
+  closeLayer();
+  const curEnd = /^\d{4}-\d\d-\d\d$/.test(u.End) ? u.End : '', canCont = u.eff === 'Active' && !!curEnd && curEnd >= TODAY && u.Plan !== FREE_PLAN;
+  D = { isNew: false, mode: 'addplan', orig: u, x: Object.assign({}, u, { Plan: PLANS.includes(u.Plan) && u.Plan !== FREE_PLAN ? u.Plan : 'Basic', Access: u.Plan === FREE_PLAN ? '' : (u.Access || '') }),
+    from: canCont ? 'cont' : 'today', per: '1m', perLabel: '1 month', end: '' };
+  const pers = [['7d', '7 days'], ['1m', '1 month'], ['2m', '2 months'], ['3m', '3 months'], ['6m', '6 months'], ['12m', '1 year']];
+  modal(`<h3>+ Add plan · ${esc(u.Name || u.Email)}</h3>
+    <p class="left" style="margin-bottom:12px">Now: <b>${esc(u.Plan || 'no plan')}</b> · ${esc(u.eff)}${curEnd ? ' · till ' + fmtD(curEnd) : ''}</p>
+    <div class="fld"><label>Plan</label><div class="seg" id="apPlan">${PLANS.map(p => `<button type="button" data-v="${p}" class="${D.x.Plan === p ? 'on' : ''}">${p}</button>`).join('')}</div></div>
+    <div class="fld"><label>Start</label><div class="seg" id="apFrom"><button type="button" data-v="today" class="${D.from === 'today' ? 'on' : ''}">Start today</button>
+      <button type="button" data-v="cont" class="${D.from === 'cont' ? 'on' : ''}"${canCont ? '' : ' disabled style="opacity:.45;cursor:not-allowed"'}>Continue after current end${curEnd ? ' (' + fmtD(curEnd) + ')' : ''}</button></div></div>
+    <div class="pers" id="apPer"><span class="lb">Period:</span>${pers.map(([v, l]) => `<button type="button" data-p="${v}" class="${v === D.per ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <div class="fld"><label>Or your own end date</label><input id="apEnd" type="date"></div>
+    <div class="sum" id="apSum" style="margin-bottom:12px"></div>
+    <div class="g2"><div class="fld"><label>Amount received (₹)</label><input id="xAmt" inputmode="decimal" placeholder="0"></div>
+      <div class="fld"><label>Payment mode</label><select id="xMode"><option value="">—</option>${MODES.map(m => `<option>${m}</option>`).join('')}</select></div></div>
+    <div class="fld"><label>Payment note (UTR / receipt no.)</label><input id="xPayNote" placeholder="Optional"></div>
+    <div class="fld"><label>Segments – what the client can see <span id="accCount" class="left" style="font-weight:400"></span></label><div class="acc" id="acc"></div></div>
+    <label style="display:flex;gap:8px;align-items:center;margin:4px 0 14px;font-size:13px;cursor:pointer"><input type="checkbox" id="xNotify" checked> Email the client about the new plan</label>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('ok')} Save plan</button></div>`, 'wide');
+  const calc = () => { const start = D.from === 'cont' ? addD(curEnd, 1) : TODAY, end = D.end || period(start, D.per, true), days = dnum(end) - dnum(start) + 1;
+    D.start = start; D.endCalc = end;
+    $('apSum').innerHTML = end < start ? '⚠️ End date is before the start date.' : `✅ <b>${esc(D.x.Plan)}</b> from <b>${fmtD(start)}</b> to <b>${fmtD(end)}</b> · ${days} day${days === 1 ? '' : 's'}` + (D.from === 'cont' ? ' · no days lost' : ''); };
+  segBind('apPlan', v => { D.x.Plan = v; if (v === 'Advance' && !String(D.x.Access).trim()) { D.x.Access = 'ALL'; drawAcc(); } if (v === FREE_PLAN) { D.per = '7d'; D.perLabel = '7 days'; D.end = ''; $('apEnd').value = ''; $('apPer').querySelectorAll('button').forEach(o => o.classList.toggle('on', o.dataset.p === '7d')); } calc(); });
+  $('apFrom').querySelectorAll('button').forEach(b => b.onclick = () => { if (b.disabled) return; D.from = b.dataset.v; segSet('apFrom', D.from); calc(); });
+  $('apPer').querySelectorAll('button').forEach(b => b.onclick = () => { D.per = b.dataset.p; D.perLabel = b.textContent; D.end = ''; $('apEnd').value = ''; $('apPer').querySelectorAll('button').forEach(o => o.classList.toggle('on', o === b)); calc(); });
+  $('apEnd').onchange = e => { D.end = e.target.value; if (D.end) { D.perLabel = ''; $('apPer').querySelectorAll('button').forEach(o => o.classList.remove('on')); } calc(); };
+  $('mNo').onclick = closeLayer; $('mshade').onclick = closeLayer;
+  $('mYes').onclick = async () => {
+    const x = D.x, start = D.start, end = D.endCalc;
+    if (end < start) return toast('The end date is before the start date.', true);
+    if (!String(x.Access || '').trim()) return toast('Tick at least one commodity (or "All commodities").', true);
+    const days = dnum(end) - dnum(start) + 1;
+    const grant = { Period: (D.from === 'cont' ? 'Renewal ' : '') + (D.perLabel || days + ' days'), Amount: $('xAmt').value.trim() || 0, Mode: $('xMode').value, Note: $('xPayNote').value.trim() };
+    busy($('mYes'), true, 'Saving…');
+    try {
+      await call('admin_save', { user: { Email: u.Email, Status: 'Active', Plan: x.Plan, Start: start, End: end, Access: String(x.Access || '') }, notify: $('xNotify').checked, grant });
+      closeLayer(); await loadAll(); route(); toast(`Plan added: ${u.Name || u.Email} · ${x.Plan} till ${fmtD(end)}`);
+    } catch (e) { busy($('mYes'), false); toast(e.message, true); } };
+  drawAcc(); calc();
+}
+function showPw(u, pw, mailed, head, typed) {
+  modal(`<h3>${esc(head)}</h3><p>${typed ? 'Give this password to <b>' + esc(u.Name || u.Email) + '</b> on call / WhatsApp. They log in with their email or mobile number. ' : mailed ? '📧 Emailed to <b>' + esc(u.Email) + '</b>. You can also share it on WhatsApp / call. ' : '⚠️ The email could not be sent – please give it to the client yourself. '}It is shown only now.</p>
     <div class="pw"><code id="pwv">${esc(pw)}</code><button class="ib" id="pwc" title="Copy">${ic('copy')}</button></div>
-    <p style="font-size:12.5px">The client will be asked to set their own password after logging in.</p><div class="mbtns"><button class="btn navy" id="mOk">Done</button></div>`);
+    ${typed ? '' : '<p style="font-size:12.5px">The client will be asked to set their own password after logging in.</p>'}<div class="mbtns"><button class="btn navy" id="mOk">Done</button></div>`);
   $('mOk').onclick = closeModal;
   $('pwc').onclick = () => { try { navigator.clipboard.writeText(pw).then(() => toast('Password copied')); } catch (e) {} };
 }
