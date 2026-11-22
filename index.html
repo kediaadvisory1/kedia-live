@@ -2009,7 +2009,9 @@ async function authSubmit(mode) {
       if (!r.ok) return fail(r.error || 'Login failed');
       saveToken(r.token); if (gate(r.user)) boot();
     } else if (mode === 'signup') {
-      const r = await authCall({ action: 'signup', name: v('aName'), mobile: v('aMobile'), email: v('aEmail'), city: v('aCity') });
+      /* Source for the back panel: installed app (APK / home-screen app runs "standalone") or a web page */
+      let src = 'Website'; try { if (window.matchMedia('(display-mode: standalone)').matches || String(document.referrer).indexOf('android-app:') === 0 || navigator.standalone) src = 'App'; } catch (e) {}
+      const r = await authCall({ action: 'signup', name: v('aName'), mobile: v('aMobile'), email: v('aEmail'), city: v('aCity'), src });
       if (!r.ok) return fail(r.error || 'Sign up failed');
       showAuth('login', { cls: 'ok', t: '✅ ' + esc(r.message) + '<br>Use that password to log in below.' }); if ($('aEmail')) $('aEmail').value = vals.aEmail || '';
     } else if (mode === 'forgot') {
