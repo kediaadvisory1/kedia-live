@@ -357,7 +357,7 @@ const IC = {
 const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC[n]}</svg>`;
 
 let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaToken') || ''; } catch (e) {}
-let ME = null, USERS = [], RMS = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
+let ME = null, USERS = [], RMS = [], RMST = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
 const F = { tab: 'All', q: '', plan: '', src: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
 
 /* ---------- server ---------- */
@@ -381,7 +381,7 @@ async function loadComm() {
 }
 async function loadAll() {
   const j = await call('admin_list');
-  ME = j.me; USERS = j.users || []; RMS = (j.rms || []).filter(Boolean); TODAY = j.today;
+  ME = j.me; USERS = j.users || []; RMS = (j.rms || []).filter(Boolean); RMST = j.rmsT || RMS.map(n => ({ n, t: 'Both' })); TODAY = j.today;
   PLANROWS = (j.plans || []).map(r => Object.assign(Object.fromEntries(P_COLS.map((k, i) => [k, r[i]])), { row: r[P_COLS.length] }));
   const paid = {}; PLANROWS.forEach(p => { const e = String(p.Email).toLowerCase(); paid[e] = paid[e] || { amt: 0, mode: '' }; paid[e].amt += Number(p.Amount) || 0; if (p.Mode) paid[e].mode = p.Mode; });
   USERS.forEach(u => { const p = paid[u.Email.toLowerCase()] || {}; u.Paid = p.amt || 0; u.Mode = p.mode || ''; });
@@ -401,6 +401,7 @@ const soon = u => u.eff === 'Active' && left(u) != null && left(u) >= 0 && left(
 const ini = s => (String(s || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
 const name = k => String((COMM[k] && (COMM[k].name || COMM[k].tab)) || k).replace(/&amp;/g, '&');
 const isAdmin = () => ME && ME.role === 'admin';
+const rmHasPlan = u => !!(u.Plan && u.Plan !== 'Main admin') || PLANROWS.some(p => String(p.Email).toLowerCase() === String(u.Email).toLowerCase());
 const meMain = () => !!(ME && USERS.some(u => u.main && u.Email.toLowerCase() === String(ME.email).toLowerCase()));
 function groups() {
   const keys = Object.keys(COMM); const listed = new Set(GROUPS.flatMap(g => g[1]));
@@ -532,7 +533,7 @@ function viewDash() {
 function who(u) { return `<div class="who"><div class="av">${esc(ini(u.Name))}</div><div><b>${esc(u.Name || '—')}</b><small>${esc(u.Email)}</small></div></div>`; }
 function rowBtns(u, mini) {
   const e = esc(u.Email);
-  const client = (u.Role || 'user') === 'user';
+  const client = (u.Role || 'user') === 'user' || u.Role === 'rm';      /* an RM can also hold a subscriber plan */
   /* RM: view + remarks + password help only (no add / plan / block / approve) */
   if (!isAdmin()) return mini ? `<button class="btn line sm" data-a="edit" data-e="${e}">Open</button>`
     : `<div class="acts"><button class="ib" title="Open / remarks" data-a="edit" data-e="${e}">${ic('edit')}</button><button class="ib" title="Password (email or set)" data-a="reset" data-e="${e}">${ic('key')}</button></div>`;
@@ -568,6 +569,7 @@ function filtered(ignoreTab) {
   return USERS.filter(u => {
     const staff = u.Role === 'admin' || u.Role === 'rm';
     if (u.main && F.role !== 'staff') return false;                     /* main admin: only in Team (Admin / RM) */
+    if (staff && F.role !== 'staff' && F.role !== u.Role && !(u.Role === 'rm' && rmHasPlan(u))) return false;   /* staff without a plan: Team only */
     if (F.role === 'staff' ? !staff : (F.role ? (u.Role || 'user') !== F.role : false)) return false;
     if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
     if (F.plan && (u.Plan || '') !== F.plan) return false;
@@ -612,8 +614,8 @@ function drawTable() {
   $('tb').innerHTML = rows.length ? rows.map((u, i) => { const l = left(u);
     return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td><td>${srcHtml(u)}</td>
       <td>${u.Plan ? `<span class="tag g">${esc(u.Plan)}</span>` : '<span class="left">—</span>'}</td><td class="wrap">${accTags(u.Role === 'admin' ? 'ALL' : u.Access)}</td>
-      <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${l != null && u.eff === 'Active' ? `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>` : ''}</td>
-      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM</span>' }[u.Role] || 'Client'}</td>
+      <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${l != null && u.eff === 'Active' ? (l < 0 ? '<br><span class="left r">plan ended</span>' : `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>`) : ''}</td>
+      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM' + (u['RM type'] && u['RM type'] !== 'Both' ? ' · ' + esc(u['RM type']) : '') + '</span>' + (VIEW !== 'team' ? '<br><span class="left">also RM</span>' : '') }[u.Role] || 'Client'}</td>
       <td>${esc(u['Sales RM'] || '—')}</td><td>${esc(u['Service RM'] || '—')}</td><td class="left">${fmtT(u['Last login'])}</td><td class="left">${fmtT(u.Created)}</td>
       <td class="wrap left" style="max-width:220px">${esc(u.Remarks || '')}</td><td>${rowBtns(u)}</td></tr>`; }).join('')
     : `<tr><td colspan="${COLS.length}"><div class="empty">${USERS.length ? 'No client matches these filters.' : 'No clients yet. When someone signs up in the app, they appear here.'}</div></td></tr>`;
@@ -657,6 +659,7 @@ function openDrawer(u, mode) {
         <div class="fld"><label>Mobile</label><input id="xMobile" inputmode="tel" value="${esc(x.Mobile)}"></div>
         <div class="fld"><label>City</label><input id="xCity" value="${esc(x.City)}"></div>
         <div class="fld"><label>State</label><input id="xState" value="${esc(x.State)}"></div>
+        <div class="fld" id="rmTypeF" style="display:none"><label>RM type</label><select id="xRmType">${['Sales', 'Service', 'Both'].map(t => `<option${(x['RM type'] || 'Both') === t ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
         <div class="fld"><label>User type</label>${isAdmin() ? `<select id="xRole">${[['user', 'Client'], ['rm', 'RM (team)'], ['admin', 'Admin']].map(([v, l]) => `<option value="${v}"${(x.Role || 'user') === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` :`<input readonly value="${esc({ user: 'Client', rm: 'RM', admin: 'Admin' }[x.Role || 'user'])}">`}</div>
       </div><div class="info" id="roleInfo"></div></div>
 
@@ -679,14 +682,15 @@ function openDrawer(u, mode) {
         <div class="acc" id="acc"></div><div class="info">News and the "NCDEX Spot (all)" page are open to every active client. Admins always see everything.</div></div>
 
       <div class="sec"><div class="st">Relationship manager &amp; remarks</div><div class="g2">
-        <div class="fld"><label>Sales RM</label><input id="xSrm" list="rmList" value="${esc(x['Sales RM'])}" placeholder="Type or pick a name"></div>
-        <div class="fld"><label>Service RM</label><input id="xVrm" list="rmList" value="${esc(x['Service RM'])}" placeholder="Type or pick a name"></div></div>
-        <datalist id="rmList">${RMS.map(r => `<option value="${esc(r)}">`).join('')}</datalist>
+        <div class="fld"><label>Sales RM</label><input id="xSrm" list="rmListS" value="${esc(x['Sales RM'])}" placeholder="Type or pick a name"></div>
+        <div class="fld"><label>Service RM</label><input id="xVrm" list="rmListV" value="${esc(x['Service RM'])}" placeholder="Type or pick a name"></div></div>
+        <datalist id="rmListS">${RMST.filter(r => r.t !== 'Service').map(r => `<option value="${esc(r.n)}">`).join('')}</datalist>
+        <datalist id="rmListV">${RMST.filter(r => r.t !== 'Sales').map(r => `<option value="${esc(r.n)}">`).join('')}</datalist>
         <div class="fld" style="margin:0"><label>Remarks</label><textarea id="xRem" rows="3" placeholder="Payment, call notes, anything useful">${esc(x.Remarks)}</textarea></div>
         ${ME.role === 'rm' && isNew ? '<div class="info">New clients you add get you as Sales RM if you leave it empty.</div>' : ''}</div>
 
       ${isNew ? '' : `<div class="sec"><div class="st">Plan history<span class="sp"></span><span class="left">${(() => { const p = plansOf(x.Email); return p.length + ' plan' + (p.length === 1 ? '' : 's') + ' · ' + inr(p.reduce((s, r) => s + (Number(r.Amount) || 0), 0)); })()}</span>
-          ${isAdmin() && (x.Role || 'user') === 'user' ? `<button type="button" class="btn line sm" id="phAdd" style="margin-left:8px">${ic('plus')} Add past entry</button>` : ''}</div>
+          ${isAdmin() && ((x.Role || 'user') === 'user' || x.Role === 'rm') ? `<button type="button" class="btn line sm" id="phAdd" style="margin-left:8px">${ic('plus')} Add past entry</button>` : ''}</div>
         ${(() => { const p = plansOf(x.Email), ad = isAdmin(); return p.length ? `<div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">By</th>${ad ? '<th class="ns"></th>' : ''}</tr></thead><tbody>` +
           p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td>` +
             (ad ? `<td><div class="acts"><button type="button" class="ib" title="Edit this line" data-pe="${r.row}">${ic('edit')}</button><button type="button" class="ib r" title="Delete this line" data-pd="${r.row}">${ic('trash')}</button></div></td>` : '') + '</tr>').join('') +
@@ -697,7 +701,7 @@ function openDrawer(u, mode) {
     <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}
       ${!isNew && (!u.main || meMain()) ? `<button class="btn line sm" id="dOutAll" title="Log this login out of every phone / computer">${ic('out')} Log out all devices</button>` : ''}
       ${!isNew && !u.main && isAdmin() && String(x.Email).toLowerCase() !== String(ME.email).toLowerCase() ? `<button class="btn red sm" id="dDel">${ic('trash')} Delete</button>` : ''}<span class="sp"></span>
-      ${!isNew && (x.Role || 'user') === 'user' ? `<button class="btn navy sm" id="dPlan">${ic('plus')} Add plan</button>` : ''}
+      ${!isNew && ((x.Role || 'user') === 'user' || x.Role === 'rm') ? `<button class="btn navy sm" id="dPlan">${ic('plus')} Add plan</button>` : ''}
       <button class="btn line" id="dCancel">Cancel</button><button class="btn gold" id="dSave">${ic('ok')} Save</button></div></div>`;
   $('shade').onclick = $('dx').onclick = $('dCancel').onclick = closeLayer;
   segBind('xStatus', v => { x.Status = v; perSum(); }); segBind('xPlan', v => { x.Plan = v; if (v === 'Advance' && !String(x.Access).trim()) { x.Access = 'ALL'; drawAcc(); } });
@@ -707,6 +711,9 @@ function openDrawer(u, mode) {
     $('xEnd').value = period(addD(from, 1), b.dataset.p, true); if (!$('xStart').value) $('xStart').value = TODAY; D.period = 'Extended ' + b.textContent; x.Status = 'Active'; segSet('xStatus', 'Active'); perSum(); });
   $('xStart').onchange = $('xEnd').onchange = () => { $('pers').querySelectorAll('button').forEach(o => o.classList.remove('on')); D.period = ''; perSum(); };
   if ($('xRole')) $('xRole').onchange = e => { x.Role = e.target.value; roleInfo(); drawAcc(); };
+  /* 22-Nov-2026 (user): Service RM = Sales RM by default (changeable) - follows the Sales RM until someone types a different Service RM */
+  let lastS = $('xSrm').value.trim();
+  $('xSrm').oninput = () => { const v = $('xSrm').value.trim(), cur = $('xVrm').value.trim(); if (!cur || cur === lastS) $('xVrm').value = v; lastS = v; };
   if ($('dReset')) $('dReset').onclick = () => askReset(u);
   if ($('dDel')) $('dDel').onclick = () => askDelete(u);
   if ($('dOutAll')) $('dOutAll').onclick = () => askLogoutAll(u);
@@ -735,7 +742,8 @@ function escClose(e) { if (e.key === 'Escape' && D) { closeLayer(); document.rem
 function segBind(id, fn) { $(id).querySelectorAll('button').forEach(b => b.onclick = () => { segSet(id, b.dataset.v); fn(b.dataset.v); }); }
 function segSet(id, v) { $(id).querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); }
 function period(start, p, inclusive) { const n = parseInt(p, 10), e = p.endsWith('d') ? addD(start, n) : addM(start, n); return inclusive ? addD(e, -1) : e; }
-function roleInfo() { const r = D.x.Role; $('roleInfo').textContent = r === 'admin' ? 'Admin: sees every client, can change roles and every setting.' : r === 'rm' ? 'RM: can open this back panel and sees only the clients where they are Sales RM or Service RM (plus new sign-ups).' : ''; }
+function roleInfo() { const r = D.x.Role; if ($('rmTypeF')) $('rmTypeF').style.display = r === 'rm' ? '' : 'none';
+  $('roleInfo').textContent = r === 'admin' ? 'Admin: sees every client, can change roles and every setting.' : r === 'rm' ? 'RM: opens this back panel and sees only the clients where they are Sales RM or Service RM. Sales RMs appear in the Sales RM list, Service RMs in the Service RM list. An RM can also hold a plan (+ Add plan); RM access never expires with the plan.' : ''; }
 function perSum() {
   const s = $('xStart').value, e = $('xEnd').value, st = D.x.Status;
   let t;
@@ -781,6 +789,7 @@ async function saveDrawer() {
   const out = { Email: $('xEmail').value.trim().toLowerCase(), Name: $('xName').value.trim(), Mobile: $('xMobile').value.trim(), City: $('xCity').value.trim(), State: $('xState').value.trim(),
     Status: x.Status, Plan: x.Plan || '', Start: $('xStart').value, End: $('xEnd').value, Access: x.Role === 'admin' ? 'ALL' : String(x.Access || ''),
     'Sales RM': $('xSrm').value.trim(), 'Service RM': $('xVrm').value.trim(), Remarks: $('xRem').value.trim() };
+  if (isAdmin() && (x.Role || 'user') === 'rm') out['RM type'] = $('xRmType').value;
   if (isAdmin()) out.Role = x.Role || 'user';
   if (D.isNew && ME.role === 'rm' && !out['Sales RM']) out['Sales RM'] = ME.name;
   if (out.Name.length < 2) return toast('Please type the name.', true);
