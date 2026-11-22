@@ -706,6 +706,10 @@ function openDrawer(u, mode) {
           p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td>` +
             (ad ? `<td><div class="acts"><button type="button" class="ib" title="Edit this line" data-pe="${r.row}">${ic('edit')}</button><button type="button" class="ib r" title="Delete this line" data-pd="${r.row}">${ic('trash')}</button></div></td>` : '') + '</tr>').join('') +
           '</tbody></table></div>' : '<div class="left">No plan history yet.</div>'; })()}
+        ${(() => { /* 22-Nov-2026 (user): the current plan must be visible in the history - warn when its line is missing */
+          const cur = curPlanLine(x); if (!cur || plansOf(x.Email).some(p => sameLine(p, cur))) return '';
+          return `<div class="sum" style="margin-top:10px;background:#FFF4DB;border:1px solid #F1D9A6">⚠️ Current plan <b>${esc(cur.Plan)}</b> · ${fmtD(cur.Start)} – ${fmtD(cur.End)} is <b>not in the history</b> (its line was deleted, or the dates were set by hand).
+            ${isAdmin() ? `<button type="button" class="btn line sm" id="phCur" style="margin-left:6px">${ic('plus')} Add it to history</button>` : ''}</div>`; })()}
         ${isAdmin() ? '<div class="info">Editing a line changes the record and the amount reports only – not what the client can see today (use + Add plan or the Subscription dates for that).</div>' : ''}</div>`}
       ${isNew ? '' : `<div class="sec"><div class="st">Recent activity<span class="sp"></span><span class="left">last login ${fmtT(u['Last login']).replace(/<[^>]+>/g, '')}</span></div><div class="tl" id="act"><div><span><span class="spin"></span></span>Loading…</div></div></div>`}
     </div>
@@ -730,6 +734,7 @@ function openDrawer(u, mode) {
   if ($('dOutAll')) $('dOutAll').onclick = () => askLogoutAll(u);
   cityBox($('xCity'), $('xCityList'), $('xState'));
   if ($('phAdd')) $('phAdd').onclick = () => planLine(u, null);
+  if ($('phCur')) $('phCur').onclick = () => planLine(u, null, curPlanLine(u));
   document.querySelectorAll('.drawer [data-pe]').forEach(b => b.onclick = () => planLine(u, PLANROWS.find(p => String(p.row) === b.dataset.pe)));
   document.querySelectorAll('.drawer [data-pd]').forEach(b => b.onclick = () => planLineDelete(u, PLANROWS.find(p => String(p.row) === b.dataset.pd)));
   if ($('dPlan')) $('dPlan').onclick = () => openAddPlan(u);
@@ -894,9 +899,17 @@ function askLogoutAll(u) {
 }
 
 /* ---------- plan history line: add past entry / edit / delete (ADMIN ONLY - the server checks too) ---------- */
+/* the client's current plan as a history-like line (null when there is no real plan) */
+const dd10 = v => /^\d{4}-\d\d-\d\d/.test(String(v || '')) ? String(v).slice(0, 10) : '';
+function curPlanLine(u) {
+  if (!u || u.main || !u.Plan || u.Plan === 'Main admin' || !dd10(u.Start) || !dd10(u.End) || dd10(u.End) < TODAY || !['user', 'rm'].includes(u.Role || 'user')) return null;
+  return { Plan: u.Plan, Start: dd10(u.Start), End: dd10(u.End) };
+}
+const sameLine = (p, c) => p && c && p.Plan === c.Plan && dd10(p.Start) === c.Start && dd10(p.End) === c.End;
 async function reopenAfter(u) { closeLayer(); HIST = null; await loadAll(); route(); const nu = USERS.find(x => x.Email === u.Email); if (nu) openDrawer(nu); }
-function planLine(u, p) {
-  const isNewLine = !p, d = p || { Time: TODAY, Plan: 'Basic', Period: '', Start: TODAY, End: '', Amount: '', Mode: '', Note: '' };
+function planLine(u, p, pre) {
+  const isNewLine = !p, d = p || Object.assign({ Time: TODAY, Plan: 'Basic', Period: '', Start: TODAY, End: '', Amount: '', Mode: '', Note: '' },
+    pre ? { Time: pre.Start, Plan: pre.Plan, Start: pre.Start, End: pre.End, Period: (dnum(pre.End) - dnum(pre.Start) + 1) + ' days' } : {});
   const dd = v => /^\d{4}-\d\d-\d\d/.test(String(v || '')) ? String(v).slice(0, 10) : '';
   modal(`<h3>${isNewLine ? 'Add past plan entry' : 'Edit plan line'} · ${esc(u.Name || u.Email)}</h3>
     <p style="font-size:12.5px">This changes the plan history and the amount reports only – not what the client can see today.</p>
@@ -924,11 +937,21 @@ function planLine(u, p) {
 }
 function planLineDelete(u, p) {
   if (!p) return;
-  modal(`<h3>Delete this plan line?</h3><p><b>${esc(p.Plan)}</b> · ${fmtD(p.Start)} – ${fmtD(p.End)}${Number(p.Amount) ? ' · <b>' + inr(p.Amount) + '</b>' : ''}<br>It is removed from the plan history and the amount reports. The client's access does not change.</p>
+  const isCur = sameLine(p, curPlanLine(u));
+  modal(`<h3>Delete this plan line?</h3><p><b>${esc(p.Plan)}</b> · ${fmtD(p.Start)} – ${fmtD(p.End)}${Number(p.Amount) ? ' · <b>' + inr(p.Amount) + '</b>' : ''}<br>It is removed from the plan history and the amount reports.</p>
+    ${isCur ? `<label class="opt" style="cursor:pointer"><input type="checkbox" id="mEnd"><div><b>Also end this plan now</b><br><span class="left">This line is the client's <b>current plan</b>. Tick to end the access today. Leave it unticked to keep the access and remove only the record.</span></div></label>`
+      : '<p style="font-size:12.5px">This is not the current plan, so the client\'s access does not change.</p>'}
     <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn red" id="mYes">${ic('trash')} Delete line</button></div>`);
   $('mNo').onclick = closeModal;
   $('mYes').onclick = async () => { busy($('mYes'), true);
-    try { await call('admin_plan_delete', { email: u.Email, row: p.row }); toast('Plan line deleted'); await reopenAfter(u); }
+    try {
+      await call('admin_plan_delete', { email: u.Email, row: p.row });
+      if (isCur && $('mEnd') && $('mEnd').checked) {                    /* end the current plan: yesterday = expired from today */
+        const end = addD(TODAY, -1), st = dd10(u.Start) && dd10(u.Start) <= end ? dd10(u.Start) : end;
+        await call('admin_save', { user: { Email: u.Email, Start: st, End: end } });
+        toast('Plan line deleted and the plan ended');
+      } else toast('Plan line deleted');
+      await reopenAfter(u); }
     catch (e) { closeModal(); toast(e.message, true); } };
 }
 
@@ -1189,7 +1212,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '7c8a6df66d', K = 'va';
+<script>(function () { var V = '107e275f01', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
