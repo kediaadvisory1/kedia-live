@@ -1918,16 +1918,17 @@ const locked = k => AUTH_ON && !!ME && !(ME.access || []).includes(k);
 function firstOpen() { const ks = Object.keys(S).filter(k => CFG[k]); if (!AUTH_ON || !ME) return S.GOLD ? 'GOLD' : ks[0]; return ks.find(k => !locked(k)) || ks[0]; }
 function saveToken(t) { TOKEN = t || ''; try { if (TOKEN) localStorage.setItem('kediaToken', TOKEN); else localStorage.removeItem('kediaToken'); } catch (e) {} }
 let authBusy = false;
+const ELSEWHERE = 'You logged in on another device, so this one was logged out. One login works on one device at a time. Log in again to use it here.';
 function authErr(e) {
   const m = String(e && e.message || e);
-  if (/LOGIN_REQUIRED/.test(m)) { if (!authBusy) { authBusy = true; saveToken(''); ME = null; showAuth('login', { cls: 'info', t: 'Please log in to continue.' }); } }
+  if (/LOGIN_REQUIRED|LOGGED_IN_ELSEWHERE/.test(m)) { if (!authBusy) { authBusy = true; saveToken(''); ME = null; showAuth('login', { cls: 'info', t: /ELSEWHERE/.test(m) ? ELSEWHERE : 'Please log in to continue.' }); } }
   else { const s = /NO_ACCESS:(\w+)/.exec(m); if (s && !authBusy) { authBusy = true; showStatus(s[1]); } }
 }
 async function authStart() {
   $('aLogo').src = window.KEDIA_LOGO || '';
   if (!TOKEN) { showAuth('login'); return false; }
   let r; try { r = await authCall({ action: 'me', token: TOKEN }); } catch (e) { r = { ok: false }; }
-  if (!r.ok) { saveToken(''); showAuth('login', /LOGIN_REQUIRED/.test(r.error || '') ? { cls: 'info', t: 'Your login has ended. Please log in again.' } : null); return false; }
+  if (!r.ok) { saveToken(''); showAuth('login', /LOGGED_IN_ELSEWHERE/.test(r.error || '') ? { cls: 'info', t: ELSEWHERE } : /LOGIN_REQUIRED/.test(r.error || '') ? { cls: 'info', t: 'Your login has ended. Please log in again.' } : null); return false; }
   return gate(r.user);
 }
 function gate(u) {
@@ -1942,15 +1943,15 @@ function showAuth(mode, msg) {
   const m = msg ? `<div class="amsg ${msg.cls}">${msg.t}</div>` : '', tabs = on => `<div class="atabs"><button type="button" data-m="login" class="${on === 'login' ? 'on' : ''}">Log in</button><button type="button" data-m="signup" class="${on === 'signup' ? 'on' : ''}">Sign up</button></div>`;
   let h = '';
   if (mode === 'login') h = tabs('login') + `<h3>Welcome back</h3><p class="asub">Log in to see live commodity prices and research.</p>${m}<form id="aForm">` +
-    fld('aEmail', 'Email', 'email', 'you@example.com', 'username') + fld('aPass', 'Password', 'password', 'Your password', 'current-password') +
+    fld('aEmail', 'Email or mobile number', 'text', 'Email or 10-digit mobile', 'username') + fld('aPass', 'Password', 'password', 'Your password', 'current-password') +
     `<div class="arow"><label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="aShow"> Show password</label><button type="button" class="alink" data-m="forgot">Forgot password?</button></div>` +
-    `<button class="abtn" id="aGo">Log in</button></form><div class="anote">New here? Tap <b>Sign up</b>. Your password comes by email and KEDIA activates your access.</div>`;
-  else if (mode === 'signup') h = tabs('signup') + `<h3>Create your account</h3><p class="asub">We will email you a password. Access starts once KEDIA approves it.</p>${m}<form id="aForm">` +
+    `<button class="abtn" id="aGo">Log in</button></form><div class="anote">New here? Tap <b>Sign up</b> and get <b>7 days access to all commodities</b>. Your password comes by email.</div>`;
+  else if (mode === 'signup') h = tabs('signup') + `<h3>Create your account</h3><p class="asub">Get <b>7 days access</b> to all commodities. We will email you a password.</p>${m}<form id="aForm">` +
     fld('aName', 'Full name', 'text', 'Your name', 'name') + fld('aMobile', 'Mobile number', 'tel', '10-digit mobile', 'tel') + fld('aEmail', 'Email', 'email', 'you@example.com', 'email') +
     fld('aCity', 'City (optional)', 'text', 'e.g. Mumbai', 'address-level2') + `<button class="abtn" id="aGo">Sign up</button></form>` +
     `<div class="anote">By signing up you agree to be contacted by KEDIA ADVISORY about your access. Research is for information only, not a buy or sell recommendation.</div>`;
-  else if (mode === 'forgot') h = `<h3>Forgot password</h3><p class="asub">Enter your registered email. A new password will be sent to it.</p>${m}<form id="aForm">` +
-    fld('aEmail', 'Email', 'email', 'you@example.com', 'username') + `<button class="abtn" id="aGo">Email me a new password</button></form>` +
+  else if (mode === 'forgot') h = `<h3>Forgot password</h3><p class="asub">Enter your registered email or mobile. A new password will be sent to your email.</p>${m}<form id="aForm">` +
+    fld('aEmail', 'Email or mobile number', 'text', 'Email or 10-digit mobile', 'username') + `<button class="abtn" id="aGo">Email me a new password</button></form>` +
     `<button type="button" class="abtn ghost" data-m="login">Back to log in</button>`;
   else if (mode === 'change') h = `<h3>Set your password</h3><p class="asub">At least 8 characters, with letters and numbers.</p>${m}<form id="aForm">` +
     (ME && !ME.mustChange ? fld('aOld', 'Current password', 'password', '', 'current-password') : '') +
@@ -1967,7 +1968,7 @@ function showStatus(st) {
   $('authWrap').classList.remove('hide'); $('aLogo').src = window.KEDIA_LOGO || '';
   const nm = ME && ME.name ? esc(ME.name.split(' ')[0]) : 'there';
   const T = { Pending: ['⏳', `Hello ${nm}, your account is waiting for approval`, 'KEDIA ADVISORY will activate your access shortly. You will be able to open your commodities as soon as it is approved.'],
-    Expired: ['⌛', 'Your access has ended', `Your plan ended${ME && ME.end ? ' on <b>' + fmtDate(ME.end) + '</b>' : ''}. Please contact KEDIA ADVISORY to renew it.`],
+    Expired: ['⌛', 'Your access has ended', `Your ${ME && ME.plan ? esc(ME.plan) : 'access'} ended${ME && ME.end ? ' on <b>' + fmtDate(ME.end) + '</b>' : ''}. Please contact KEDIA ADVISORY to continue with a plan.`],
     Blocked: ['🔒', 'Your access is on hold', 'Please contact KEDIA ADVISORY.'] }[st] || ['🔒', 'No access yet', 'Please contact KEDIA ADVISORY.'];
   $('authMain').innerHTML = `<div class="astate"><div class="big2">${T[0]}</div><h3>${T[1]}</h3><p>${T[2]}</p></div><div class="acontact">${CONTACT}</div>` +
     `<button type="button" class="abtn" id="aAgain" style="margin-top:16px">Check again</button><button type="button" class="abtn ghost" id="aOut">Log out</button>`;
