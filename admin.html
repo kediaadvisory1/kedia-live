@@ -207,7 +207,7 @@ table.t td.wrap { white-space: normal; min-width: 160px; }
 .ck.on { background: var(--navy); border-color: var(--navy); color: #fff; }
 .ck small { opacity: .65; }
 input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; }
-.acc.dis .cx { opacity: .45; pointer-events: none; }
+.acc.dis .cx { opacity: .75; } .acc.dis .cx input, .acc.dis .cx .ck { pointer-events: none; } .acc.dis .cx .ck { opacity: .8; }
 .df { background: #fff; border-top: 1px solid var(--line); padding: 12px 20px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .df .sp { flex: 1; }
 .tl { display: grid; gap: 0; }
@@ -678,7 +678,8 @@ function openDrawer(u, mode) {
         <div class="fld"><label>Plan status</label><div class="seg st3" id="xStatus">${['Pending', 'Active', 'Blocked'].map(s => `<button type="button" data-v="${s}" class="${x.Status === s ? 'on' : ''}">${s}</button>`).join('')}</div></div>
         <div class="fld"><label>Plan</label><div class="seg" id="xPlan">${PLANS.map(p => `<button type="button" data-v="${p}" class="${x.Plan === p ? 'on' : ''}">${p}</button>`).join('')}</div></div>
         <div class="pers" id="pers"><span class="lb">Period from start:</span>${[['7d', '7 days'], ['1m', '1 month'], ['2m', '2 months'], ['3m', '3 months'], ['6m', '6 months'], ['12m', '1 year']].map(([v, l]) => `<button type="button" data-p="${v}">${l}</button>`).join('')}</div>
-        ${isNew ? '' : `<div class="pers" id="ext"><span class="lb">Extend end date by:</span>${[['7d', '+7 days'], ['1m', '+1 month'], ['3m', '+3 months']].map(([v, l]) => `<button type="button" data-p="${v}">${l}</button>`).join('')}</div>`}
+        ${isNew ? '' : `<div class="pers" id="ext"><span class="lb">Extend end date by:</span>${[['7d', '+7 days'], ['1m', '+1 month'], ['3m', '+3 months']].map(([v, l]) => `<button type="button" data-p="${v}">${l}</button>`).join('')}</div>
+        <div class="pers"><span class="lb">Stop access:</span><button type="button" id="endNow" style="border-color:#F2C4C0;color:var(--bad)">End plan now (expires today)</button></div>`}
         <div class="g2"><div class="fld"><label>Start date</label><input id="xStart" type="date" value="${esc(/^\d{4}-\d\d-\d\d$/.test(x.Start) ? x.Start : '')}"></div>
           <div class="fld"><label>End date (custom date)</label><input id="xEnd" type="date" value="${esc(/^\d{4}-\d\d-\d\d$/.test(x.End) ? x.End : '')}"></div></div>
         <div class="sum" id="perSum"></div>
@@ -718,7 +719,9 @@ function openDrawer(u, mode) {
       ${!isNew && !u.main && isAdmin() && String(x.Email).toLowerCase() !== String(ME.email).toLowerCase() ? `<button class="btn red sm" id="dDel">${ic('trash')} Delete</button>` : ''}<span class="sp"></span>
       ${!isNew && ((x.Role || 'user') === 'user' || x.Role === 'rm') ? `<button class="btn navy sm" id="dPlan">${ic('plus')} Add plan</button>` : ''}
       <button class="btn line" id="dCancel">Cancel</button><button class="btn gold" id="dSave">${ic('ok')} Save</button></div></div>`;
-  $('shade').onclick = $('dx').onclick = $('dCancel').onclick = closeLayer;
+  $('shade').onclick = $('dx').onclick = $('dCancel').onclick = () => tryCloseDrawer();
+  if ($('endNow')) $('endNow').onclick = () => { const e = addD(TODAY, -1); $('xEnd').value = e; if ($('xStart').value && $('xStart').value > e) $('xStart').value = e;
+    x.Status = 'Active'; segSet('xStatus', 'Active'); $('pers').querySelectorAll('button').forEach(o => o.classList.remove('on')); perSum(); toast('End date set to ' + fmtD(e).replace(/<[^>]+>/g, '') + ' – press Save to apply'); };
   segBind('xStatus', v => { x.Status = v; perSum(); }); segBind('xPlan', v => { x.Plan = v; if (v === 'Advance' && !String(x.Access).trim()) { x.Access = 'ALL'; drawAcc(); } });
   $('pers').querySelectorAll('button').forEach(b => b.onclick = () => { const s = $('xStart').value || TODAY; $('xStart').value = s; $('xEnd').value = period(s, b.dataset.p, true); D.period = b.textContent;
     $('pers').querySelectorAll('button').forEach(o => o.classList.toggle('on', o === b)); perSum(); });
@@ -737,7 +740,7 @@ function openDrawer(u, mode) {
   if ($('phCur')) $('phCur').onclick = () => planLine(u, null, curPlanLine(u));
   document.querySelectorAll('.drawer [data-pe]').forEach(b => b.onclick = () => planLine(u, PLANROWS.find(p => String(p.row) === b.dataset.pe)));
   document.querySelectorAll('.drawer [data-pd]').forEach(b => b.onclick = () => planLineDelete(u, PLANROWS.find(p => String(p.row) === b.dataset.pd)));
-  if ($('dPlan')) $('dPlan').onclick = () => openAddPlan(u);
+  if ($('dPlan')) $('dPlan').onclick = () => tryCloseDrawer(() => openAddPlan(u));
   $('dSave').onclick = saveDrawer;
   roleInfo(); drawAcc(); perSum();
   if (!isAdmin()) {                                                     /* RM: everything read-only except Remarks; no plan buttons */
@@ -753,6 +756,7 @@ function openDrawer(u, mode) {
   }
   if (mode === 'extend' && $('ext')) $('ext').scrollIntoView({ block: 'center' });
   if (!isNew) loadActivity(u.Email);
+  D.snap = drawerState();                                              /* to warn about unsaved changes */
   document.addEventListener('keydown', escClose);
 }
 /* City = search + scroll list of Indian cities / districts (places.js); picking one fills the State (same as the sign-up form) */
@@ -782,7 +786,18 @@ function cityBox(inp, list, stSel) {
     if (i >= 0) pick(items[i]); else { list.classList.add('hide'); if (stSel) stSel.focus(); } });
   inp.addEventListener('blur', () => setTimeout(() => list.classList.add('hide'), 150));
 }
-function escClose(e) { if (e.key === 'Escape' && D) { closeLayer(); document.removeEventListener('keydown', escClose); } }
+function escClose(e) { if (e.key !== 'Escape' || !D) return; if ($('mdl')) { closeModal(); return; } tryCloseDrawer(() => document.removeEventListener('keydown', escClose)); }
+/* 22-Nov-2026 (user): a changed End date was lost when the window was closed - now it asks first */
+function drawerState() { return JSON.stringify([[...document.querySelectorAll('.drawer .db input, .drawer .db select, .drawer .db textarea')].map(e => e.type === 'checkbox' ? e.checked : e.value),
+  D && D.x ? [D.x.Status, D.x.Plan, D.x.Access, D.x.Role] : []]); }
+function tryCloseDrawer(next) {
+  const go = () => { closeLayer(); if (next) next(); };
+  if (!D || !D.snap || !document.querySelector('.drawer') || drawerState() === D.snap) return go();
+  modal(`<h3>Save the changes?</h3><p>You changed this client but did not press <b>Save</b>.</p>
+    <div class="mbtns"><button class="btn line" id="mKeep">Keep editing</button><button class="btn red" id="mNo">Close without saving</button><button class="btn gold" id="mYes">${ic('ok')} Save</button></div>`);
+  $('mKeep').onclick = closeModal; $('mNo').onclick = go;
+  $('mYes').onclick = async () => { closeModal(); await saveDrawer(); if (!document.querySelector('.drawer') && next) next(); };
+}
 function segBind(id, fn) { $(id).querySelectorAll('button').forEach(b => b.onclick = () => { segSet(id, b.dataset.v); fn(b.dataset.v); }); }
 function segSet(id, v) { $(id).querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); }
 function period(start, p, inclusive) { const n = parseInt(p, 10), e = p.endsWith('d') ? addD(start, n) : addM(start, n); return inclusive ? addD(e, -1) : e; }
@@ -806,10 +821,10 @@ function drawAcc() {
   const has = k => all || set.has(k), total = G.reduce((n, g) => n + g[1].length, 0), on = all ? total : G.reduce((n, g) => n + g[1].filter(k => set.has(k)).length, 0);
   $('accCount').textContent = all ? 'all ' + total + ' commodities' : on + ' of ' + total + ' ticked';
   $('acc').className = 'acc' + (all ? ' dis' : '');
-  const anyOpen = !all && G.some(([g]) => D.openG.has(g));
+  const anyOpen = G.some(([g]) => D.openG.has(g));
   $('acc').innerHTML = `<div class="allbar"><label class="allrow"><input type="checkbox" id="accAll"${all ? ' checked' : ''}${D.x.Role === 'admin' ? ' disabled' : ''}> All commodities (every complex, also new ones later)</label>
-      ${all ? '' : `<button type="button" class="xall" id="accXall">${anyOpen ? '▴ Collapse all' : '▾ Expand all'}</button>`}</div>` +
-    G.map(([g, ks]) => { const n = ks.filter(has).length, open = !all && D.openG.has(g), picked = ks.filter(has).map(k => esc(name(k)));
+      <button type="button" class="xall" id="accXall">${anyOpen ? '▴ Collapse all' : '▾ Expand all'}</button></div>` +
+    G.map(([g, ks]) => { const n = ks.filter(has).length, open = D.openG.has(g), picked = ks.filter(has).map(k => esc(name(k)));
       return `<div class="cx${open ? ' open' : ''}"><div class="ch" data-o="${esc(g)}"><span class="tog">${open ? '▾' : '▸'}</span>
           <label onclick="event.stopPropagation()"><input type="checkbox" data-g="${esc(g)}"${n === ks.length ? ' checked' : ''}> ${esc(g)}</label>
           <span class="c">${n} / ${ks.length}${!open && n && n < ks.length ? ' · ' + picked.join(', ') : ''}</span></div>
@@ -817,7 +832,7 @@ function drawAcc() {
   G.forEach(([g, ks]) => { const cb = $('acc').querySelector(`input[data-g="${CSS.escape(g)}"]`), n = ks.filter(has).length; if (cb) cb.indeterminate = n > 0 && n < ks.length; });
   $('accAll').onchange = e => { D.x.Access = e.target.checked ? 'ALL' : ''; drawAcc(); };
   if ($('accXall')) $('accXall').onclick = () => { if (anyOpen) D.openG.clear(); else G.forEach(([g]) => D.openG.add(g)); drawAcc(); };
-  $('acc').querySelectorAll('.ch[data-o]').forEach(h => h.onclick = () => { const g = h.dataset.o; if (all) return; D.openG.has(g) ? D.openG.delete(g) : D.openG.add(g); drawAcc(); });
+  $('acc').querySelectorAll('.ch[data-o]').forEach(h => h.onclick = () => { const g = h.dataset.o; D.openG.has(g) ? D.openG.delete(g) : D.openG.add(g); drawAcc(); });
   $('acc').querySelectorAll('input[data-g]').forEach(cb => cb.onchange = () => { const ks = G.find(g => g[0] === cb.dataset.g)[1], s = accSet() === 'ALL' ? new Set() : accSet();
     ks.forEach(k => cb.checked ? s.add(k) : s.delete(k)); D.x.Access = [...s].join(','); drawAcc(); });
   $('acc').querySelectorAll('.ck').forEach(c => c.onclick = () => { const s = accSet() === 'ALL' ? new Set() : accSet(), k = c.dataset.k; s.has(k) ? s.delete(k) : s.add(k); D.x.Access = [...s].join(','); drawAcc(); });
@@ -1212,7 +1227,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '107e275f01', K = 'va';
+<script>(function () { var V = 'd905e29663', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
