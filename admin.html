@@ -358,7 +358,7 @@ const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC
 
 let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaToken') || ''; } catch (e) {}
 let ME = null, USERS = [], RMS = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
-const F = { tab: 'All', q: '', plan: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
+const F = { tab: 'All', q: '', plan: '', src: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
 
 /* ---------- server ---------- */
 async function call(action, extra) {
@@ -533,6 +533,9 @@ function who(u) { return `<div class="who"><div class="av">${esc(ini(u.Name))}</
 function rowBtns(u, mini) {
   const e = esc(u.Email);
   const client = (u.Role || 'user') === 'user';
+  /* RM: view + remarks + password help only (no add / plan / block / approve) */
+  if (!isAdmin()) return mini ? `<button class="btn line sm" data-a="edit" data-e="${e}">Open</button>`
+    : `<div class="acts"><button class="ib" title="Open / remarks" data-a="edit" data-e="${e}">${ic('edit')}</button><button class="ib" title="Password (email or set)" data-a="reset" data-e="${e}">${ic('key')}</button></div>`;
   if (u.main) return `<div class="acts"><button class="ib" title="Edit details" data-a="edit" data-e="${e}">${ic('edit')}</button>${meMain() ? `<button class="ib" title="Password" data-a="reset" data-e="${e}">${ic('key')}</button>` : ''}</div>`;
   if (u.eff === 'Pending' && mini) return `<button class="btn gold sm" data-a="approve" data-e="${e}">${ic('ok')} Approve</button>`;
   if (mini) return `<button class="btn gold sm" data-a="plan" data-e="${e}">${ic('plus')} Add plan</button>`;
@@ -549,7 +552,16 @@ function bindRowBtns() {
 }
 
 /* ---------- subscribers list ---------- */
-const COLS = [['#', null], ['Client', 'Name'], ['Mobile', 'Mobile'], ['City', 'City'], ['Plan', 'Plan'], ['Segments', null], ['Start date', 'Start'], ['End date', 'End'],
+/* Source (22-Nov-2026): App / Website sign-up, or Admin + who added; "(old)" = worked out from the first login device */
+const srcKind = u => { const s = String(u.Source || ''); return /^Admin/.test(s) ? 'Admin' : /^App/.test(s) ? 'App' : /^Website/.test(s) ? 'Website' : 'Other'; };
+function srcHtml(u) {
+  const s = String(u.Source || ''), old = /\(old\)/.test(s), k = srcKind(u);
+  if (k === 'Admin') return `<b style="color:var(--navy)">👤 Admin</b><br><span class="left">${esc(s.replace(/^Admin:\s*/, ''))}</span>`;
+  if (k === 'App') return `<b style="color:var(--navy)">📱 App</b>${old ? '<br><span class="left">earlier sign-up</span>' : ''}`;
+  if (k === 'Website') return `<b style="color:var(--navy)">🌐 Website</b>${old ? '<br><span class="left">earlier sign-up</span>' : ''}`;
+  return '<span class="left">Sign-up<br>(not known)</span>';
+}
+const COLS = [['#', null], ['Client', 'Name'], ['Mobile', 'Mobile'], ['City', 'City'], ['Source', 'Source'], ['Plan', 'Plan'], ['Segments', null], ['Start date', 'Start'], ['End date', 'End'],
   ['Plan status', 'eff'], ['Amount', 'Paid'], ['Mode', 'Mode'], ['User type', 'Role'], ['Sales RM', 'Sales RM'], ['Service RM', 'Service RM'], ['Last login', 'Last login'], ['Signed up', 'Created'], ['Remarks', null], ['Actions', null]];
 function filtered(ignoreTab) {
   const q = F.q.trim().toLowerCase();
@@ -559,6 +571,7 @@ function filtered(ignoreTab) {
     if (F.role === 'staff' ? !staff : (F.role ? (u.Role || 'user') !== F.role : false)) return false;
     if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
     if (F.plan && (u.Plan || '') !== F.plan) return false;
+    if (F.src && srcKind(u) !== F.src) return false;
     if (F.srm && (u['Sales RM'] || '') !== F.srm) return false;
     if (F.vrm && (u['Service RM'] || '') !== F.vrm) return false;
     if (q && ![u.Name, u.Email, u.Mobile, u.City, u.State, u.Remarks].join(' ').toLowerCase().includes(q)) return false;
@@ -575,12 +588,14 @@ function viewSubs() {
   $('content').innerHTML = `<div class="card"><div class="hd"><div class="tabsF" id="tabsF"></div><span class="sp"></span>
       <button class="btn line sm" id="btnCsv">${ic('dl')} Export</button><button class="btn gold sm" id="btnAdd">${ic('plus')} Add ${VIEW === 'team' ? 'team member' : 'client'}</button></div>
     <div class="frow"><div class="sbox">${ic('search')}<input id="fq" type="search" placeholder="Search name, email, mobile, city, remarks" value="${esc(F.q)}"></div>
-      <select id="fplan">${opts(PLANS, F.plan, 'All plans')}</select><select id="fsrm">${opts(rmVals, F.srm, 'All Sales RM')}</select><select id="fvrm">${opts(rmVals, F.vrm, 'All Service RM')}</select>
+      <select id="fplan">${opts(PLANS, F.plan, 'All plans')}</select>
+      <select id="fsrc"><option value="">All sources</option>${[['App', '📱 App'], ['Website', '🌐 Website'], ['Admin', '👤 Added by admin'], ['Other', 'Not known']].map(([v, l]) => `<option value="${v}"${F.src === v ? ' selected' : ''}>${l}</option>`).join('')}</select><select id="fsrm">${opts(rmVals, F.srm, 'All Sales RM')}</select><select id="fvrm">${opts(rmVals, F.vrm, 'All Service RM')}</select>
       ${VIEW === 'team' ? '' : `<select id="frole"><option value="">All user types</option>${['user', 'rm', 'admin'].map(r => `<option value="${r}"${F.role === r ? ' selected' : ''}>${{ user: 'Client', rm: 'RM', admin: 'Admin' }[r]}</option>`).join('')}</select>`}</div>
     <div class="tw"><table class="t"><thead><tr id="thr"></tr></thead><tbody id="tb"></tbody></table></div><div class="pager" id="pager"></div></div>`;
   $('fq').oninput = e => { F.q = e.target.value; F.page = 0; drawTable(); };
-  [['fplan', 'plan'], ['fsrm', 'srm'], ['fvrm', 'vrm'], ['frole', 'role']].forEach(([id, k]) => { if ($(id)) $(id).onchange = e => { F[k] = e.target.value; F.page = 0; drawTable(); }; });
+  [['fplan', 'plan'], ['fsrc', 'src'], ['fsrm', 'srm'], ['fvrm', 'vrm'], ['frole', 'role']].forEach(([id, k]) => { if ($(id)) $(id).onchange = e => { F[k] = e.target.value; F.page = 0; drawTable(); }; });
   $('btnAdd').onclick = () => openDrawer(null, VIEW === 'team' ? 'staff' : '');
+  if (!isAdmin()) $('btnAdd').remove();                                  /* only admins add clients */
   $('btnCsv').onclick = exportCsv;
   drawTable();
 }
@@ -595,7 +610,7 @@ function drawTable() {
   const pages = Math.max(1, Math.ceil(list.length / F.per)); F.page = Math.min(F.page, pages - 1);
   const rows = list.slice(F.page * F.per, (F.page + 1) * F.per);
   $('tb').innerHTML = rows.length ? rows.map((u, i) => { const l = left(u);
-    return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td>
+    return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td><td>${srcHtml(u)}</td>
       <td>${u.Plan ? `<span class="tag g">${esc(u.Plan)}</span>` : '<span class="left">—</span>'}</td><td class="wrap">${accTags(u.Role === 'admin' ? 'ALL' : u.Access)}</td>
       <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${l != null && u.eff === 'Active' ? `<br><span class="left${l <= 7 ? ' r' : ''}">${l} day${l === 1 ? '' : 's'} left</span>` : ''}</td>
       <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM</span>' }[u.Role] || 'Client'}</td>
@@ -701,6 +716,12 @@ function openDrawer(u, mode) {
   if ($('dPlan')) $('dPlan').onclick = () => openAddPlan(u);
   $('dSave').onclick = saveDrawer;
   roleInfo(); drawAcc(); perSum();
+  if (!isAdmin()) {                                                     /* RM: everything read-only except Remarks; no plan buttons */
+    document.querySelectorAll('.drawer .db input, .drawer .db select, .drawer .db button').forEach(el => { if (el.id !== 'xRem') el.disabled = true; });
+    document.querySelectorAll('.drawer .seg, .drawer .pers, .drawer .acc').forEach(el => { el.style.pointerEvents = 'none'; el.style.opacity = '.6'; });
+    ['dPlan', 'phAdd', 'dDel'].forEach(id => { if ($(id)) $(id).remove(); });
+    $('roleInfo').innerHTML = 'You can see this client, add <b>Remarks</b> and help with the password. Plans, dates and segments are changed by an admin.';
+  }
   if (u && u.main) {                                                    /* main admin: details only - always Active, all access, no end date */
     document.querySelectorAll('.drawer .sec').forEach(s => { const t = (s.querySelector('.st') || {}).textContent || ''; if (/^(Subscription|Segments)/i.test(t)) s.style.display = 'none'; });
     if ($('xRole')) $('xRole').disabled = true;
@@ -751,6 +772,12 @@ function drawAcc() {
 }
 async function saveDrawer() {
   const x = D.x, b = $('dSave');
+  if (!isAdmin()) {                                                     /* RM: remarks only */
+    busy(b, true, 'Saving…');
+    try { await call('admin_save', { user: { Email: x.Email, Remarks: $('xRem').value.trim() } }); closeLayer(); await loadAll(); route(); toast('Remarks saved'); }
+    catch (e) { busy(b, false); toast(e.message, true); }
+    return;
+  }
   const out = { Email: $('xEmail').value.trim().toLowerCase(), Name: $('xName').value.trim(), Mobile: $('xMobile').value.trim(), City: $('xCity').value.trim(), State: $('xState').value.trim(),
     Status: x.Status, Plan: x.Plan || '', Start: $('xStart').value, End: $('xEnd').value, Access: x.Role === 'admin' ? 'ALL' : String(x.Access || ''),
     'Sales RM': $('xSrm').value.trim(), 'Service RM': $('xVrm').value.trim(), Remarks: $('xRem').value.trim() };
