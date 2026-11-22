@@ -366,7 +366,7 @@ const IC = {
 };
 const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC[n]}</svg>`;
 
-let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaToken') || ''; } catch (e) {}
+let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaAdminToken') || ''; } catch (e) {}
 let ME = null, USERS = [], RMS = [], RMST = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
 const F = { tab: 'All', q: '', plan: '', src: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
 
@@ -383,7 +383,7 @@ async function call(action, extra) {
   }
   return j;
 }
-function setToken(t) { TOKEN = t || ''; try { t ? localStorage.setItem('kediaToken', t) : localStorage.removeItem('kediaToken'); } catch (e) {} }
+function setToken(t) { TOKEN = t || ''; try { t ? localStorage.setItem('kediaAdminToken', t) : localStorage.removeItem('kediaAdminToken'); } catch (e) {} }
 async function loadComm() {
   if (Object.keys(COMM).length) return;
   try { const r = await fetch(API_URL + '?api=' + encodeURIComponent('/api/config'), { cache: 'no-store' }); COMM = await r.json(); } catch (e) { COMM = {}; }
@@ -1227,7 +1227,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = 'd905e29663', K = 'va';
+<script>(function () { var V = '82ad1b698b', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
