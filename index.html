@@ -1953,7 +1953,7 @@ function showAuth(mode, msg) {
   else if (mode === 'forgot') h = `<h3>Forgot password</h3><p class="asub">Enter your registered email or mobile. A new password will be sent to your email.</p>${m}<form id="aForm">` +
     fld('aEmail', 'Email or mobile number', 'text', 'Email or 10-digit mobile', 'username') + `<button class="abtn" id="aGo">Email me a new password</button></form>` +
     `<button type="button" class="abtn ghost" data-m="login">Back to log in</button>`;
-  else if (mode === 'change') h = `<h3>Set your password</h3><p class="asub">At least 8 characters, with letters and numbers.</p>${m}<form id="aForm">` +
+  else if (mode === 'change') h = `<h3>Set your password</h3><p class="asub">At least 6 characters (letters, numbers, anything).</p>${m}<form id="aForm">` +
     (ME && !ME.mustChange ? fld('aOld', 'Current password', 'password', '', 'current-password') : '') +
     fld('aPass', 'New password', 'password', 'New password', 'new-password') + fld('aPass2', 'Type it again', 'password', 'Same password again', 'new-password') +
     `<button class="abtn" id="aGo">Save password</button></form>` + (ME && !ME.mustChange && ME.status === 'Active' ? `<button type="button" class="abtn ghost" id="aCancel">Cancel</button>` : `<button type="button" class="abtn ghost" id="aOut">Log out</button>`);
