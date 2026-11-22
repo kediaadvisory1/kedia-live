@@ -336,6 +336,7 @@ const IC = {
   menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
   app: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
   copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'
 };
 const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC[n]}</svg>`;
@@ -632,7 +633,8 @@ function openDrawer(u, mode) {
 
       ${isNew ? '' : `<div class="sec"><div class="st">Recent activity<span class="sp"></span><span class="left">last login ${fmtT(u['Last login']).replace(/<[^>]+>/g, '')}</span></div><div class="tl" id="act"><div><span><span class="spin"></span></span>Loading…</div></div></div>`}
     </div>
-    <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}<span class="sp"></span>
+    <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}
+      ${!isNew && isAdmin() && String(x.Email).toLowerCase() !== String(ME.email).toLowerCase() ? `<button class="btn red sm" id="dDel">${ic('trash')} Delete</button>` : ''}<span class="sp"></span>
       <button class="btn line" id="dCancel">Cancel</button><button class="btn gold" id="dSave">${ic('ok')} Save</button></div></div>`;
   $('shade').onclick = $('dx').onclick = $('dCancel').onclick = closeLayer;
   segBind('xStatus', v => { x.Status = v; perSum(); }); segBind('xPlan', v => { x.Plan = v; if (v === 'Advance' && !String(x.Access).trim()) { x.Access = 'ALL'; drawAcc(); } });
@@ -643,6 +645,7 @@ function openDrawer(u, mode) {
   $('xStart').onchange = $('xEnd').onchange = () => { $('pers').querySelectorAll('button').forEach(o => o.classList.remove('on')); perSum(); };
   if ($('xRole')) $('xRole').onchange = e => { x.Role = e.target.value; roleInfo(); drawAcc(); };
   if ($('dReset')) $('dReset').onclick = () => askReset(u);
+  if ($('dDel')) $('dDel').onclick = () => askDelete(u);
   $('dSave').onclick = saveDrawer;
   roleInfo(); drawAcc(); perSum();
   if (mode === 'extend' && $('ext')) $('ext').scrollIntoView({ block: 'center' });
@@ -730,6 +733,18 @@ function askBlock(u, block) {
   $('mNo').onclick = closeModal;
   $('mYes').onclick = async () => { busy($('mYes'), true);
     try { await call('admin_save', { user: { Email: u.Email, Status: block ? 'Blocked' : 'Active' } }); closeModal(); await loadAll(); route(); toast((block ? 'Blocked: ' : 'Unblocked: ') + (u.Name || u.Email)); }
+    catch (e) { closeModal(); toast(e.message, true); } };
+}
+
+function askDelete(u) {
+  modal(`<h3>Delete ${esc(u.Name || u.Email)}?</h3><p>This removes <b>${esc(u.Email)}</b> for good: login, plan, dates, access, RM and remarks. They are logged out at once.
+    <b>This cannot be undone.</b> (Only the login history line stays.)</p><p style="font-size:12.5px">To stop access for a while instead, use <b>Block</b>.</p>
+    <div class="fld"><label>Type DELETE to confirm</label><input id="mConf" autocomplete="off" placeholder="DELETE"></div>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn red" id="mYes" disabled>${ic('trash')} Delete for good</button></div>`);
+  $('mConf').oninput = e => { $('mYes').disabled = e.target.value.trim().toUpperCase() !== 'DELETE'; };
+  $('mNo').onclick = closeModal;
+  $('mYes').onclick = async () => { busy($('mYes'), true);
+    try { await call('admin_delete', { email: u.Email }); closeLayer(); HIST = null; await loadAll(); route(); toast('Deleted: ' + (u.Name || u.Email)); }
     catch (e) { closeModal(); toast(e.message, true); } };
 }
 
