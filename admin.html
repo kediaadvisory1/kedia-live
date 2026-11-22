@@ -705,7 +705,7 @@ function openDrawer(u, mode) {
           ${isAdmin() && ((x.Role || 'user') === 'user' || x.Role === 'rm') ? `<button type="button" class="btn line sm" id="phAdd" style="margin-left:8px">${ic('plus')} Add past entry</button>` : ''}</div>
         ${(() => { const p = plansOf(x.Email), ad = isAdmin(); return p.length ? `<div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">By</th>${ad ? '<th class="ns"></th>' : ''}</tr></thead><tbody>` +
           p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td>` +
-            (ad ? `<td><div class="acts"><button type="button" class="ib" title="Edit this line" data-pe="${r.row}">${ic('edit')}</button><button type="button" class="ib r" title="Delete this line" data-pd="${r.row}">${ic('trash')}</button></div></td>` : '') + '</tr>').join('') +
+            (ad ? `<td><div class="acts"><button type="button" class="ib" title="Edit this line" data-pe="${r.row}">${ic('edit')}</button>${r.Plan === FREE_PLAN && r.By === 'Sign-up' ? `<span class="ib" title="The sign-up ${FREE_PLAN} line always stays" style="opacity:.45;cursor:default">${ic('lock')}</span>` : `<button type="button" class="ib r" title="Delete this line" data-pd="${r.row}">${ic('trash')}</button>`}</div></td>` : '') + '</tr>').join('') +
           '</tbody></table></div>' : '<div class="left">No plan history yet.</div>'; })()}
         ${(() => { /* 22-Nov-2026 (user): the current plan must be visible in the history - warn when its line is missing */
           const cur = curPlanLine(x); if (!cur || plansOf(x.Email).some(p => sameLine(p, cur))) return '';
@@ -822,16 +822,22 @@ function drawAcc() {
   $('accCount').textContent = all ? 'all ' + total + ' commodities' : on + ' of ' + total + ' ticked';
   $('acc').className = 'acc' + (all ? ' dis' : '');
   const anyOpen = G.some(([g]) => D.openG.has(g));
+  /* 22-Nov-2026 (user): with All commodities ticked the whole complex list folds away (Expand shows it, view only) */
+  if (D.treeShow == null) D.treeShow = !all;
+  const listOn = !all || D.treeShow;
   $('acc').innerHTML = `<div class="allbar"><label class="allrow"><input type="checkbox" id="accAll"${all ? ' checked' : ''}${D.x.Role === 'admin' ? ' disabled' : ''}> All commodities (every complex, also new ones later)</label>
-      <button type="button" class="xall" id="accXall">${anyOpen ? '▴ Collapse all' : '▾ Expand all'}</button></div>` +
-    G.map(([g, ks]) => { const n = ks.filter(has).length, open = D.openG.has(g), picked = ks.filter(has).map(k => esc(name(k)));
+      <button type="button" class="xall" id="accXall">${all ? (listOn ? '▴ Collapse' : '▾ Expand') : anyOpen ? '▴ Collapse all' : '▾ Expand all'}</button></div>` +
+    (!listOn ? '' : G.map(([g, ks]) => { const n = ks.filter(has).length, open = D.openG.has(g), picked = ks.filter(has).map(k => esc(name(k)));
       return `<div class="cx${open ? ' open' : ''}"><div class="ch" data-o="${esc(g)}"><span class="tog">${open ? '▾' : '▸'}</span>
           <label onclick="event.stopPropagation()"><input type="checkbox" data-g="${esc(g)}"${n === ks.length ? ' checked' : ''}> ${esc(g)}</label>
           <span class="c">${n} / ${ks.length}${!open && n && n < ks.length ? ' · ' + picked.join(', ') : ''}</span></div>
-        ${open ? `<div class="cb">${ks.map(k => `<span class="ck${has(k) ? ' on' : ''}" data-k="${k}">${esc(name(k))}${COMM[k] && COMM[k].spotOnly ? ' <small>spot</small>' : ''}</span>`).join('')}</div>` : ''}</div>`; }).join('');
+        ${open ? `<div class="cb">${ks.map(k => `<span class="ck${has(k) ? ' on' : ''}" data-k="${k}">${esc(name(k))}${COMM[k] && COMM[k].spotOnly ? ' <small>spot</small>' : ''}</span>`).join('')}</div>` : ''}</div>`; }).join(''));
   G.forEach(([g, ks]) => { const cb = $('acc').querySelector(`input[data-g="${CSS.escape(g)}"]`), n = ks.filter(has).length; if (cb) cb.indeterminate = n > 0 && n < ks.length; });
-  $('accAll').onchange = e => { D.x.Access = e.target.checked ? 'ALL' : ''; drawAcc(); };
-  if ($('accXall')) $('accXall').onclick = () => { if (anyOpen) D.openG.clear(); else G.forEach(([g]) => D.openG.add(g)); drawAcc(); };
+  $('accAll').onchange = e => { D.x.Access = e.target.checked ? 'ALL' : ''; D.treeShow = !e.target.checked; D.openG.clear(); drawAcc(); };
+  if ($('accXall')) $('accXall').onclick = () => {
+    if (all) { D.treeShow = !listOn; if (D.treeShow) G.forEach(([g]) => D.openG.add(g)); else D.openG.clear(); }
+    else if (anyOpen) D.openG.clear(); else G.forEach(([g]) => D.openG.add(g));
+    drawAcc(); };
   $('acc').querySelectorAll('.ch[data-o]').forEach(h => h.onclick = () => { const g = h.dataset.o; D.openG.has(g) ? D.openG.delete(g) : D.openG.add(g); drawAcc(); });
   $('acc').querySelectorAll('input[data-g]').forEach(cb => cb.onchange = () => { const ks = G.find(g => g[0] === cb.dataset.g)[1], s = accSet() === 'ALL' ? new Set() : accSet();
     ks.forEach(k => cb.checked ? s.add(k) : s.delete(k)); D.x.Access = [...s].join(','); drawAcc(); });
@@ -1227,7 +1233,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '82ad1b698b', K = 'va';
+<script>(function () { var V = 'b32312b1fd', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
