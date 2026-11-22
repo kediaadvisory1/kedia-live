@@ -196,7 +196,12 @@ table.t td.wrap { white-space: normal; min-width: 160px; }
 .allrow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: linear-gradient(90deg, var(--cream), #fff); border: 1px solid #F1DFAE; font-weight: 700; color: var(--navy); cursor: pointer; }
 .cx { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .cx .ch { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #F7F8FB; cursor: pointer; font-weight: 700; color: var(--navy); }
-.cx .ch .c { margin-left: auto; font-size: 11.5px; color: var(--mute); font-weight: 600; }
+.cx .ch label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.cx .ch .tog { width: 16px; color: var(--gold-t); font-size: 12px; }
+.cx .ch .c { margin-left: auto; font-size: 11.5px; color: var(--mute); font-weight: 600; text-align: right; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx.open .ch { border-bottom: 1px solid var(--line); }
+.allbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .allbar .allrow { flex: 1; }
+.xall { border: 0; background: none; color: var(--navy); font-weight: 700; font-size: 12.5px; cursor: pointer; text-decoration: underline; padding: 4px 2px; }
 .cx .cb { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
 .ck { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid #DDE1EA; border-radius: 20px; cursor: pointer; font-size: 12.5px; color: var(--ink); background: #fff; user-select: none; }
 .ck.on { background: var(--navy); border-color: var(--navy); color: #fff; }
@@ -377,7 +382,7 @@ async function loadComm() {
 async function loadAll() {
   const j = await call('admin_list');
   ME = j.me; USERS = j.users || []; RMS = (j.rms || []).filter(Boolean); TODAY = j.today;
-  PLANROWS = (j.plans || []).map(r => Object.fromEntries(P_COLS.map((k, i) => [k, r[i]])));
+  PLANROWS = (j.plans || []).map(r => Object.assign(Object.fromEntries(P_COLS.map((k, i) => [k, r[i]])), { row: r[P_COLS.length] }));
   const paid = {}; PLANROWS.forEach(p => { const e = String(p.Email).toLowerCase(); paid[e] = paid[e] || { amt: 0, mode: '' }; paid[e].amt += Number(p.Amount) || 0; if (p.Mode) paid[e].mode = p.Mode; });
   USERS.forEach(u => { const p = paid[u.Email.toLowerCase()] || {}; u.Paid = p.amt || 0; u.Mode = p.mode || ''; });
 }
@@ -665,10 +670,13 @@ function openDrawer(u, mode) {
         <div class="fld" style="margin:0"><label>Remarks</label><textarea id="xRem" rows="3" placeholder="Payment, call notes, anything useful">${esc(x.Remarks)}</textarea></div>
         ${ME.role === 'rm' && isNew ? '<div class="info">New clients you add get you as Sales RM if you leave it empty.</div>' : ''}</div>
 
-      ${isNew ? '' : `<div class="sec"><div class="st">Plan history<span class="sp"></span><span class="left">${(() => { const p = plansOf(x.Email); return p.length + ' plan' + (p.length === 1 ? '' : 's') + ' · ' + inr(p.reduce((s, r) => s + (Number(r.Amount) || 0), 0)); })()}</span></div>
-        ${(() => { const p = plansOf(x.Email); return p.length ? `<div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">By</th></tr></thead><tbody>` +
-          p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td></tr>`).join('') +
-          '</tbody></table></div>' : '<div class="left">No plan given yet.</div>'; })()}</div>`}
+      ${isNew ? '' : `<div class="sec"><div class="st">Plan history<span class="sp"></span><span class="left">${(() => { const p = plansOf(x.Email); return p.length + ' plan' + (p.length === 1 ? '' : 's') + ' · ' + inr(p.reduce((s, r) => s + (Number(r.Amount) || 0), 0)); })()}</span>
+          ${isAdmin() && (x.Role || 'user') === 'user' ? `<button type="button" class="btn line sm" id="phAdd" style="margin-left:8px">${ic('plus')} Add past entry</button>` : ''}</div>
+        ${(() => { const p = plansOf(x.Email), ad = isAdmin(); return p.length ? `<div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">By</th>${ad ? '<th class="ns"></th>' : ''}</tr></thead><tbody>` +
+          p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td>` +
+            (ad ? `<td><div class="acts"><button type="button" class="ib" title="Edit this line" data-pe="${r.row}">${ic('edit')}</button><button type="button" class="ib r" title="Delete this line" data-pd="${r.row}">${ic('trash')}</button></div></td>` : '') + '</tr>').join('') +
+          '</tbody></table></div>' : '<div class="left">No plan history yet.</div>'; })()}
+        ${isAdmin() ? '<div class="info">Editing a line changes the record and the amount reports only – not what the client can see today (use + Add plan or the Subscription dates for that).</div>' : ''}</div>`}
       ${isNew ? '' : `<div class="sec"><div class="st">Recent activity<span class="sp"></span><span class="left">last login ${fmtT(u['Last login']).replace(/<[^>]+>/g, '')}</span></div><div class="tl" id="act"><div><span><span class="spin"></span></span>Loading…</div></div></div>`}
     </div>
     <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}
@@ -687,6 +695,9 @@ function openDrawer(u, mode) {
   if ($('dReset')) $('dReset').onclick = () => askReset(u);
   if ($('dDel')) $('dDel').onclick = () => askDelete(u);
   if ($('dOutAll')) $('dOutAll').onclick = () => askLogoutAll(u);
+  if ($('phAdd')) $('phAdd').onclick = () => planLine(u, null);
+  document.querySelectorAll('.drawer [data-pe]').forEach(b => b.onclick = () => planLine(u, PLANROWS.find(p => String(p.row) === b.dataset.pe)));
+  document.querySelectorAll('.drawer [data-pd]').forEach(b => b.onclick = () => planLineDelete(u, PLANROWS.find(p => String(p.row) === b.dataset.pd)));
   if ($('dPlan')) $('dPlan').onclick = () => openAddPlan(u);
   $('dSave').onclick = saveDrawer;
   roleInfo(); drawAcc(); perSum();
@@ -715,17 +726,25 @@ function perSum() {
   $('perSum').innerHTML = t;
 }
 function accSet() { const a = String(D.x.Access || '').trim(); return a.toUpperCase() === 'ALL' ? 'ALL' : new Set(a.split(',').map(s => s.trim().toUpperCase()).filter(Boolean)); }
+/* 22-Nov-2026 (user): each complex opens / closes (▸ / ▾) - closed by default, the header shows what is ticked; Expand all / Collapse all */
 function drawAcc() {
   const set = accSet(), all = set === 'ALL' || D.x.Role === 'admin', G = groups();
+  if (!D.openG) D.openG = new Set();
   const has = k => all || set.has(k), total = G.reduce((n, g) => n + g[1].length, 0), on = all ? total : G.reduce((n, g) => n + g[1].filter(k => set.has(k)).length, 0);
   $('accCount').textContent = all ? 'all ' + total + ' commodities' : on + ' of ' + total + ' ticked';
   $('acc').className = 'acc' + (all ? ' dis' : '');
-  $('acc').innerHTML = `<label class="allrow"><input type="checkbox" id="accAll"${all ? ' checked' : ''}${D.x.Role === 'admin' ? ' disabled' : ''}> All commodities (every complex, also new ones later)</label>` +
-    G.map(([g, ks]) => { const n = ks.filter(has).length;
-      return `<div class="cx"><label class="ch"><input type="checkbox" data-g="${esc(g)}"${n === ks.length ? ' checked' : ''}> ${esc(g)}<span class="c">${n} / ${ks.length}</span></label>
-        <div class="cb">${ks.map(k => `<span class="ck${has(k) ? ' on' : ''}" data-k="${k}">${esc(name(k))}${COMM[k] && COMM[k].spotOnly ? ' <small>spot</small>' : ''}</span>`).join('')}</div></div>`; }).join('');
+  const anyOpen = !all && G.some(([g]) => D.openG.has(g));
+  $('acc').innerHTML = `<div class="allbar"><label class="allrow"><input type="checkbox" id="accAll"${all ? ' checked' : ''}${D.x.Role === 'admin' ? ' disabled' : ''}> All commodities (every complex, also new ones later)</label>
+      ${all ? '' : `<button type="button" class="xall" id="accXall">${anyOpen ? '▴ Collapse all' : '▾ Expand all'}</button>`}</div>` +
+    G.map(([g, ks]) => { const n = ks.filter(has).length, open = !all && D.openG.has(g), picked = ks.filter(has).map(k => esc(name(k)));
+      return `<div class="cx${open ? ' open' : ''}"><div class="ch" data-o="${esc(g)}"><span class="tog">${open ? '▾' : '▸'}</span>
+          <label onclick="event.stopPropagation()"><input type="checkbox" data-g="${esc(g)}"${n === ks.length ? ' checked' : ''}> ${esc(g)}</label>
+          <span class="c">${n} / ${ks.length}${!open && n && n < ks.length ? ' · ' + picked.join(', ') : ''}</span></div>
+        ${open ? `<div class="cb">${ks.map(k => `<span class="ck${has(k) ? ' on' : ''}" data-k="${k}">${esc(name(k))}${COMM[k] && COMM[k].spotOnly ? ' <small>spot</small>' : ''}</span>`).join('')}</div>` : ''}</div>`; }).join('');
   G.forEach(([g, ks]) => { const cb = $('acc').querySelector(`input[data-g="${CSS.escape(g)}"]`), n = ks.filter(has).length; if (cb) cb.indeterminate = n > 0 && n < ks.length; });
   $('accAll').onchange = e => { D.x.Access = e.target.checked ? 'ALL' : ''; drawAcc(); };
+  if ($('accXall')) $('accXall').onclick = () => { if (anyOpen) D.openG.clear(); else G.forEach(([g]) => D.openG.add(g)); drawAcc(); };
+  $('acc').querySelectorAll('.ch[data-o]').forEach(h => h.onclick = () => { const g = h.dataset.o; if (all) return; D.openG.has(g) ? D.openG.delete(g) : D.openG.add(g); drawAcc(); });
   $('acc').querySelectorAll('input[data-g]').forEach(cb => cb.onchange = () => { const ks = G.find(g => g[0] === cb.dataset.g)[1], s = accSet() === 'ALL' ? new Set() : accSet();
     ks.forEach(k => cb.checked ? s.add(k) : s.delete(k)); D.x.Access = [...s].join(','); drawAcc(); });
   $('acc').querySelectorAll('.ck').forEach(c => c.onclick = () => { const s = accSet() === 'ALL' ? new Set() : accSet(), k = c.dataset.k; s.has(k) ? s.delete(k) : s.add(k); D.x.Access = [...s].join(','); drawAcc(); });
@@ -796,6 +815,45 @@ function askLogoutAll(u) {
   $('mNo').onclick = closeModal;
   $('mYes').onclick = async () => { busy($('mYes'), true);
     try { const j = await call('admin_logout_all', { email: u.Email }); closeModal(); HIST = null; toast('Logged out of ' + j.count + ' device(s): ' + (u.Name || u.Email)); }
+    catch (e) { closeModal(); toast(e.message, true); } };
+}
+
+/* ---------- plan history line: add past entry / edit / delete (ADMIN ONLY - the server checks too) ---------- */
+async function reopenAfter(u) { closeLayer(); HIST = null; await loadAll(); route(); const nu = USERS.find(x => x.Email === u.Email); if (nu) openDrawer(nu); }
+function planLine(u, p) {
+  const isNewLine = !p, d = p || { Time: TODAY, Plan: 'Basic', Period: '', Start: TODAY, End: '', Amount: '', Mode: '', Note: '' };
+  const dd = v => /^\d{4}-\d\d-\d\d/.test(String(v || '')) ? String(v).slice(0, 10) : '';
+  modal(`<h3>${isNewLine ? 'Add past plan entry' : 'Edit plan line'} · ${esc(u.Name || u.Email)}</h3>
+    <p style="font-size:12.5px">This changes the plan history and the amount reports only – not what the client can see today.</p>
+    <div class="g2"><div class="fld"><label>Given on</label><input id="plGiven" type="date" value="${esc(dd(d.Time))}"${isNewLine ? '' : ' disabled title="The date the line was made"'}></div>
+      <div class="fld"><label>Plan</label><select id="plPlan">${[...new Set(PLANS.concat(d.Plan ? [d.Plan] : []))].map(x => `<option${x === d.Plan ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></div>
+      <div class="fld"><label>From</label><input id="plStart" type="date" value="${esc(dd(d.Start))}"></div>
+      <div class="fld"><label>To</label><input id="plEnd" type="date" value="${esc(dd(d.End))}"></div>
+      <div class="fld"><label>Period</label><input id="plPeriod" value="${esc(d.Period)}" placeholder="e.g. 1 month"></div>
+      <div class="fld"><label>Amount (₹)</label><input id="plAmt" inputmode="decimal" value="${esc(Number(d.Amount) || '')}" placeholder="0"></div>
+      <div class="fld"><label>Payment mode</label><select id="plMode"><option value="">—</option>${MODES.map(m => `<option${m === d.Mode ? ' selected' : ''}>${m}</option>`).join('')}</select></div>
+      <div class="fld"><label>Note</label><input id="plNote" value="${esc(d.Note)}" placeholder="UTR / receipt no."></div></div>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('ok')} Save line</button></div>`, 'wide');
+  const autoPeriod = () => { if ($('plPeriod').dataset.typed) return; const s = $('plStart').value, e = $('plEnd').value; if (s && e && e >= s) $('plPeriod').value = (dnum(e) - dnum(s) + 1) + ' days'; };
+  $('plPeriod').oninput = () => { $('plPeriod').dataset.typed = 1; };
+  if (!isNewLine) $('plPeriod').dataset.typed = 1;
+  $('plStart').onchange = $('plEnd').onchange = autoPeriod;
+  $('mNo').onclick = closeModal;
+  $('mYes').onclick = async () => {
+    const g = { Given: $('plGiven').value, Plan: $('plPlan').value, Period: $('plPeriod').value.trim(), Start: $('plStart').value, End: $('plEnd').value, Amount: $('plAmt').value.trim() || 0, Mode: $('plMode').value, Note: $('plNote').value.trim() };
+    if (!g.Start || !g.End) return toast('Give the From and To dates.', true);
+    if (g.End < g.Start) return toast('The To date is before the From date.', true);
+    busy($('mYes'), true, 'Saving…');
+    try { await call('admin_plan_save', { email: u.Email, row: p ? p.row : 0, plan: g }); toast(isNewLine ? 'Plan entry added' : 'Plan line saved'); await reopenAfter(u); }
+    catch (e) { busy($('mYes'), false); toast(e.message, true); } };
+}
+function planLineDelete(u, p) {
+  if (!p) return;
+  modal(`<h3>Delete this plan line?</h3><p><b>${esc(p.Plan)}</b> · ${fmtD(p.Start)} – ${fmtD(p.End)}${Number(p.Amount) ? ' · <b>' + inr(p.Amount) + '</b>' : ''}<br>It is removed from the plan history and the amount reports. The client's access does not change.</p>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn red" id="mYes">${ic('trash')} Delete line</button></div>`);
+  $('mNo').onclick = closeModal;
+  $('mYes').onclick = async () => { busy($('mYes'), true);
+    try { await call('admin_plan_delete', { email: u.Email, row: p.row }); toast('Plan line deleted'); await reopenAfter(u); }
     catch (e) { closeModal(); toast(e.message, true); } };
 }
 
