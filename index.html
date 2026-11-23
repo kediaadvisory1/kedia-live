@@ -390,7 +390,7 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
   <div class="sp"></div>
   <div class="clock"><b id="clock">--:--:--</b><div><span id="pEx" class="pill off">—</span> <span id="pIntl" class="pill off hide">—</span></div></div>
   <div class="uchip hide" id="userChip"><span class="uav" id="uAv">K</span><span class="unm" id="uName"></span>
-    <div class="umenu" id="uMenu"><div class="uinfo" id="uInfo"></div><button id="btnMyPlan">👤 My profile &amp; plan</button><button id="btnChgPw">🔑 Change password</button><button id="btnLogout">↩ Log out</button></div></div>
+    <div class="umenu" id="uMenu"><div class="uinfo" id="uInfo"></div><button id="btnMyPlan">👤 My profile &amp; plan</button><button id="btnAskView">📈 Ask for a view</button><button id="btnSvc">🛠 Service help</button><button id="btnMyQ">💬 My queries</button><button id="btnChgPw">🔑 Change password</button><button id="btnLogout">↩ Log out</button></div></div>
   <button id="btnMore" class="mob" aria-label="More buttons">⋯</button>
   <div class="hbtns" id="hBtns">
     <label style="font-size:12px">Refresh <select id="refSel"><option value="5">5 s</option><option value="10">10 s</option><option value="30" selected>30 s</option><option value="60">1 min</option><option value="0">Off</option></select></label>
@@ -2149,6 +2149,63 @@ document.addEventListener('click', e => { if (!e.target.closest('#userChip')) $(
 $('btnLogout').onclick = logout;
 $('btnChgPw').onclick = () => { $('userChip').classList.remove('open'); showAuth('change'); };
 $('btnMyPlan').onclick = showMyPlan;
+/* 23-Nov-2026 (user): client queries - "Ask for a view" (market question -> research desk) and "Service help" (-> RM); answers under "My queries" */
+function myBox(html) {
+  $('userChip').classList.remove('open');
+  let w = $('myWrap'); if (!w) { w = document.createElement('div'); w.id = 'myWrap'; w.className = 'mywrap'; document.body.appendChild(w); w.onclick = e => { if (e.target === w) w.classList.add('hide'); }; }
+  w.classList.remove('hide'); w.innerHTML = `<div class="mycard">${html}</div>`;
+  const x = $('myX'); if (x) x.onclick = () => w.classList.add('hide');
+  return w;
+}
+const qHead = (t, s) => { const i = t.indexOf(' '); return `<div class="myhd"><div class="uav">${t.slice(0, i)}</div><div><h3>${t.slice(i + 1)}</h3><small>${s}</small></div><button class="x" id="myX" aria-label="Close">✕</button></div>`; };
+const Q_HZ = ['Today', '1-2 days', 'This week', '1 month+'], Q_CATS = ['Login / access', 'Plan & payment', 'Price or data issue', 'App problem', 'Other'];
+async function showAsk(type) {
+  const view = type === 'view';
+  const ks = Object.keys(CFG).filter(k => !locked(k)), def = ks.includes(ck) ? ck : ks[0];
+  myBox(qHead(view ? '📈 Ask for a view' : '🛠 Service help', view ? 'Our research desk answers market questions' : 'Login, plan, payment or app problem – your RM will help') +
+    `<div class="mybd"><form id="qForm" class="mysec" style="display:grid;gap:12px">` +
+    (view ? `<div class="afield"><label>Commodity</label><select id="qCom">${ks.map(k => `<option value="${k}"${k === def ? ' selected' : ''}>${esc(CFG[k].tab)}</option>`).join('')}</select></div>
+      <div class="afield"><label>Time frame</label><select id="qHz">${Q_HZ.map(h => `<option>${h}</option>`).join('')}</select></div>`
+      : `<div class="afield"><label>What is it about?</label><select id="qCat">${Q_CATS.map(c => `<option>${c}</option>`).join('')}</select></div>`) +
+    `<div class="afield"><label>${view ? 'Your question' : 'Tell us the problem'}</label><textarea id="qTxt" rows="4" style="width:100%;padding:10px 12px;border:1px solid #CDD2DE;border-radius:9px;font:inherit" placeholder="${view ? 'e.g. How will Gold trade today? Is 1,20,000 a good support?' : 'e.g. I renewed my plan but Silver is still locked'}"></textarea></div>
+      <div id="qLeft" style="font-size:12px;color:#6B7280"></div>
+      <button class="abtn" id="qSend">${view ? 'Send question' : 'Send to my RM'}</button></form>` +
+    (view ? `<div class="mysec" id="qNow"></div>` : '') +
+    `<div style="font-size:11px;color:#9CA3AF;text-align:center">KEDIA ADVISORY · SEBI Registration Number: INH000006156</div></div>`);
+  const now = () => { if (!view || !$('qNow')) return; const k = $('qCom').value;
+    $('qNow').innerHTML = `<div class="st">Right now – our technical summary</div>` + (k === ck && $('techVerdict') ? `<div style="font-size:13px;color:#1F2937"><b>${esc(CFG[k].tab)}</b> · ${esc($('techVerdict').innerText)}</div>
+      <div style="font-size:12px;color:#4B5563;margin-top:6px">${esc(($('techStrip') || {}).innerText || '').replace(/\n/g, ' · ')}</div>` : `<div style="font-size:12.5px;color:#4B5563">Open the <b>${esc(CFG[k].tab)}</b> page to see its live technical summary while you wait.</div>`) +
+      `<div style="font-size:11px;color:#9CA3AF;margin-top:8px">Not a buy / sell recommendation. Trading carries risk.</div>`; };
+  if (view) { $('qCom').onchange = now; now(); }
+  try { const r = await authCall({ action: 'q_mine', token: TOKEN }); if (r.ok && view) $('qLeft').textContent = `View questions today: ${r.viewUsed} of ${r.viewLimit} used.`; } catch (e) {}
+  $('qForm').onsubmit = async ev => { ev.preventDefault(); const b = $('qSend'), t = $('qTxt').value.trim(); if (t.length < 5) { toast('Please write your question.'); return; }
+    b.disabled = true; b.textContent = 'Sending…';
+    try { const r = await authCall({ action: 'q_new', token: TOKEN, type, text: t, subject: t.slice(0, 140), commodity: view ? CFG[$('qCom').value].tab : '', horizon: view ? $('qHz').value : '', category: view ? '' : $('qCat').value });
+      if (!r.ok) { toast(r.error || 'Could not send'); b.disabled = false; b.textContent = view ? 'Send question' : 'Send to my RM'; return; }
+      toast('Sent: ' + r.id + '. We will reply here and by email.'); showMyQ(r.id);
+    } catch (e) { toast('Could not reach KEDIA – try again.'); b.disabled = false; } };
+}
+async function showMyQ(openId) {
+  myBox(qHead('💬 My queries', 'Your questions and our replies') + '<div class="mybd"><div class="mysec">Loading…</div></div>');
+  let r; try { r = await authCall({ action: 'q_mine', token: TOKEN }); } catch (e) { r = { ok: false }; }
+  if (!r || !r.ok) { $('myWrap').querySelector('.mybd').innerHTML = '<div class="mysec">Could not load. Please try again.</div>'; return; }
+  const pill = s => `<span class="mypill ${s === 'Resolved' || s === 'Closed' ? 'ok' : s === 'Waiting for client' ? 'wait' : 'bad'}" style="${s === 'Open' || s === 'In progress' ? 'background:#E8EEFB;color:#1E2761' : ''}">${esc(s === 'Waiting for client' ? 'Waiting for you' : s)}</span>`;
+  const one = q => `<div class="mysec" id="q_${esc(q.ID)}"><div class="st">${q.Type === 'view' ? '📈 View · ' + esc(q.Commodity) + ' · ' + esc(q.Horizon) : '🛠 ' + esc(q.Category)} · ${esc(q.ID)}</div>
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b style="color:#1E2761">${esc(q.Subject)}</b>${pill(q.Status)}</div>
+      <div style="margin-top:8px;display:grid;gap:6px">${q.msgs.map(m => `<div style="padding:8px 10px;border-radius:9px;${m.role === 'user' ? 'background:#F4F6FA' : 'background:#FBF0D2'}">
+        <div style="font-size:11px;color:#6B7280">${esc(m.by)} · ${esc(String(m.t).slice(0, 16))}</div><div style="font-size:13px;white-space:pre-wrap">${esc(m.text)}</div></div>`).join('')}</div>
+      ${q.Type === 'view' && q.msgs.some(m => m.role !== 'user') ? `<div style="font-size:10.5px;color:#9CA3AF;margin-top:6px">${esc(r.disclaimer)}</div>` : ''}
+      ${q.Status !== 'Closed' ? `<div style="display:flex;gap:6px;margin-top:8px"><input data-q="${esc(q.ID)}" placeholder="Write a reply…" style="flex:1;padding:8px 10px;border:1px solid #CDD2DE;border-radius:8px;font:inherit"><button class="abtn" data-qs="${esc(q.ID)}" style="width:auto;padding:8px 14px;margin:0">Send</button></div>` : ''}</div>`;
+  const sh = (r.shared || []).length ? `<div class="mysec"><div class="st">Today's views from our research desk</div>${r.shared.map(s => `<div style="padding:6px 0;border-bottom:1px dashed #E5E7EB"><b style="color:#1E2761">${esc(s.commodity)}</b> <small style="color:#6B7280">· ${esc(s.horizon)} · ${esc(String(s.t).slice(0, 16))}</small><div style="font-size:12.5px;color:#4B5563">Q: ${esc(s.q)}</div><div style="font-size:13px;white-space:pre-wrap">${esc(s.a)}</div></div>`).join('')}
+      <div style="font-size:10.5px;color:#9CA3AF;margin-top:6px">${esc(r.disclaimer)}</div></div>` : '';
+  $('myWrap').querySelector('.mybd').innerHTML = `<div class="mybtns"><button class="gold" id="qNewV">📈 Ask for a view</button><button id="qNewS">🛠 Service help</button></div>` +
+    (r.queries.length ? r.queries.map(one).join('') : '<div class="mysec">No queries yet.</div>') + sh;
+  $('qNewV').onclick = () => showAsk('view'); $('qNewS').onclick = () => showAsk('service');
+  $('myWrap').querySelectorAll('[data-qs]').forEach(b => b.onclick = async () => { const id = b.dataset.qs, inp = $('myWrap').querySelector(`input[data-q="${id}"]`), t = inp.value.trim(); if (t.length < 2) return;
+    b.disabled = true; try { const x = await authCall({ action: 'q_reply', token: TOKEN, id, text: t }); if (!x.ok) { toast(x.error || 'Could not send'); b.disabled = false; return; } showMyQ(id); } catch (e) { b.disabled = false; } });
+  if (openId) { const el = document.getElementById('q_' + openId); if (el) el.scrollIntoView({ block: 'center' }); }
+}
+$('btnAskView').onclick = () => showAsk('view'); $('btnSvc').onclick = () => showAsk('service'); $('btnMyQ').onclick = () => showMyQ();
 function showLocked(h) {
   const k = S[h] && CFG[h] ? h : firstOpen(), nm = CFG[k] ? CFG[k].tab : h, open = Object.keys(S).filter(x => CFG[x] && !locked(x));
   document.title = 'Commodity Live – ' + nm; $('title').innerHTML = 'Commodity <span>Live</span>'; $('subTitle').innerHTML = `<b>${esc(nm)}</b> · not in your plan`; $('track').innerHTML = '';
@@ -2212,7 +2269,7 @@ function boot() {
 }
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});</script>
-<script>(function () { var V = '87609df120', K = 'v';
+<script>(function () { var V = '187ad9865c', K = 'v';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
