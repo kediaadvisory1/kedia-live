@@ -1310,7 +1310,8 @@ function openQuery(id) {
 function newQueryBox() {
   const cl = USERS.filter(u => (u.Role || 'user') === 'user');
   modal(`<h3>New query for a client</h3><p>For a question that came by phone or WhatsApp. The client sees it in the app under My queries.</p>
-    <div class="fld"><label>Client (type name, email or mobile)</label><input id="nqC" list="nqL" placeholder="Start typing…"><datalist id="nqL">${cl.map(u => `<option value="${esc(u.Email)}">${esc(u.Name)} · ${esc(u.Mobile || '')}</option>`).join('')}</datalist></div>
+    <div class="fld"><label>Client – type name, mobile or email, then click the client</label><div class="cbox"><input id="nqC" placeholder="e.g. Ajay or 9320…" autocomplete="off"><div class="clist hide" id="nqL"></div></div>
+      <div class="info" id="nqPick">No client chosen yet.</div></div>
     <div class="fld"><label>Type</label><select id="nqT"><option value="service">🛠 Service issue</option><option value="view">📈 View question</option></select></div>
     <div class="g2"><div class="fld" id="nqCatF"><label>About</label><select id="nqCat">${['Login / access', 'Plan & payment', 'Price or data issue', 'App problem', 'Other'].map(c => `<option>${c}</option>`).join('')}</select></div>
       <div class="fld" id="nqComF" style="display:none"><label>Commodity</label><select id="nqCom">${groups().flatMap(g => g[1]).map(k => `<option>${esc(name(k))}</option>`).join('')}</select></div>
@@ -1319,8 +1320,25 @@ function newQueryBox() {
     <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('plus')} Add query</button></div>`, 'wide');
   $('nqT').onchange = e => { const v = e.target.value === 'view'; $('nqCatF').style.display = v ? 'none' : ''; $('nqComF').style.display = $('nqHzF').style.display = v ? '' : 'none'; };
   $('mNo').onclick = closeModal;
-  $('mYes').onclick = async () => { const em = $('nqC').value.trim().toLowerCase(), t = $('nqX').value.trim();
-    if (!USERS.some(u => u.Email.toLowerCase() === em)) return toast('Pick the client from the list.', true);
+  /* 23-Nov-2026 (user found the hidden list): searchable client list - name, mobile or email; a full mobile / exact name / email also works */
+  let picked = null;
+  const norm = v => String(v || '').toLowerCase().trim(), digits = v => String(v || '').replace(/\D/g, '');
+  const setPick = u => { picked = u; $('nqPick').innerHTML = u ? `✅ <b>${esc(u.Name)}</b> · ${esc(u.Mobile || '—')} · ${esc(u.Email)}` : 'No client chosen yet.'; };
+  const findOne = v => { const q = norm(v), d = digits(v); if (!q) return null;
+    const hit = cl.filter(u => norm(u.Email) === q || (d.length >= 10 && digits(u.Mobile).slice(-10) === d.slice(-10)) || norm(u.Name) === q);
+    return hit.length === 1 ? hit[0] : null; };
+  const drawL = () => { const q = norm($('nqC').value), d = digits($('nqC').value);
+    const L = cl.filter(u => !q || norm(u.Name).includes(q) || norm(u.Email).includes(q) || (d.length >= 3 && digits(u.Mobile).includes(d))).slice(0, 50);
+    $('nqL').innerHTML = L.length ? L.map(u => `<div class="ci" data-e="${esc(u.Email)}"><b>${esc(u.Name)}</b><span>${esc(u.Mobile || '')} · ${esc(u.Email)}</span></div>`).join('')
+      : '<div class="ci other">No client found – check the spelling, or add the client first in Subscribers List</div>';
+    $('nqL').classList.remove('hide'); };
+  $('nqC').onfocus = drawL;
+  $('nqC').oninput = () => { drawL(); setPick(findOne($('nqC').value)); };
+  $('nqC').onblur = () => setTimeout(() => $('nqL').classList.add('hide'), 150);
+  $('nqL').onmousedown = e => { const el = e.target.closest('.ci[data-e]'); if (!el) return; e.preventDefault(); const u = cl.find(x => x.Email === el.dataset.e);
+    $('nqC').value = u.Name; setPick(u); $('nqL').classList.add('hide'); };
+  $('mYes').onclick = async () => { const em = picked ? picked.Email.toLowerCase() : '', t = $('nqX').value.trim();
+    if (!picked) return toast('Type the client name or mobile in the Client box and click the client in the list.', true);
     if (t.length < 5) return toast('Write the question.', true);
     busy($('mYes'), true);
     try { const v = $('nqT').value === 'view'; const j = await call('qa_new', { email: em, type: $('nqT').value, text: t, subject: t.slice(0, 140), category: v ? '' : $('nqCat').value, commodity: v ? $('nqCom').value : '', horizon: v ? $('nqHz').value : '' });
@@ -1363,7 +1381,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '8787528302', K = 'va';
+<script>(function () { var V = 'ba2be3a42b', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
