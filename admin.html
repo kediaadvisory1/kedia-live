@@ -497,16 +497,18 @@ function navHtml() {
     ex = cl.filter(u => stWord(u) === 'Inactive').length, pend = USERS.filter(u => u.eff === 'Pending').length;
   const a = (v, i, t, b, r) => `<a href="#${v}" class="${VIEW === v ? 'on' : ''}">${ic(i)}<span>${t}</span>${b ? `<span class="bdg${r ? ' red' : ''}">${b}</span>` : ''}</a>`;
   const qOpenN = (QS || []).filter(q => (q.Status === 'Open' || q.Status === 'In progress') && q.canAct).length;
-  if (ME && ME.role === 'analyst') { $('nav').innerHTML = '<div class="grp">Research desk</div>' + a('queries', 'wait', 'Client queries', qOpenN, 1); return; }
+  /* 23-Nov-2026 (user): admin, RM and analyst can upload the website Excel files (subscribers + trading calls) until the website API is ready */
+  const up = '<div class="grp">Website data</div>' + a('upload', 'plus', 'Upload website data');
+  if (ME && ME.role === 'analyst') { $('nav').innerHTML = '<div class="grp">Research desk</div>' + a('queries', 'wait', 'Client queries', qOpenN, 1) + up; return; }
   $('nav').innerHTML = '<div class="grp">Overview</div>' + a('dash', 'dash', 'Dashboard') + a('queries', 'wait', 'Client queries', qOpenN, 1) +
     '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
     a('expired', 'ban', 'Inactive', ex, 1) +                          /* 23-Nov-2026 (user): no 'Waiting for approval' - old Pending records show under Inactive */
     (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
-    '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
+    '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history') + up;
 }
 function route() {
-  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries'].includes(h) ? h : (h === 'pending' ? 'expired' : 'dash');
-  if (ME && ME.role === 'analyst') VIEW = 'queries';
+  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries', 'upload'].includes(h) ? h : (h === 'pending' ? 'expired' : 'dash');
+  if (ME && ME.role === 'analyst' && VIEW !== 'upload') VIEW = 'queries';
   if ((VIEW === 'team' || VIEW === 'deleted') && !isAdmin()) VIEW = 'subs';
   $('side').classList.remove('open'); navHtml(); window.scrollTo(0, 0);
   if (VIEW === 'dash') return viewDash();
@@ -515,6 +517,7 @@ function route() {
   if (VIEW === 'plans') return viewPlans();
   if (VIEW === 'sales') return viewSales();
   if (VIEW === 'queries') return viewQueries();
+  if (VIEW === 'upload') return viewUpload();
   F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Inactive', team: 'All' }[VIEW];
   F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
   viewSubs();
@@ -1260,6 +1263,137 @@ const qOpen = q => q.Status === 'Open' || q.Status === 'In progress';
 const qAgeH = q => { const t = Date.parse(String(q.Updated || q.Created).replace(' ', 'T') + '+05:30'); return isNaN(t) ? 0 : (Date.now() - t) / 3600000; };
 const qMine = q => q.Assigned === (ME && ME.name) || (isAnalyst() && q.Assigned === 'Research desk') || (isAdmin() && q.Assigned === 'Admins');
 function qPill(s) { const c = s === 'Resolved' || s === 'Closed' ? 'Active' : s === 'Waiting for client' ? 'Pending' : 'Expired'; return `<span class="pill p-${c}">${esc(s)}</span>`; }
+/* ---------- 23-Nov-2026 (user): Upload website data - admin / RM / analyst (clients have no back panel)
+   1 Subscriber list Excel (kediaadvisory.com export): ONLY Plan Status "Active" with End date today or later (any amount); one client per email,
+     every active row = a plan line (Note "Website SR <id>", added once); new client password Kedia@ + last 4 of mobile (no email); RM names exactly as the website.
+   2 Trading Call Analysis Excel: COMMODITY ONLY (MCX / NCDEX / INTL Gold$ Silver$) -> per commodity open calls (last 60 days) + latest closed (about 10).
+   Same rules as the PC scripts users_import.py / calls_import.py. The Excel is read IN THE BROWSER; only the result goes to Google. */
+let XLSXP = null;
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve();
+  return XLSXP = XLSXP || new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = ok; s.onerror = () => { XLSXP = null; no(new Error('Could not load the Excel reader. Check the internet and try again.')); }; document.head.appendChild(s); });
+}
+async function readRows(file) {
+  await loadXlsx();
+  const wb = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true, dense: true });
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { raw: true, defval: '' });
+}
+const UMON = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+const p2 = n => String(n).padStart(2, '0');
+function xDay(v) {                     /* any website date -> yyyy-mm-dd */
+  if (v instanceof Date && !isNaN(v)) return v.getFullYear() + '-' + p2(v.getMonth() + 1) + '-' + p2(v.getDate());
+  const s = String(v || '').trim(); let m;
+  if ((m = s.match(/^(\d{4})-(\d\d)-(\d\d)/))) return m[1] + '-' + m[2] + '-' + m[3];
+  if ((m = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/))) return m[3] + '-' + p2(m[2]) + '-' + p2(m[1]);
+  if ((m = s.match(/^(\d{1,2})[-\s]([A-Za-z]{3})[a-z]*[-\s](\d{2,4})/)) && UMON[m[2].toLowerCase()]) return (m[3].length === 2 ? '20' + m[3] : m[3]) + '-' + p2(UMON[m[2].toLowerCase()]) + '-' + p2(m[1]);
+  return '';
+}
+function xTime(v) { if (v instanceof Date && !isNaN(v)) { let h = v.getHours(); return ((h + 11) % 12 + 1) + ':' + p2(v.getMinutes()) + (h >= 12 ? ' pm' : ' am'); } return String(v || '').trim(); }
+const t24 = t => { const m = String(t || '').match(/(\d{1,2}):(\d\d)(?::\d\d)?\s*([ap]m)?/i); if (!m) return ''; let h = +m[1] % 12; if (m[3] && /p/i.test(m[3])) h += 12; if (!m[3]) h = +m[1]; return p2(h) + ':' + m[2]; };
+const todayIso = () => { const d = new Date(Date.now() + 5.5 * 3600e3); return d.toISOString().slice(0, 10); };
+async function sha256hex(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+async function hashPw(pw, salt) { let h = salt + '|' + pw; for (let i = 0; i < 500; i++) h = await sha256hex(h + salt); return h; }      /* same as Google hashPw (500 rounds) */
+function newSalt() { return [...crypto.getRandomValues(new Uint8Array(8))].map(x => x.toString(16).padStart(2, '0')).join(''); }
+const rmWeb = s => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s === '-' || s === 'None' ? '' : s; };      /* exactly as the website (user 23-Nov) */
+function periodTxt(a, b) { const d = dnum(b) - dnum(a) + 1; if (d <= 10) return d + ' days'; const m = Math.round(d / 30.4);
+  if (m < 12) return m + ' month' + (m > 1 ? 's' : ''); const y = Math.round(d / 365); return y + ' year' + (y > 1 ? 's' : ''); }
+function buildUsers(rows) {
+  const today = todayIso(), H = rows.length ? Object.keys(rows[0]) : [];
+  const need = ['Email', 'Plan Status', 'End Date']; const miss = need.filter(k => !H.includes(k));
+  if (miss.length) throw new Error('This is not the subscriber list Excel (missing column: ' + miss.join(', ') + ').');
+  const st = r => String(r['Plan Status']).trim(), act = rows.filter(r => st(r) === 'Active' && xDay(r['End Date']) && xDay(r['End Date']) >= today);
+  const skip = {}; rows.forEach(r => { const s = st(r); if (s !== 'Active') skip[s || 'blank'] = (skip[s || 'blank'] || 0) + 1; });
+  const ended = rows.filter(r => st(r) === 'Active').length - act.length; if (ended) skip['Active but end date passed'] = ended;
+  const by = {}; act.forEach(r => { const e = String(r.Email || '').trim().toLowerCase(); if (e.includes('@')) (by[e] = by[e] || []).push(r); });
+  const users = [], plans = [], stamp = new Date(Date.now() + 5.5 * 3600e3), dd = p2(stamp.getUTCDate()) + '-' + MON[stamp.getUTCMonth()] + '-' + stamp.getUTCFullYear();
+  Object.entries(by).forEach(([e, rs]) => {
+    rs.sort((a, b) => (xDay(a['End Date']) + (xDay(a['Start Date']) || '')).localeCompare(xDay(b['End Date']) + (xDay(b['Start Date']) || '')));
+    const cur = rs[rs.length - 1], mob = String(cur.Mobile || '').trim(), dg = mob.replace(/\D/g, '');
+    const u = { Email: e, Name: String(cur.Name || '').trim(), Mobile: mob, City: '', State: '', Role: 'user', Status: 'Active', Plan: String(cur.Plan || 'Basic').trim(),
+      Start: xDay(cur['Start Date']) || today, End: xDay(cur['End Date']), Access: 'ALL', 'Sales RM': rmWeb(cur['Sales RM']), 'Service RM': rmWeb(cur['Service RM']),
+      Remarks: `Imported from kediaadvisory.com ${dd} (SR ${rs.map(r => r['SR ID']).join(', ')})`, Created: (xDay(cur['Date Joined']) || xDay(cur['Start Date']) || today) + ' 00:00:00',
+      'Last login': '', Hash: '', Salt: '', 'Must change': '', Fails: '0', 'Lock until': '', Source: 'Website', 'RM type': '', _pw: 'Kedia@' + (dg.length >= 4 ? dg.slice(-4) : '1234') };
+    users.push(u);
+    rs.forEach(r => { const a = xDay(r['Start Date']) || today, b = xDay(r['End Date']), amt = Number(String(r.Amount || '0').replace(/[^0-9.]/g, '')) || 0;
+      plans.push([(xDay(r['Date Joined']) || a) + ' 10:00:00', e, u.Name, String(r.Plan || '').trim(), periodTxt(a, b), a, b, String(amt), String(r.Mode || '').trim(), 'Website SR ' + r['SR ID'], 'Website upload: ' + (ME.name || ME.email)]); });
+  });
+  return { users, plans, rows: rows.length, active: act.length, skip };
+}
+const CALL_ALIAS = { GOLDM: 'GOLD', GOLDTEN: 'GOLD', GOLDGUINEA: 'GOLD', GOLDPETAL: 'GOLD', 'GOLD$': 'GOLD', SILVERM: 'SILVER', SILVERMIC: 'SILVER', 'SILVER$': 'SILVER',
+  CRUDEOILM: 'CRUDEOIL', NATGASMINI: 'NATURALGAS', ZINCMINI: 'ZINC', ALUMINI: 'ALUMINIUM', LEADMINI: 'LEAD', COPPERM: 'COPPER', JEERAUNJHA: 'JEERA', JEERAUNJ: 'JEERA',
+  TMCFGRNZM: 'TURMERIC', COCUDAKL: 'COCUD', SYOREF: 'SOYOIL', SYBEANIDR: 'SOYABEAN', RMSEED: 'MUSTARD', CASTORSEED: 'CASTOR' };
+function callKey(script, keys) {
+  let s = String(script || '').trim().toUpperCase();
+  if (s.startsWith('MULTI LEG:')) s = s.slice(10).trim().split('\n')[0].trim();
+  if (/RATIO|\//.test(s)) return null;
+  const m = s.replace(' OPTION', '').trim().match(/^[A-Z]+\$?/); if (!m) return null;
+  const b = m[0]; return CALL_ALIAS[b] || (keys.has(b) ? b : null);
+}
+const plainTxt = t => { const x = document.createElement('textarea'); x.innerHTML = String(t || ''); return x.value.replace(/ /g, ' ').replace(/\s+/g, ' ').trim(); };
+const numv = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isFinite(n) ? Math.round(n * 1e4) / 1e4 : null; };
+function buildCalls(rows) {
+  const H = rows.length ? Object.keys(rows[0]) : [], miss = ['Exchange', 'Script', 'Entry Date', 'Full Call'].filter(k => !H.includes(k));
+  if (miss.length) throw new Error('This is not the Trading Call Analysis Excel (missing column: ' + miss.join(', ') + ').');
+  const today = todayIso(), keys = new Set(Object.keys(COMM).length ? Object.keys(COMM) : GROUPS.flatMap(g => g[1])), out = {}, skipped = {}; let comm = 0;
+  rows.forEach(r => {
+    if (!['MCX', 'NCDEX', 'INTL'].includes(String(r.Exchange || '').trim().toUpperCase())) return;
+    comm++; const k = callKey(r.Script, keys), d = xDay(r['Entry Date']);
+    if (!k || !d) { const n = String(r.Script).split(/\d/)[0].trim() || String(r.Script).slice(0, 12); skipped[n] = (skipped[n] || 0) + 1; return; }
+    const cs = String(r['Closing Status'] || '').trim(), cd = xDay(r['Close Date']), closed = !!cd || ['close', 'stoploss', 'target'].includes(cs.toLowerCase());
+    const c = { d, t: xTime(r['Entry Time']), type: String(r['Sub Call Type'] || '').trim(), ex: String(r.Exchange).trim(), sc: String(r.Script || '').replace('Multi Leg:', 'Multi leg:').replace(/\s+/g, ' ').trim(),
+      act: String(r.Action || '').trim().toUpperCase(), entry: numv(r['Entry Price']), sl: numv(r['StopLoss/Estimated Loss']), tgt: numv(r['Target/Estimated Profit']), txt: plainTxt(r['Full Call']), sr: r['Sr.No.'] };
+    if (closed) Object.assign(c, { cd, ct: xTime(r['Close Time']), cp: numv(r['Close Amount']), st: cs && cs !== 'None' ? cs : 'Close', pl: numv(r['Profit/Loss %']), res: String(r['Profit/Loss Status'] || '').trim() });
+    (out[k] = out[k] || { open: [], closed: [] })[closed ? 'closed' : 'open'].push(c);
+  });
+  const data = {};
+  Object.entries(out).forEach(([k, v]) => {
+    const op = v.open.filter(c => dnum(today) - dnum(c.d) <= 60).sort((a, b) => (b.d + t24(b.t)).localeCompare(a.d + t24(a.t))).slice(0, 10);
+    const cl = v.closed.sort((a, b) => ((b.cd || b.d) + t24(b.ct)).localeCompare((a.cd || a.d) + t24(a.ct)));
+    data[k] = { open: op, closed: cl.slice(0, Math.max(5, 10 - op.length)), stats: { all: v.open.length + v.closed.length } };
+  });
+  return { data, rows: rows.length, comm, skipped };
+}
+const uk = (l, v) => `<div class="kpi" style="cursor:default"><div class="l">${l}</div><div class="v">${v}</div></div>`;
+function viewUpload() {
+  title('Upload website data', 'Until the kediaadvisory.com link is ready: upload the two Excel files from the website here');
+  const card = (id, h, txt) => `<div class="card"><div class="hd"><h2>${h}</h2></div><div class="bd left">${txt}
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label class="btn gold sm" style="cursor:pointer">${ic('plus')} Choose Excel file<input type="file" id="${id}F" accept=".xlsx,.xls,.csv" hidden></label><span class="note" id="${id}N">No file chosen</span></div>
+      <div id="${id}R" style="margin-top:12px"></div></div></div>`;
+  $('content').innerHTML = card('upU', '1. Subscriber list', `From kediaadvisory.com: Subscribers → export Excel. Only clients whose <b>Plan Status is Active</b> and end date is today or later are taken (any amount, ₹1 too). Expired, canceled and pending rows are left out.
+      New clients log in with email or mobile and password <b>Kedia@ + last 4 digits of their mobile</b> (no email is sent). Clients already in the panel get the new plan, end date and RM from the website. Staff logins are never changed. Plan lines are added once only.`) +
+    card('upC', '2. Trading calls (commodity only)', `From the website: Trading Call Analysis → export Excel. Only <b>MCX, NCDEX and international Gold / Silver ($)</b> calls are used; equity and others are left out.
+      Each commodity page then shows the open calls (last 60 days) and the latest closed calls, about 10 in all. Upload the newest file to replace the old calls.`);
+  const pick = (id, run) => $(id + 'F').onchange = async e => { const f = e.target.files[0]; if (!f) return; $(id + 'N').textContent = f.name + ' · reading…'; $(id + 'R').innerHTML = '<span class="spin"></span> Reading the Excel…';
+    try { const rows = await readRows(f); $(id + 'N').textContent = f.name; await run(rows); } catch (er) { $(id + 'R').innerHTML = `<div class="left r">${esc(er.message)}</div>`; $(id + 'N').textContent = f.name; } e.target.value = ''; };
+  pick('upU', async rows => {
+    const b = buildUsers(rows);
+    if (!b.users.length) { $('upUR').innerHTML = '<div class="left r">No active client found in this file.</div>'; return; }
+    const chk = await call('admin_upload', { kind: 'users_check', emails: b.users.map(u => u.Email) }), isNew = new Set(chk.newEmails || []);
+    const nNew = b.users.filter(u => isNew.has(u.Email)).length;
+    $('upUR').innerHTML = `<div class="kpis" style="margin:0 0 10px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">${uk('Rows in file', b.rows)}${uk('Active rows', b.active)}
+        ${uk('Clients (1 per email)', b.users.length)}${uk('New', nNew)}${uk('Already in panel', b.users.length - nNew)}</div>
+      <div class="note">Left out: ${Object.entries(b.skip).map(([k, v]) => esc(k) + ' ' + v).join(' · ') || 'none'}</div>
+      <div style="margin-top:10px"><button class="btn gold" id="upUGo">Upload ${b.users.length} clients</button></div>`;
+    $('upUGo').onclick = async () => { const bt = $('upUGo'); busy(bt, true, 'Preparing passwords…');
+      try { for (const u of b.users) { if (isNew.has(u.Email)) { u.Salt = newSalt(); u.Hash = await hashPw(u._pw, u.Salt); } delete u._pw; }
+        bt.innerHTML = '<span class="spin"></span>Uploading…';
+        const j = await call('admin_upload', { kind: 'users', users: b.users, plans: b.plans });
+        $('upUR').innerHTML = `<div style="font-weight:700;color:#157F3B">Done: ${j.added} new clients, ${j.updated} updated, ${j.planLines} new plan lines${j.staffSkipped ? ', ' + j.staffSkipped + ' staff logins not changed' : ''}${j.mobileShared ? ', ' + j.mobileShared + ' mobile numbers already on another email (kept there, see Remarks)' : ''}.</div>`;
+        toast('Subscriber list uploaded'); await loadAll(); navHtml(); }
+      catch (er) { busy(bt, false); toast(er.message, true); } };
+  });
+  pick('upC', async rows => {
+    const b = buildCalls(rows), ks = Object.keys(b.data).sort();
+    if (!ks.length) { $('upCR').innerHTML = '<div class="left r">No commodity call found in this file.</div>'; return; }
+    $('upCR').innerHTML = `<div class="note">Rows in file ${b.rows} · commodity calls ${b.comm} · commodities ${ks.length}${Object.keys(b.skipped).length ? ' · left out (no page): ' + Object.entries(b.skipped).map(([k, v]) => esc(k) + ' ' + v).join(', ') : ''}</div>
+      <div class="tw" style="margin-top:8px;max-height:280px"><table class="t"><thead><tr><th>Commodity</th><th>Open calls</th><th>Closed shown</th><th>All calls in file</th></tr></thead><tbody>${ks.map(k => `<tr><td>${esc(name(k))}</td><td>${b.data[k].open.length}</td><td>${b.data[k].closed.length}</td><td>${b.data[k].stats.all}</td></tr>`).join('')}</tbody></table></div>
+      <div style="margin-top:10px"><button class="btn gold" id="upCGo">Upload calls for ${ks.length} commodities</button></div>`;
+    $('upCGo').onclick = async () => { const bt = $('upCGo'); busy(bt, true, 'Uploading…');
+      try { const j = await call('admin_upload', { kind: 'calls', data: b.data }); $('upCR').innerHTML = `<div style="font-weight:700;color:#157F3B">Done: calls for ${j.commodities} commodities are live on the app and web page.</div>`; toast('Trading calls uploaded'); }
+      catch (er) { busy(bt, false); toast(er.message, true); } };
+  });
+}
 async function viewQueries() {
   title('Client queries', isAnalyst() ? 'View questions from clients – answer them here' : 'View questions (research desk) and service issues (RM)');
   if (isAnalyst()) QF.type = 'view';
@@ -1407,7 +1541,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '7073d470b8', K = 'va';
+<script>(function () { var V = '20ef49775d', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
