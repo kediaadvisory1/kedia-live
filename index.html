@@ -264,6 +264,7 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 16px 30px; font-size: 12p
 .uinfo { font-size: 12.5px; color: #4B5563; line-height: 1.6; padding: 2px 4px 10px; border-bottom: 1px solid #EEF0F4; margin-bottom: 8px; }
 .umenu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 8px 6px; border-radius: 8px; font: inherit; font-size: 13.5px; color: #1E2761; font-weight: 600; cursor: pointer; }
 .umenu button:hover { background: #FBF0D2; }
+.tsrcBox .seg { margin-left: 6px; font-size: 11.5px; vertical-align: middle; } .yrsbar { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; flex-wrap: wrap; }
 /* sign-up City box: search + scroll list (22-Nov-2026) */
 .cbox { position: relative; }
 .clist { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 80; max-height: 240px; overflow-y: auto; background: #fff; border: 1px solid #CDD2DE; border-top: 3px solid #E8A317; border-radius: 10px; box-shadow: 0 14px 30px rgba(30,39,97,.18); }
@@ -469,7 +470,7 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
 
   <div class="grid g2">
     <div class="card" id="techCard">
-      <h2>Technical summary <small id="techSrc"></small>
+      <h2>Technical summary <small id="techSrc"></small> <span class="tsrcBox"></span>
         <span class="seg" id="tTf"><button data-v="60">1H</button><button data-v="120">2H</button><button data-v="240">4H</button><button data-v="D" class="on">Daily</button><button data-v="W">Weekly</button><button data-v="M">Monthly</button></span></h2>
       <div class="strip" id="techStrip"></div>
       <div class="verdict" id="techVerdict">—</div>
@@ -477,18 +478,18 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
       <div class="note" id="techNote"></div>
     </div>
     <div class="card" id="lvCard">
-      <h2>Key levels <small id="lvInfo"></small></h2>
+      <h2>Key levels <span class="tsrcBox"></span> <small id="lvInfo"></small></h2>
       <div class="lv">
         <div class="tw"><table id="pivTbl"></table></div>
         <div class="tw"><table id="fibTbl"></table></div>
       </div>
-      <div class="note">Pivots from the last finished session (classic: P = (H+L+C)/3). Fibonacci levels from the 52-week high and low of the near-month series.</div>
+      <div class="note">Pivots from the last finished session (classic: P = (H+L+C)/3). Fibonacci levels from the 52-week high and low of the chosen price (MCX near month or the international / spot price).</div>
     </div>
   </div>
 
   <div class="grid g2">
     <div class="card" id="momCard">
-      <h2>Momentum &amp; volatility <small id="momSrc"></small>
+      <h2>Momentum &amp; volatility <small id="momSrc"></small> <span class="tsrcBox"></span>
         <span class="seg" id="mTf"><button data-v="60">1H</button><button data-v="120">2H</button><button data-v="240">4H</button><button data-v="D" class="on">Daily</button><button data-v="W">Weekly</button><button data-v="M">Monthly</button></span></h2>
       <div class="tw"><table id="momTbl"></table></div>
       <div class="note">Expected move = 1 standard deviation of the last 20 bars. About 2 times in 3 the price stays inside this range. Not a forecast.</div>
@@ -1220,19 +1221,30 @@ const TECH_TFS = [['60', '1H'], ['120', '2H'], ['240', '4H'], ['D', 'Daily'], ['
 let tTf = 'D', mTf = 'D';
 segInit('tTf', v => { tTf = v; renderTech(); });
 segInit('mTf', v => { mTf = v; renderMom(); });
-async function barsFor(tf) { try { const r = await getSeries('fut', tf); return r.bars; } catch (e) { return []; } }
+/* 23-Nov-2026 (user): technical summary, key levels and momentum for MCX ₹ OR the international $ / spot price (switch in each card) */
+let TSRC = 'fut';
+const tName = () => TSRC === 'fut' ? C.techName : ((C.src.find(x => x[0] === TSRC) || [])[1] || C.src2Name);
+const fS = v => TSRC === 'fut' ? nf(v) : nf(v, C.dec2, C.loc2);
+function syncTsrc() {
+  if (!C.src2 || !C.src.some(x => x[0] === TSRC)) TSRC = 'fut';
+  const h = C.src2 && C.src.length > 1 ? `<span class="seg tsrc">${C.src.map(([v, l]) => `<button data-v="${v}" class="${v === TSRC ? 'on' : ''}">${l}</button>`).join('')}</span>` : '';
+  document.querySelectorAll('.tsrcBox').forEach(b => { b.innerHTML = h; b.querySelectorAll('button').forEach(x => x.onclick = () => { TSRC = x.dataset.v; syncTsrc(); renderTech(); renderMom(); renderLevels(); }); });
+  $('techSrc').textContent = tName(); $('momSrc').textContent = tName();
+}
+async function barsFor(tf) { try { const r = await getSeries(TSRC, tf); return r.bars; } catch (e) { return []; } }
 async function renderTech() {
+  syncTsrc();
   const b = await barsFor(tTf), n = TECH_TFS.find(t => t[0] === tTf)[1];
   if (b.length < 30) {
     $('techVerdict').innerHTML = '<span class="na">' + n + ': not enough bars</span>';
-    $('techTbl').innerHTML = ''; $('techNote').innerHTML = S[ck].tvLogin && /^\d+$/.test(tTf) ? 'MCX intraday needs the TradingView login bars: use "Load / refresh MCX intraday" in the chart (pick 1h there).' : '';
+    $('techTbl').innerHTML = ''; $('techNote').innerHTML = TSRC === 'fut' && S[ck].tvLogin && /^\d+$/.test(tTf) ? 'MCX intraday needs the TradingView login bars: use "Load / refresh MCX intraday" in the chart (pick 1h there).' : '';
   } else {
     const rows = techRows(b), v = verdictOf(rows), p = b[b.length - 1].c;
-    $('techVerdict').innerHTML = `${n}: <span class="${v[1]}">${v[0]}</span> <small class="na" style="font-size:12px;font-weight:400">(${rows.filter(x => x[2] > 0).length} buy · ${rows.filter(x => x[2] < 0).length} sell · price ${nf(p)})</small>`;
+    $('techVerdict').innerHTML = `${n}: <span class="${v[1]}">${v[0]}</span> <small class="na" style="font-size:12px;font-weight:400">(${rows.filter(x => x[2] > 0).length} buy · ${rows.filter(x => x[2] < 0).length} sell · price ${fS(p)})</small>`;
     $('techTbl').innerHTML = `<thead><tr><th>Indicator (${n})</th><th>Value</th><th>Signal</th><th>Note</th></tr></thead><tbody>` + rows.map(x =>
-      `<tr><td>${x[0]}</td><td>${x[1] == null ? '—' : x[0].startsWith('RSI') ? x[1].toFixed(1) : nf(x[1])}</td><td>${sig(x[2])}</td><td class="l na">${x[3] || ''}</td></tr>`).join('') + '</tbody>';
+      `<tr><td>${x[0]}</td><td>${x[1] == null ? '—' : x[0].startsWith('RSI') ? x[1].toFixed(1) : fS(x[1])}</td><td>${sig(x[2])}</td><td class="l na">${x[3] || ''}</td></tr>`).join('') + '</tbody>';
     const g = futRow(); let tv = '';
-    if (tTf === 'D' && g && g['Recommend.All'] != null) { const r = g['Recommend.All']; tv = `TradingView daily rating: <b class="${cls(r)}">${r > 0.5 ? 'Strong Buy' : r > 0.1 ? 'Buy' : r < -0.5 ? 'Strong Sell' : r < -0.1 ? 'Sell' : 'Neutral'}</b> (${r.toFixed(2)}). `; }
+    if (TSRC === 'fut' && tTf === 'D' && g && g['Recommend.All'] != null) { const r = g['Recommend.All']; tv = `TradingView daily rating: <b class="${cls(r)}">${r > 0.5 ? 'Strong Buy' : r > 0.1 ? 'Buy' : r < -0.5 ? 'Strong Sell' : r < -0.1 ? 'Sell' : 'Neutral'}</b> (${r.toFixed(2)}). `; }
     $('techNote').innerHTML = tv + 'Buy = price above the average / RSI above 50 / MACD above signal. RSI above 70 or below 30 and price outside the Bollinger bands count against the trend.';
   }
   /* one-line verdict for every timeframe */
@@ -1245,7 +1257,7 @@ async function renderTech() {
 const BARS_PER_YEAR = { D: 252, W: 52, M: 12 };
 async function renderMom() {
   const b = await barsFor(mTf), n = TECH_TFS.find(t => t[0] === mTf)[1];
-  if (b.length < 40) { $('momTbl').innerHTML = `<tbody><tr><td class="l na">${n}: not enough bars${S[ck].tvLogin && /^\d+$/.test(mTf) ? ' – load MCX intraday in the chart first' : ''}</td></tr></tbody>`; return; }
+  if (b.length < 40) { $('momTbl').innerHTML = `<tbody><tr><td class="l na">${n}: not enough bars${TSRC === 'fut' && S[ck].tvLogin && /^\d+$/.test(mTf) ? ' – load MCX intraday in the chart first' : ''}</td></tr></tbody>`; return; }
   const c = b.map(x => x.c), k = c.length - 1, p = c[k];
   const r = c.slice(1).map((v, i) => Math.log(v / c[i]));
   let perDay = 1;
@@ -1256,32 +1268,39 @@ async function renderMom() {
   const steps = { 60: [['1 hour', 1], ['1 day', perDay]], 120: [['2 hours', 1], ['1 day', perDay]], 240: [['4 hours', 1], ['1 week', perDay * 5]], D: [['1 day', 1], ['1 week', 5]], W: [['1 week', 1], ['1 month', 4]], M: [['1 month', 1], ['3 months', 3]] }[mTf];
   const rows = [
     [`RSI 14 (${n})`, rs.toFixed(1), rs > 70 ? 'Overbought' : rs < 30 ? 'Oversold' : 'Normal'],
-    [`ATR 14 (average ${n} range)`, nf(a), (a / p * 100).toFixed(2) + '% of price'],
+    [`ATR 14 (average ${n} range)`, fS(a), (a / p * 100).toFixed(2) + '% of price'],
     ['Volatility, last 20 bars (yearly)', (s20 * Math.sqrt(perYear) * 100).toFixed(1) + '%', 'per bar ±' + (s20 * 100).toFixed(2) + '%'],
     ['Volatility, last 60 bars (yearly)', (s60 * Math.sqrt(perYear) * 100).toFixed(1) + '%', s20 > s60 * 1.15 ? 'Rising' : s20 < s60 * 0.85 ? 'Falling' : 'Steady'],
-    ...steps.map(([lab, m]) => { const mv = p * s20 * Math.sqrt(m); return [`Expected move – next ${lab}`, '±' + nf(mv), nf(p - mv) + ' – ' + nf(p + mv)]; }),
-    ['Place in last-12-months range', ((p - lo) / (hi - lo) * 100).toFixed(0) + '%', '0% = low ' + nf(lo) + ', 100% = high ' + nf(hi)],
+    ...steps.map(([lab, m]) => { const mv = p * s20 * Math.sqrt(m); return [`Expected move – next ${lab}`, '±' + fS(mv), fS(p - mv) + ' – ' + fS(p + mv)]; }),
+    ['Place in last-12-months range', ((p - lo) / (hi - lo) * 100).toFixed(0) + '%', '0% = low ' + fS(lo) + ', 100% = high ' + fS(hi)],
   ];
   $('momTbl').innerHTML = `<thead><tr><th>Measure</th><th>Value</th><th>Read</th></tr></thead><tbody>` + rows.map(x => `<tr><td>${x[0]}</td><td>${x[1]}</td><td class="l">${x[2]}</td></tr>`).join('') + '</tbody>';
 }
-function renderLevels() {
-  const L = D.live, d = D.base; if (!L || !d || d.length < 30) return;
-  const g = futRow(); if (!g) return;
-  let base;
-  if (L.live) { const today = dstr(g.update_time + IST); const prev = d.filter(b => dstr(b.time) < today); base = prev[prev.length - 1]; }
-  else base = d[d.length - 1];
-  if (!base) return;
-  const P = pivots(base.h, base.l, base.c), price = g.close;
+async function renderLevels() {
+  const L = D.live; if (!L) return;
+  let d = D.base, price, base;
+  if (TSRC === 'fut') {
+    const g = futRow(); if (!g || !d || d.length < 30) return; price = g.close;
+    if (L.live) { const today = dstr(g.update_time + IST); const prev = d.filter(b => dstr(b.time) < today); base = prev[prev.length - 1]; }
+    else base = d[d.length - 1];
+  } else {
+    try { d = (await getSeries(TSRC, 'D')).bars; } catch (e) { d = []; }
+    if (!d || d.length < 30) return;
+    const q = L.quotes && L.quotes[src2Sym()]; price = q && q.lp != null ? q.lp : d[d.length - 1].c;
+    const today = dstr(Date.now() / 1000 + IST), prev = d.filter(b => dstr(b.time) < today); base = prev[prev.length - 1] || d[d.length - 1];
+  }
+  if (!base || price == null) return;
+  const P = pivots(base.h, base.l, base.c);
   const rows = [['R3', P.R3], ['R2', P.R2], ['R1', P.R1], ['Pivot', P.P], ['S1', P.S1], ['S2', P.S2], ['S3', P.S3]].map(([n, v]) => ({ n, v }));
   rows.push({ n: 'Price now', v: price, here: true }); rows.sort((a, b) => b.v - a.v);
-  $('pivTbl').innerHTML = '<thead><tr><th>Pivot</th><th>Level</th><th>Away</th></tr></thead><tbody>' + rows.map(r => `<tr class="${r.here ? 'here' : ''}"><td>${r.n}</td><td>${nf(r.v)}</td>${r.here ? '<td></td>' : cell((r.v / price - 1) * 100)}</tr>`).join('') + '</tbody>';
+  $('pivTbl').innerHTML = '<thead><tr><th>Pivot</th><th>Level</th><th>Away</th></tr></thead><tbody>' + rows.map(r => `<tr class="${r.here ? 'here' : ''}"><td>${r.n}</td><td>${fS(r.v)}</td>${r.here ? '<td></td>' : cell((r.v / price - 1) * 100)}</tr>`).join('') + '</tbody>';
   const y = d.filter(b => b.time >= d[d.length - 1].time - 365 * 86400), hi = Math.max(...y.map(b => b.h)), lo = Math.min(...y.map(b => b.l)), ath = Math.max(...d.map(b => b.h));
   const f = [['52W high', hi], ['78.6%', lo + (hi - lo) * 0.786], ['61.8%', lo + (hi - lo) * 0.618], ['50%', lo + (hi - lo) * 0.5], ['38.2%', lo + (hi - lo) * 0.382], ['23.6%', lo + (hi - lo) * 0.236], ['52W low', lo]].map(([n, v]) => ({ n, v }));
   if (ath > hi) f.unshift({ n: 'Highest in data', v: ath });
   f.push({ n: 'Price now', v: price, here: true }); f.sort((a, b) => b.v - a.v);
-  $('fibTbl').innerHTML = '<thead><tr><th>52-week / Fibonacci</th><th>Level</th><th>Away</th></tr></thead><tbody>' + f.map(r => `<tr class="${r.here ? 'here' : ''}"><td>${r.n}</td><td>${nf(r.v)}</td>${r.here ? '<td></td>' : cell((r.v / price - 1) * 100)}</tr>`).join('') + '</tbody>';
-  $('lvInfo').textContent = `pivots from session ${fmtDate(dstr(base.time))} (H ${nf(base.h)} · L ${nf(base.l)} · C ${nf(base.c)})`;
-  D.pivots = P;
+  $('fibTbl').innerHTML = '<thead><tr><th>52-week / Fibonacci</th><th>Level</th><th>Away</th></tr></thead><tbody>' + f.map(r => `<tr class="${r.here ? 'here' : ''}"><td>${r.n}</td><td>${fS(r.v)}</td>${r.here ? '<td></td>' : cell((r.v / price - 1) * 100)}</tr>`).join('') + '</tbody>';
+  $('lvInfo').textContent = `${tName()} · pivots from session ${fmtDate(dstr(base.time))} (H ${fS(base.h)} · L ${fS(base.l)} · C ${fS(base.c)})`;
+  if (TSRC === 'fut') D.pivots = P;
 }
 function retAt(b, from) { for (let i = b.length - 1; i >= 0; i--) if (b[i].time <= from) return b[i].c; return null; }
 async function renderReturns() {
@@ -1668,7 +1687,7 @@ function heatBg(v, max = 8) { if (v == null) return ''; const a = Math.min(1, Ma
 let SB = [];
 class SeasonBlock {
   constructor(k, src, title) {
-    this.k = k; this.src = src; this.tab = 'heat';
+    this.k = k; this.src = src; this.tab = 'heat'; this.yrs = 5;
     const box = document.createElement('div'); box.className = 'card mb'; box.id = k + 'Card';
     box.innerHTML = `<h2>Behaviour &amp; seasonality – ${title}
       <span class="seg" id="${k}Tab"><button data-v="heat" class="on">Monthly returns</button><button data-v="avg">Month average</button><button data-v="wd">Weekday</button><button data-v="big">Big moves</button></span></h2>
@@ -1677,6 +1696,11 @@ class SeasonBlock {
     segInit(k + 'Tab', v => { this.tab = v; this.render(); });
   }
   $(id) { return document.getElementById(this.k + id); }
+  /* 23-Nov-2026 (user): pick how many years Weekday / Big moves look at */
+  yrsBar(daily, cut) { return `<div class="yrsbar"><span class="seg" id="${this.k}Yrs">${[5, 10, 15].map(y => `<button data-v="${y}" class="${y === this.yrs ? 'on' : ''}">${y}Y</button>`).join('')}</span>` +
+    (daily.length ? `<small class="na">prices from ${fmtDate(dstr(daily[0].time))}</small>` : '') + '</div>'; }
+  fromTxt(daily, cut) { return daily.length && daily[0].time > cut + 30 * 86400 ? ` (prices start ${fmtDate(dstr(daily[0].time))}, so this uses all of them)` : ''; }
+  bindYrs() { const sg = this.$('Yrs'); if (sg) sg.querySelectorAll('button').forEach(b => b.onclick = () => { this.yrs = +b.dataset.v; this.render(); }); }
   async render() {
     const src = this.src, box = this.$('Box'), note = this.$('Note');
     let daily = [];
@@ -1708,19 +1732,19 @@ class SeasonBlock {
         return `<tr class="${i === nowM ? 'here' : ''}"><td>${m}</td>${cell(s.avg)}<td>${s.up.toFixed(0)}%</td><td>${s.n}</td></tr>`; }).join('') + '</tbody></table>';
       note.textContent = `${label}: average monthly change and how often the month closed higher. Highlighted = this month.`;
     } else if (this.tab === 'wd') {
-      const cut = daily.length ? daily[daily.length - 1].time - 5 * 365 * 86400 : 0, w = [[], [], [], [], []];
+      const cut = daily.length ? daily[daily.length - 1].time - this.yrs * 365.25 * 86400 : 0, w = [[], [], [], [], []];
       for (let i = 1; i < daily.length; i++) { if (daily[i].time < cut) continue; const wd = new Date(daily[i].time * 1000).getUTCDay(); if (wd >= 1 && wd <= 5) w[wd - 1].push((daily[i].c / daily[i - 1].c - 1) * 100); }
-      box.innerHTML = '<table><thead><tr><th>Day</th><th>Average %</th><th>Up days</th><th>Biggest up</th><th>Biggest down</th><th>Days</th></tr></thead><tbody>' + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((n, i) => { const v = w[i];
+      box.innerHTML = this.yrsBar(daily, cut) + '<table><thead><tr><th>Day</th><th>Average %</th><th>Up days</th><th>Biggest up</th><th>Biggest down</th><th>Days</th></tr></thead><tbody>' + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((n, i) => { const v = w[i];
         if (!v.length) return `<tr><td>${n}</td><td colspan="5" class="na">—</td></tr>`;
         return `<tr><td>${n}</td>${cell(v.reduce((a, b) => a + b, 0) / v.length, 3)}<td>${(v.filter(x => x > 0).length / v.length * 100).toFixed(0)}%</td>${cell(Math.max(...v))}${cell(Math.min(...v))}<td>${v.length}</td></tr>`; }).join('') + '</tbody></table>';
-      note.textContent = `${label}: daily change by weekday, last 5 years.`;
+      note.textContent = `${label}: daily change by weekday, last ${this.yrs} years.` + this.fromTxt(daily, cut); this.bindYrs();
     } else {
-      const cut = daily.length ? daily[daily.length - 1].time - 5 * 365 * 86400 : 0, mv = [];
+      const cut = daily.length ? daily[daily.length - 1].time - this.yrs * 365.25 * 86400 : 0, mv = [];
       for (let i = 1; i < daily.length; i++) if (daily[i].time >= cut) mv.push({ t: daily[i].time, p: (daily[i].c / daily[i - 1].c - 1) * 100, c: daily[i].c });
       const up = mv.slice().sort((a, b) => b.p - a.p).slice(0, 10), dn = mv.slice().sort((a, b) => a.p - b.p).slice(0, 10);
-      box.innerHTML = '<table><thead><tr><th>#</th><th>Biggest up day</th><th>Change</th><th>Close</th><th>Biggest down day</th><th>Change</th><th>Close</th></tr></thead><tbody>' +
+      box.innerHTML = this.yrsBar(daily, cut) + '<table><thead><tr><th>#</th><th>Biggest up day</th><th>Change</th><th>Close</th><th>Biggest down day</th><th>Change</th><th>Close</th></tr></thead><tbody>' +
         up.map((u, i) => `<tr><td>${i + 1}</td><td class="l">${fmtDate(dstr(u.t))}</td>${cell(u.p)}<td>${nf(u.c, dec, loc)}</td><td class="l">${dn[i] ? fmtDate(dstr(dn[i].t)) : ''}</td>${dn[i] ? cell(dn[i].p) : '<td></td>'}<td>${dn[i] ? nf(dn[i].c, dec, loc) : ''}</td></tr>`).join('') + '</tbody></table>';
-      note.textContent = `${label}: the 10 biggest one-day rises and falls in the last 5 years.` + (src === 'fut' ? ' Days around a contract change can show a jump from the roll.' : '');
+      note.textContent = `${label}: the 10 biggest one-day rises and falls in the last ${this.yrs} years.` + this.fromTxt(daily, cut) + (src === 'fut' ? ' Days around a contract change can show a jump from the roll.' : ''); this.bindYrs();
     }
   }
 }
@@ -2188,7 +2212,7 @@ function boot() {
 }
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});</script>
-<script>(function () { var V = 'cd62a03632', K = 'v';
+<script>(function () { var V = '87609df120', K = 'v';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
