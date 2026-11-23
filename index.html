@@ -374,6 +374,7 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
 .callo .t { font-size: 13.5px; font-weight: 600; line-height: 1.4; }
 .callo .lv { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; margin-top: 4px; }
 .callo.lock { border-left-color: #6B7280; background: var(--surface); color: var(--muted); }
+#callsTbl th:nth-child(2) { text-align: left; }
 #callsTbl td:nth-child(2) { text-align: left; white-space: normal; min-width: 260px; }
 #callsTbl td:first-child, #callsTbl th:first-child { text-align: left; }
 @media (max-width: 700px) {
@@ -456,15 +457,6 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
       <div class="count" id="b3Count"></div>
       <div class="note" id="b3Note"></div>
     </div>
-  </div>
-
-  <!-- 23-Nov-2026 (user): KEDIA trading calls for this commodity - open calls on top, latest closed below (about 10) -->
-  <div class="card mb hide" id="callsCard">
-    <h2>KEDIA calls – <span id="callsFor">gold</span> <small id="callsInfo"></small></h2>
-    <div class="strip" id="callsStats"></div>
-    <div id="callsOpen"></div>
-    <div class="tw"><table id="callsTbl"></table></div>
-    <div class="note" id="callsNote">Research calls of KEDIA ADVISORY (Kedia Stocks and Commodities Research Pvt Ltd, SEBI Research Analyst INH000006156). Past results do not promise future returns. Trading in commodities carries risk; please read the full disclaimer.</div>
   </div>
 
   <div class="card mb hide" id="ecoCard">
@@ -593,6 +585,13 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
   <div class="card mb" id="aboutCard">
     <h2 id="faqTitle">About</h2>
     <div id="faq"></div>
+  </div>
+  <!-- 23-Nov-2026 (user): KEDIA trading calls for this commodity - LAST card; open calls on top, latest closed below (about 10); no score line (user) -->
+  <div class="card mb hide" id="callsCard">
+    <h2>KEDIA calls – <span id="callsFor">gold</span> <small id="callsInfo"></small></h2>
+    <div id="callsOpen"></div>
+    <div class="tw"><table id="callsTbl"></table></div>
+    <div class="note" id="callsNote">Research calls of KEDIA ADVISORY (Kedia Stocks and Commodities Research Pvt Ltd, SEBI Research Analyst INH000006156). Past results do not promise future returns. Trading in commodities carries risk; please read the full disclaimer.</div>
   </div>
   </div>
   <div id="newsView" class="hide"></div>
@@ -1609,7 +1608,7 @@ async function loadCommNews() {
 }
 /* ------------------------------------------------------------ KEDIA calls (23-Nov-2026, user)
    data from the trading-call Excel (calls_import.py, commodity only); 7 Days Access clients see closed calls only (Google hides open ones) */
-function callDay(d, t) { if (!d) return '—'; const [Y, M, Dd] = d.split('-'); return `${+Dd} ${MON[+M - 1]} ${Y.slice(2)}` + (t ? ' · ' + esc(t) : ''); }
+function callDay(d, t) { if (!d) return '—'; const [Y, M, Dd] = d.split('-'); return `${+Dd} ${MON[+M - 1]} ${Y.slice(2)}` + (t ? ' · ' + esc(String(t).replace(/^(\d{1,2}:\d{2}):\d{2}/, '$1')) : ''); }
 function callNum(v) { return v == null ? '—' : (+v).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
 async function loadCalls() {
   const my = ck; let r;
@@ -1621,9 +1620,6 @@ async function loadCalls() {
   $('callsFor').textContent = (S[ck].full || C.tab).toLowerCase();
   const up = typeof r.updated === 'number' ? new Date(r.updated * 1000).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : r.updated;
   $('callsInfo').textContent = up ? 'updated ' + up : '';
-  const st = r.stats || {};
-  $('callsStats').innerHTML = st.n ? `<span class="tag n">Last ${st.days} days: ${st.n} closed calls</span><span class="tag b">${st.win} in profit (${Math.round(st.win / st.n * 100)}%)</span>` +
-    `<span class="tag b">Target hit ${st.tgt}</span><span class="tag s">Stop-loss hit ${st.sl}</span>` : '';
   const op = r.open || [];
   $('callsOpen').innerHTML = op.map(c => `<div class="callo"><div class="h"><span class="pill on">OPEN</span><b>${esc(c.act)}</b><span>${esc(c.type)}</span><span>${callDay(c.d, c.t)}</span><span>${esc(c.ex)}</span></div>
       <div class="t">${esc(c.txt || (c.act + ' ' + c.sc))}</div>
@@ -1631,7 +1627,7 @@ async function loadCalls() {
     (r.openHidden ? `<div class="callo lock"><div class="t">🔒 ${r.openHidden} open call${r.openHidden > 1 ? 's' : ''} running now – open calls come with a paid plan. Please contact your RM.</div></div>` : '');
   const cl = r.closed || [];
   $('callsTbl').innerHTML = cl.length ? '<tr><th>Closed on</th><th>Call</th><th>Entry</th><th>Exit</th><th>Result</th></tr>' + cl.map(c => {
-    const s = (c.st || '').toLowerCase(), pl = c.pl, good = (c.res || '').toLowerCase() === 'profit' || pl > 0, bad = (c.res || '').toLowerCase() === 'loss' || pl < 0;
+    const s = (c.st || '').toLowerCase(), pl = c.pl, good = pl != null ? pl > 0 : (c.res || '').toLowerCase() === 'profit', bad = pl != null ? pl < 0 : (c.res || '').toLowerCase() === 'loss';
     const lab = s === 'target' ? 'Target hit' : s === 'stoploss' ? 'Stop-loss hit' : 'Closed';
     return `<tr><td>${callDay(c.cd || c.d, c.ct)}</td><td>${esc(c.txt || (c.act + ' ' + c.sc))}</td><td>${callNum(c.entry)}</td><td>${callNum(c.cp)}</td>` +
       `<td><span class="tag ${good ? 'b' : bad ? 's' : 'n'}">${lab}${pl != null ? ' ' + (pl > 0 ? '+' : '') + (+pl).toFixed(2) + '%' : ''}</span></td></tr>`; }).join('') : '';
@@ -1677,9 +1673,9 @@ $('arbTbl').addEventListener('change', e => { const i = e.target.closest('input[
   try { localStorage.setItem('kediaArbDuty', JSON.stringify(arbDuty)); } catch (er) {} renderArb(); });
 /* "Jump to" bar: one link per block that is shown on this tab */
 function buildJump() {
-  const J = [['heroBox', 'Price'], ['callsCard', 'KEDIA calls'], ['ecoCard', 'Eco data'], ['arbCard', 'Arbitrage'], ...CB.map((b, i) => [b.k + 'Card', 'Chart: ' + C.src[i][1]]), ['techCard', 'Technicals'], ['lvCard', 'Levels'],
+  const J = [['heroBox', 'Price'], ['ecoCard', 'Eco data'], ['arbCard', 'Arbitrage'], ...CB.map((b, i) => [b.k + 'Card', 'Chart: ' + C.src[i][1]]), ['techCard', 'Technicals'], ['lvCard', 'Levels'],
     ['momCard', 'Momentum'], ['retCard', 'Returns'], ['weatherCard', 'Weather'], ['crossCard', 'Other markets'], ['parityCard', 'Parity'], ['basisCard', 'Basis'],
-    ['curveCard', 'Expiries'], ['famCard', 'Contracts'], ['arrCard', 'Arrivals'], ['trCard', 'Exports & imports'], ...SB.map((s, i) => [s.k + 'Card', 'Seasonality: ' + C.src[i][1]]), ['newsCard', 'News'], ['aboutCard', 'About']];
+    ['curveCard', 'Expiries'], ['famCard', 'Contracts'], ['arrCard', 'Arrivals'], ['trCard', 'Exports & imports'], ...SB.map((s, i) => [s.k + 'Card', 'Seasonality: ' + C.src[i][1]]), ['newsCard', 'News'], ['aboutCard', 'About'], ['callsCard', 'KEDIA calls']];
   const JV = J.filter(([id]) => $(id) && !$(id).classList.contains('hide'));
   $('jumpSel').innerHTML = '<option value="">Go to: Price, Charts, News …</option>' + JV.map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join('');
   $('jumpBar').innerHTML = J.filter(([id]) => $(id) && !$(id).classList.contains('hide')).map(([id, n]) => `<a href="#${ck.toLowerCase()}" data-j="${id}">${esc(n)}</a>`).join('');
@@ -2318,7 +2314,7 @@ function boot() {
 }
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});</script>
-<script>(function () { var V = '04718ea4f2', K = 'v';
+<script>(function () { var V = '4f905b8311', K = 'v';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
