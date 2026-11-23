@@ -553,7 +553,23 @@ function viewDash() {
       <div class="card"><div class="hd"><h2>Expiring in the next 7 days</h2><span class="sp"></span><a href="#expiring" class="btn line sm">See all</a></div>${mini(sn, u => `<span class="left r">${left(u) === 0 ? 'Ends today' : left(u) + ' day' + (left(u) > 1 ? 's' : '') + ' left'}</span><br><span class="left">${esc(u.Plan || '')} · end ${fmtD(u.End)}</span>`)}</div>
       <div class="card"><div class="hd"><h2>Amount this month by payment mode</h2></div><div class="bd">${bars(byMode, inr)}</div></div>
     </div>
-    <div class="card"><div class="hd"><h2>Active clients by complex</h2></div><div class="bd">${bars(cx)}</div></div>`;
+    <div class="card"><div class="hd"><h2>Active clients by complex</h2></div><div class="bd">${bars(cx)}</div></div>` +
+    /* 23-Nov-2026 (user): demo data to try every screen - main admin only; names end "(demo)", emails @kedia-demo.example */
+    (meMain() ? (() => { const nd = USERS.filter(u => /@kedia-demo\.example$/i.test(u.Email)).length;
+      return `<div class="card"><div class="hd"><h2>Demo data (for testing)</h2><span class="note">${nd ? nd + ' demo people are in the panel now' : 'no demo data now'}</span><span class="sp"></span>
+        ${nd ? `<button class="btn red sm" id="demoDel">${ic('trash')} Remove demo data</button>` : `<button class="btn gold sm" id="demoAdd">${ic('plus')} Add demo data</button>`}</div>
+        <div class="bd left">About 28 demo people (clients on every plan and status, 2 RMs, 1 analyst), plan history with amounts, 2 deleted users and 14 queries in every situation.
+        Every demo name ends with "(demo)" and every demo email ends with @kedia-demo.example. No emails are sent and demo people cannot log in. "Remove demo data" deletes only these.</div></div>`; })() : '');
+  const demo = mode => { const add = mode === 'add';
+    modal(`<h3>${add ? 'Add demo data?' : 'Remove demo data?'}</h3><p>${add ? 'About 28 demo people, their plans and 14 demo queries are added. You can remove them any time with one click.' : 'Every demo person, plan line, query and history line (emails @kedia-demo.example) is deleted. Real clients are not touched.'}</p>
+      <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn ${add ? 'gold' : 'red'}" id="mYes">${add ? 'Add demo data' : 'Remove demo data'}</button></div>`);
+    $('mNo').onclick = closeModal;
+    $('mYes').onclick = async () => { busy($('mYes'), true, add ? 'Adding…' : 'Removing…');
+      try { const j = await call('admin_demo', { mode }); closeModal(); HIST = null; DELETED = null; await loadAll(); route();
+        toast(add ? `Demo data added: ${j.added.users} people, ${j.added.plans} plan lines, ${j.added.queries} queries` : `Demo data removed: ${j.removed.users} people, ${j.removed.plans} plan lines, ${j.removed.queries} queries`); }
+      catch (e) { closeModal(); toast(e.message, true); } }; };
+  if ($('demoAdd')) $('demoAdd').onclick = () => demo('add');
+  if ($('demoDel')) $('demoDel').onclick = () => demo('remove');
   document.querySelectorAll('.kpi').forEach(b => b.onclick = () => { const [v, t] = b.dataset.go.split(':'); if (t) { F.tab = t; F.role = ''; } else if (v === 'subs') F.tab = 'All'; location.hash = v; if (location.hash === '#' + v) route(); });
   bindRowBtns();
 }
@@ -1381,7 +1397,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '52a6d65eef', K = 'va';
+<script>(function () { var V = 'df44f8e1aa', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
