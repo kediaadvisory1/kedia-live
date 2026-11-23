@@ -370,6 +370,7 @@ const IC = {
 const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC[n]}</svg>`;
 
 let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaAdminToken') || ''; } catch (e) {}
+let QS = [], QTEAM = [], QDISC = '';
 let ME = null, USERS = [], RMS = [], RMST = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
 const F = { tab: 'All', q: '', plan: '', src: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
 
@@ -393,7 +394,7 @@ async function loadComm() {
   if (!COMM || COMM.__error) COMM = {};
 }
 async function loadAll() {
-  const j = await call('admin_list');
+  const [j] = await Promise.all([call('admin_list'), loadQueries()]);
   ME = j.me; USERS = j.users || []; RMS = (j.rms || []).filter(Boolean); RMST = j.rmsT || RMS.map(n => ({ n, t: 'Both' })); TODAY = j.today;
   PLANROWS = (j.plans || []).map(r => Object.assign(Object.fromEntries(P_COLS.map((k, i) => [k, r[i]])), { row: r[P_COLS.length] }));
   const paid = {}; PLANROWS.forEach(p => { const e = String(p.Email).toLowerCase(); paid[e] = paid[e] || { amt: 0, mode: '' }; paid[e].amt += Number(p.Amount) || 0; if (p.Mode) paid[e].mode = p.Mode; });
@@ -475,7 +476,7 @@ function showLogin(mode, msg, ok) {
   $('lfg').onclick = e => { e.preventDefault(); showLogin('forgot'); };
   $('lf').onsubmit = async e => { e.preventDefault(); const b = $('lb'); busy(b, true, 'Checking…');
     try { const j = await call('login', { email: $('le').value, password: $('lp').value });
-      if (j.user.role !== 'admin' && j.user.role !== 'rm') { setToken(''); return showLogin('login', 'This login is not a KEDIA admin or RM. Please use the Commodity Live app.'); }
+      if (!['admin', 'rm', 'analyst'].includes(j.user.role)) { setToken(''); return showLogin('login', 'This login is not a KEDIA admin or RM. Please use the Commodity Live app.'); }
       setToken(j.token); ME = j.user; if (j.user.mustChange) return showLogin('change'); enter();
     } catch (er) { showLogin('login', er.message); } };
 }
@@ -485,24 +486,27 @@ async function enter() {
   $('loginView').classList.add('hide'); $('loading').classList.remove('hide');
   try { await Promise.all([loadAll(), loadComm()]); }
   catch (e) { if (TOKEN) showLogin('login', e.message); return; }
-  if (ME.role !== 'admin' && ME.role !== 'rm') { setToken(''); return showLogin('login', 'Only KEDIA admins and RMs can open the back panel.'); }
+  if (!['admin', 'rm', 'analyst'].includes(ME.role)) { setToken(''); return showLogin('login', 'Only KEDIA admins and RMs can open the back panel.'); }
   if (ME.mustChange) return showLogin('change');
   $('loading').classList.add('hide'); $('app').classList.remove('hide');
-  $('meAv').textContent = ini(ME.name); $('meName').textContent = ME.name || ME.email; $('meRole').textContent = ME.role === 'admin' ? 'Admin' : 'RM';
+  $('meAv').textContent = ini(ME.name); $('meName').textContent = ME.name || ME.email; $('meRole').textContent = ME.role === 'admin' ? 'Admin' : ME.role === 'analyst' ? 'Analyst' : 'RM';
   route();
 }
 function navHtml() {
   const cl = USERS.filter(u => (u.Role || 'user') === 'user'), free = cl.filter(u => u.eff === 'Active' && u.Plan === FREE_PLAN).length, sn = USERS.filter(soon).length,
     ex = cl.filter(u => u.eff === 'Expired').length, pend = USERS.filter(u => u.eff === 'Pending').length;
   const a = (v, i, t, b, r) => `<a href="#${v}" class="${VIEW === v ? 'on' : ''}">${ic(i)}<span>${t}</span>${b ? `<span class="bdg${r ? ' red' : ''}">${b}</span>` : ''}</a>`;
-  $('nav').innerHTML = '<div class="grp">Overview</div>' + a('dash', 'dash', 'Dashboard') +
+  const qOpenN = (QS || []).filter(q => (q.Status === 'Open' || q.Status === 'In progress') && q.canAct).length;
+  if (ME && ME.role === 'analyst') { $('nav').innerHTML = '<div class="grp">Research desk</div>' + a('queries', 'wait', 'Client queries', qOpenN, 1); return; }
+  $('nav').innerHTML = '<div class="grp">Overview</div>' + a('dash', 'dash', 'Dashboard') + a('queries', 'wait', 'Client queries', qOpenN, 1) +
     '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
     a('expired', 'ban', 'Inactive', ex, 1) + (pend ? a('pending', 'wait', 'Waiting for approval', pend) : '') +
     (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
     '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
 }
 function route() {
-  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'pending', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales'].includes(h) ? h : 'dash';
+  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'pending', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries'].includes(h) ? h : 'dash';
+  if (ME && ME.role === 'analyst') VIEW = 'queries';
   if ((VIEW === 'team' || VIEW === 'deleted') && !isAdmin()) VIEW = 'subs';
   $('side').classList.remove('open'); navHtml(); window.scrollTo(0, 0);
   if (VIEW === 'dash') return viewDash();
@@ -510,6 +514,7 @@ function route() {
   if (VIEW === 'deleted') return viewDeleted();
   if (VIEW === 'plans') return viewPlans();
   if (VIEW === 'sales') return viewSales();
+  if (VIEW === 'queries') return viewQueries();
   F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Inactive', team: 'All' }[VIEW];
   F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
   viewSubs();
@@ -682,7 +687,7 @@ function openDrawer(u, mode) {
         <div class="fld"><label>City</label><div class="cbox"><input id="xCity" value="${esc(x.City)}" placeholder="Type or pick a city" autocomplete="off"><div class="clist hide" id="xCityList"></div></div></div>
         <div class="fld"><label>State</label><select id="xState"><option value="">—</option>${[...new Set((window.KEDIA_STATES || []).concat(x.State ? [x.State] : []))].map(s => `<option${s === x.State ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
         <div class="fld" id="rmTypeF" style="display:none"><label>RM type</label><select id="xRmType">${['Sales', 'Service', 'Both'].map(t => `<option${(x['RM type'] || 'Both') === t ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
-        <div class="fld"><label>User type</label>${isAdmin() ? `<select id="xRole">${[['user', 'Client'], ['rm', 'RM (team)'], ['admin', 'Admin']].map(([v, l]) => `<option value="${v}"${(x.Role || 'user') === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` :`<input readonly value="${esc({ user: 'Client', rm: 'RM', admin: 'Admin' }[x.Role || 'user'])}">`}</div>
+        <div class="fld"><label>User type</label>${isAdmin() ? `<select id="xRole">${[['user', 'Client'], ['rm', 'RM (team)'], ['analyst', 'Analyst (research desk)'], ['admin', 'Admin']].map(([v, l]) => `<option value="${v}"${(x.Role || 'user') === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` :`<input readonly value="${esc({ user: 'Client', rm: 'RM', admin: 'Admin' }[x.Role || 'user'])}">`}</div>
       </div><div class="info" id="roleInfo"></div></div>
 
       <div class="sec"><div class="st">Subscription</div>
@@ -1221,6 +1226,108 @@ function drawSales() {
   $('spB').querySelectorAll('tr[data-rm]').forEach(tr => tr.onclick = () => { SP.open = SP.open === tr.dataset.rm ? '' : tr.dataset.rm; drawSales(); });
 }
 
+/* ---------- Client queries (23-Nov-2026, user): View questions (research desk / Analyst) and Service issues (RM). The server decides who sees / answers. ---------- */
+const QF = { type: 'view', st: 'open', mine: false, q: '' };
+const isAnalyst = () => ME && ME.role === 'analyst';
+async function loadQueries() { try { const j = await call('qa_list'); QS = j.queries || []; QTEAM = j.team || []; QDISC = j.disclaimer || ''; } catch (e) { QS = QS || []; } }
+const qOpen = q => q.Status === 'Open' || q.Status === 'In progress';
+const qAgeH = q => { const t = Date.parse(String(q.Updated || q.Created).replace(' ', 'T') + '+05:30'); return isNaN(t) ? 0 : (Date.now() - t) / 3600000; };
+const qMine = q => q.Assigned === (ME && ME.name) || (isAnalyst() && q.Assigned === 'Research desk') || (isAdmin() && q.Assigned === 'Admins');
+function qPill(s) { const c = s === 'Resolved' || s === 'Closed' ? 'Active' : s === 'Waiting for client' ? 'Pending' : 'Expired'; return `<span class="pill p-${c}">${esc(s)}</span>`; }
+async function viewQueries() {
+  title('Client queries', isAnalyst() ? 'View questions from clients – answer them here' : 'View questions (research desk) and service issues (RM)');
+  if (isAnalyst()) QF.type = 'view';
+  $('content').innerHTML = '<div class="card"><div class="empty"><span class="spin"></span> Loading…</div></div>';
+  await loadQueries(); navHtml(); drawQueries();
+}
+function drawQueries() {
+  const vis = QS.filter(q => q.Type === QF.type), cnt = f => vis.filter(f).length, q0 = QF.q.trim().toLowerCase();
+  const stF = { open: qOpen, wait: q => q.Status === 'Waiting for client', done: q => q.Status === 'Resolved' || q.Status === 'Closed', all: () => true }[QF.st];
+  const list = vis.filter(q => stF(q) && (!QF.mine || qMine(q)) && (!q0 || [q.ID, q.Name, q.Email, q.Subject, q.Commodity, q.Category].join(' ').toLowerCase().includes(q0)));
+  const avg = (() => { const d = vis.filter(q => q['First answer']).map(q => (Date.parse(q['First answer'].replace(' ', 'T')) - Date.parse(q.Created.replace(' ', 'T'))) / 3600000).filter(x => x >= 0); return d.length ? d.reduce((a, b) => a + b, 0) / d.length : null; })();
+  const canNew = !isAnalyst();
+  $('content').innerHTML = `<div class="kpis">
+      <div class="kpi" style="cursor:default"><div class="l">Open</div><div class="v">${cnt(qOpen)}</div><div class="s">${QF.type === 'view' ? 'view questions' : 'service issues'} to answer</div></div>
+      <div class="kpi" style="cursor:default"><div class="l">Late</div><div class="v" style="color:var(--bad)">${cnt(q => qOpen(q) && qAgeH(q) > (QF.type === 'view' ? 0.5 : 24))}</div><div class="s">over ${QF.type === 'view' ? '30 minutes' : '24 hours'}</div></div>
+      <div class="kpi" style="cursor:default"><div class="l">Waiting for client</div><div class="v">${cnt(q => q.Status === 'Waiting for client')}</div><div class="s">we replied</div></div>
+      <div class="kpi" style="cursor:default"><div class="l">Resolved</div><div class="v">${cnt(q => q.Status === 'Resolved' || q.Status === 'Closed')}</div><div class="s">all time</div></div>
+      <div class="kpi" style="cursor:default"><div class="l">Average first answer</div><div class="v">${avg == null ? '—' : avg < 1 ? Math.round(avg * 60) + ' min' : avg.toFixed(1) + ' h'}</div><div class="s">time to first reply</div></div>
+      <div class="kpi" style="cursor:default"><div class="l">Total</div><div class="v">${vis.length}</div><div class="s">${QF.type === 'view' ? 'view questions' : 'service issues'}</div></div></div>
+    <div class="card"><div class="hd">${isAnalyst() ? '<h2>📈 View questions</h2>' : `<div class="seg" id="qType"><button type="button" data-v="view">📈 View questions <span class="left">(${QS.filter(q => q.Type === 'view' && qOpen(q)).length})</span></button><button type="button" data-v="service">🛠 Service issues <span class="left">(${QS.filter(q => q.Type === 'service' && qOpen(q)).length})</span></button></div>`}
+      <span class="sp"></span>${canNew ? `<button class="btn gold sm" id="qAdd">${ic('plus')} New query</button>` : ''}</div>
+      <div class="frow"><div class="tabsF" id="qSt">${[['open', 'Open'], ['wait', 'Waiting for client'], ['done', 'Resolved'], ['all', 'All']].map(([v, l]) => `<button data-v="${v}" class="${QF.st === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+        <label class="left" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="qMineCb"${QF.mine ? ' checked' : ''}> Only mine</label>
+        <div class="sbox">${ic('search')}<input id="qQ" type="search" placeholder="Search client, question, ID" value="${esc(QF.q)}"></div></div>
+      <div class="tw"><table class="t"><thead><tr><th class="ns">ID</th><th class="ns">Client</th><th class="ns">${QF.type === 'view' ? 'Commodity · time frame' : 'About'}</th><th class="ns">Question</th><th class="ns">Status</th><th class="ns">With</th><th class="ns">Waiting</th><th class="ns">Last update</th></tr></thead>
+      <tbody>${list.length ? list.map(q => { const h = qAgeH(q), late = qOpen(q) && h > (q.Type === 'view' ? 0.5 : 24);
+        return `<tr data-q="${esc(q.ID)}" style="cursor:pointer"><td><b style="color:var(--navy)">${esc(q.ID)}</b></td><td><b style="color:var(--navy)">${esc(q.Name)}</b><br><span class="left">${esc(q.Email)}</span></td>
+          <td>${q.Type === 'view' ? `<span class="tag g">${esc(q.Commodity)}</span> <span class="left">${esc(q.Horizon)}</span>` : `<span class="tag">${esc(q.Category)}</span>`}</td>
+          <td class="wrap" style="max-width:320px">${esc(q.Subject)}</td><td>${qPill(q.Status)}${q.Shared === 'yes' ? '<br><span class="left">shared with all</span>' : ''}</td><td>${esc(q.Assigned)}</td>
+          <td>${qOpen(q) ? `<span class="left${late ? ' r' : ''}">${h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? h.toFixed(0) + ' h' : Math.round(h / 24) + ' days'}</span>` : '—'}</td><td class="left">${fmtT(q.Updated)}</td></tr>`; }).join('')
+        : '<tr><td colspan="8"><div class="empty">No queries here.</div></td></tr>'}</tbody></table></div></div>`;
+  if ($('qType')) { segSet('qType', QF.type); segBind('qType', v => { QF.type = v; drawQueries(); }); }
+  $('qSt').querySelectorAll('button').forEach(b => b.onclick = () => { QF.st = b.dataset.v; drawQueries(); });
+  $('qMineCb').onchange = e => { QF.mine = e.target.checked; drawQueries(); };
+  $('qQ').oninput = e => { QF.q = e.target.value; const pos = e.target.selectionStart; drawQueries(); const i = $('qQ'); i.focus(); i.setSelectionRange(pos, pos); };
+  if ($('qAdd')) $('qAdd').onclick = newQueryBox;
+  document.querySelectorAll('#content tr[data-q]').forEach(tr => tr.onclick = () => openQuery(tr.dataset.q));
+}
+function openQuery(id) {
+  const q = QS.find(x => x.ID === id); if (!q) return;
+  closeLayer(); D = null;
+  const c = q.client || {}, act = q.canAct, isV = q.Type === 'view';
+  $('layer').innerHTML = `<div class="shade" id="shade"></div><div class="drawer" role="dialog">
+    <div class="dh"><div class="av">${isV ? '📈' : '🛠'}</div><div><h3>${esc(q.ID)} · ${esc(q.Name)}</h3><small>${isV ? 'View · ' + esc(q.Commodity) + ' · ' + esc(q.Horizon) : 'Service · ' + esc(q.Category)} · ${esc(q.Status)} · with ${esc(q.Assigned)}</small></div>
+      <button class="x" id="dx" aria-label="Close">${ic('x')}</button></div>
+    <div class="db">
+      <div class="sec"><div class="st">Client</div><div class="tl">
+        <div><span>Email</span><span>${esc(q.Email)}</span></div><div><span>Mobile</span><span>${esc(c.mobile || '—')}</span></div>
+        ${isAnalyst() ? '' : `<div><span>Plan</span><span>${esc(c.plan || '—')}</span></div>`}<div><span>City</span><span>${esc(c.city || '—')}</span></div>
+        <div><span>Sales / Service RM</span><span>${esc(c.srm || '—')} / ${esc(c.vrm || '—')}</span></div><div><span>Asked on</span><span>${fmtT(q.Created)}</span></div></div></div>
+      <div class="sec"><div class="st">Conversation</div><div style="display:grid;gap:8px">${q.msgs.map(m => `<div style="padding:9px 11px;border-radius:10px;${m.kind === 'note' ? 'background:#F1F2F6;border:1px dashed #CDD2DE' : m.role === 'user' ? 'background:#F7F8FB;border:1px solid var(--line)' : 'background:var(--cream)'}">
+          <div class="left">${m.kind === 'note' ? '🔒 Team note · ' : ''}${esc(m.by || m.email)} · ${fmtT(m.t)}</div><div style="white-space:pre-wrap;font-size:13.5px">${esc(m.text)}</div></div>`).join('')}</div>
+        ${isV ? `<div class="info">Clients see this with the disclaimer: ${esc(QDISC)}</div>` : ''}</div>
+      ${act ? `<div class="sec"><div class="st">Reply</div>
+        <div class="seg" id="qKind" style="margin-bottom:10px"><button type="button" data-v="msg" class="on">Reply to client</button><button type="button" data-v="note">Team note (client can't see)</button></div>
+        <div class="fld"><textarea id="qText" rows="5" placeholder="${isV ? 'Your view: trend, levels, what to watch…' : 'Write to the client…'}"></textarea></div>
+        <div class="g2"><div class="fld"><label>Status</label><select id="qStat"><option value="">${isV ? 'Auto (Resolved after a reply)' : 'Auto (Waiting for client after a reply)'}</option>${['Open', 'In progress', 'Waiting for client', 'Resolved', 'Closed'].map(s => `<option>${s}</option>`).join('')}</select></div>
+          ${isAdmin() ? `<div class="fld"><label>Assign to</label><select id="qAsg"><option value="">— keep: ${esc(q.Assigned)} —</option><option>Research desk</option><option>Admins</option>${QTEAM.map(t => `<option value="${esc(t.n)}">${esc(t.n)} (${t.r === 'rm' ? 'RM' : t.r === 'analyst' ? 'Analyst' : 'Admin'})</option>`).join('')}</select></div>` : ''}</div>
+        ${isV && (isAdmin() || isAnalyst()) ? `<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="qShare"${q.Shared === 'yes' ? ' checked' : ''}> Share this question and answer with all clients ("Today's views")</label>` : ''}
+      </div>` : `<div class="sec"><div class="info">${isV ? 'View questions are answered by the research desk. You can read them for your clients.' : 'Only the RM of this client or an admin can answer.'}</div></div>`}
+    </div>
+    <div class="df"><span class="sp"></span><button class="btn line" id="dCancel">Close</button>${act ? `<button class="btn gold" id="qGo">${ic('ok')} Send / save</button>` : ''}</div></div>`;
+  $('shade').onclick = $('dx').onclick = $('dCancel').onclick = closeLayer;
+  if (!act) return;
+  let kind = 'msg'; segBind('qKind', v => { kind = v; });
+  $('qGo').onclick = async () => {
+    const text = $('qText').value.trim(), st = $('qStat').value, asg = $('qAsg') ? $('qAsg').value : '', sh = $('qShare') ? $('qShare').checked : null;
+    if (!text && !st && !asg && (sh === null || sh === (q.Shared === 'yes'))) return toast('Write a reply or change something first.', true);
+    busy($('qGo'), true, 'Saving…');
+    try { await call('qa_act', { id: q.ID, text, kind, status: st || undefined, assign: asg || undefined, shared: sh === null ? undefined : sh });
+      toast(text && kind === 'msg' ? 'Reply sent to the client (app + email)' : 'Saved'); await loadQueries(); navHtml(); drawQueries(); openQuery(q.ID); }
+    catch (e) { busy($('qGo'), false); toast(e.message, true); } };
+}
+function newQueryBox() {
+  const cl = USERS.filter(u => (u.Role || 'user') === 'user');
+  modal(`<h3>New query for a client</h3><p>For a question that came by phone or WhatsApp. The client sees it in the app under My queries.</p>
+    <div class="fld"><label>Client (type name, email or mobile)</label><input id="nqC" list="nqL" placeholder="Start typing…"><datalist id="nqL">${cl.map(u => `<option value="${esc(u.Email)}">${esc(u.Name)} · ${esc(u.Mobile || '')}</option>`).join('')}</datalist></div>
+    <div class="fld"><label>Type</label><select id="nqT"><option value="service">🛠 Service issue</option><option value="view">📈 View question</option></select></div>
+    <div class="g2"><div class="fld" id="nqCatF"><label>About</label><select id="nqCat">${['Login / access', 'Plan & payment', 'Price or data issue', 'App problem', 'Other'].map(c => `<option>${c}</option>`).join('')}</select></div>
+      <div class="fld" id="nqComF" style="display:none"><label>Commodity</label><select id="nqCom">${groups().flatMap(g => g[1]).map(k => `<option>${esc(name(k))}</option>`).join('')}</select></div>
+      <div class="fld" id="nqHzF" style="display:none"><label>Time frame</label><select id="nqHz">${['Today', '1-2 days', 'This week', '1 month+'].map(h => `<option>${h}</option>`).join('')}</select></div></div>
+    <div class="fld"><label>Question / problem</label><textarea id="nqX" rows="4"></textarea></div>
+    <div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn gold" id="mYes">${ic('plus')} Add query</button></div>`, 'wide');
+  $('nqT').onchange = e => { const v = e.target.value === 'view'; $('nqCatF').style.display = v ? 'none' : ''; $('nqComF').style.display = $('nqHzF').style.display = v ? '' : 'none'; };
+  $('mNo').onclick = closeModal;
+  $('mYes').onclick = async () => { const em = $('nqC').value.trim().toLowerCase(), t = $('nqX').value.trim();
+    if (!USERS.some(u => u.Email.toLowerCase() === em)) return toast('Pick the client from the list.', true);
+    if (t.length < 5) return toast('Write the question.', true);
+    busy($('mYes'), true);
+    try { const v = $('nqT').value === 'view'; const j = await call('qa_new', { email: em, type: $('nqT').value, text: t, subject: t.slice(0, 140), category: v ? '' : $('nqCat').value, commodity: v ? $('nqCom').value : '', horizon: v ? $('nqHz').value : '' });
+      closeModal(); toast('Query ' + j.id + ' added – with ' + j.assigned); await loadQueries(); navHtml(); drawQueries(); }
+    catch (e) { busy($('mYes'), false); toast(e.message, true); } };
+}
+
 /* ---------- login history ---------- */
 function evHtml(ev) { const e = String(ev || ''); const c = /failed/.test(e) ? 'bad' : /^login$/.test(e) ? 'ok' : /signup|created/.test(e) ? 'g' : 'n'; return `<span class="ev ${c}">${esc(e)}</span>`; }
 async function viewHist() {
@@ -1256,7 +1363,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = 'd16b730a0d', K = 'va';
+<script>(function () { var V = '8787528302', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
