@@ -582,16 +582,16 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
     <div class="chips" id="ncChips"></div>
     <ul class="news" id="ncList"><li><span></span>Loading…</li></ul>
   </div>
-  <div class="card mb" id="aboutCard">
-    <h2 id="faqTitle">About</h2>
-    <div id="faq"></div>
-  </div>
-  <!-- 23-Nov-2026 (user): KEDIA trading calls for this commodity - LAST card; open calls on top, latest closed below (about 10); no score line (user) -->
+  <!-- 23-Nov-2026 (user): KEDIA trading calls for this commodity - just ABOVE "About" (after News); open calls on top, latest closed below (about 10); no score line (user) -->
   <div class="card mb hide" id="callsCard">
     <h2>KEDIA calls – <span id="callsFor">gold</span> <small id="callsInfo"></small></h2>
     <div id="callsOpen"></div>
     <div class="tw"><table id="callsTbl"></table></div>
     <div class="note" id="callsNote">Research calls of KEDIA ADVISORY (Kedia Stocks and Commodities Research Pvt Ltd, SEBI Research Analyst INH000006156). Past results do not promise future returns. Trading in commodities carries risk; please read the full disclaimer.</div>
+  </div>
+  <div class="card mb" id="aboutCard">
+    <h2 id="faqTitle">About</h2>
+    <div id="faq"></div>
   </div>
   </div>
   <div id="newsView" class="hide"></div>
@@ -1675,7 +1675,7 @@ $('arbTbl').addEventListener('change', e => { const i = e.target.closest('input[
 function buildJump() {
   const J = [['heroBox', 'Price'], ['ecoCard', 'Eco data'], ['arbCard', 'Arbitrage'], ...CB.map((b, i) => [b.k + 'Card', 'Chart: ' + C.src[i][1]]), ['techCard', 'Technicals'], ['lvCard', 'Levels'],
     ['momCard', 'Momentum'], ['retCard', 'Returns'], ['weatherCard', 'Weather'], ['crossCard', 'Other markets'], ['parityCard', 'Parity'], ['basisCard', 'Basis'],
-    ['curveCard', 'Expiries'], ['famCard', 'Contracts'], ['arrCard', 'Arrivals'], ['trCard', 'Exports & imports'], ...SB.map((s, i) => [s.k + 'Card', 'Seasonality: ' + C.src[i][1]]), ['newsCard', 'News'], ['aboutCard', 'About'], ['callsCard', 'KEDIA calls']];
+    ['curveCard', 'Expiries'], ['famCard', 'Contracts'], ['arrCard', 'Arrivals'], ['trCard', 'Exports & imports'], ...SB.map((s, i) => [s.k + 'Card', 'Seasonality: ' + C.src[i][1]]), ['newsCard', 'News'], ['callsCard', 'KEDIA calls'], ['aboutCard', 'About']];
   const JV = J.filter(([id]) => $(id) && !$(id).classList.contains('hide'));
   $('jumpSel').innerHTML = '<option value="">Go to: Price, Charts, News …</option>' + JV.map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join('');
   $('jumpBar').innerHTML = J.filter(([id]) => $(id) && !$(id).classList.contains('hide')).map(([id, n]) => `<a href="#${ck.toLowerCase()}" data-j="${id}">${esc(n)}</a>`).join('');
@@ -2314,7 +2314,7 @@ function boot() {
 }
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});</script>
-<script>(function () { var V = '4f905b8311', K = 'v';
+<script>(function () { var V = '7b2be52996', K = 'v';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
