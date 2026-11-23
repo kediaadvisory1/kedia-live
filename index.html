@@ -368,6 +368,14 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
 /* arbitrage table: the "Read" column keeps its width (it was squeezed into tall rows on a phone); phone hides 3 helper columns */
 #arbTbl td:last-child { min-width: 240px; white-space: normal; }
 #arbTbl .tag { white-space: nowrap; }
+/* 23-Nov-2026: KEDIA calls card */
+.callo { border: 1px solid var(--grid); border-left: 4px solid var(--gold); border-radius: 6px; padding: 8px 11px; margin-bottom: 8px; background: #FBF0D2; color: #1E2761; }
+.callo .h { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 12px; margin-bottom: 4px; }
+.callo .t { font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+.callo .lv { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; margin-top: 4px; }
+.callo.lock { border-left-color: #6B7280; background: var(--surface); color: var(--muted); }
+#callsTbl td:nth-child(2) { text-align: left; white-space: normal; min-width: 260px; }
+#callsTbl td:first-child, #callsTbl th:first-child { text-align: left; }
 @media (max-width: 700px) {
   #arbTbl th:nth-child(3), #arbTbl td:nth-child(3), #arbTbl th:nth-child(7), #arbTbl td:nth-child(7), #arbTbl th:nth-child(10), #arbTbl td:nth-child(10) { display: none; }
   #arbTbl td:last-child { min-width: 200px; }
@@ -448,6 +456,15 @@ body.client #hBtns, body.client #btnMore, body.client .cardx { display: none !im
       <div class="count" id="b3Count"></div>
       <div class="note" id="b3Note"></div>
     </div>
+  </div>
+
+  <!-- 23-Nov-2026 (user): KEDIA trading calls for this commodity - open calls on top, latest closed below (about 10) -->
+  <div class="card mb hide" id="callsCard">
+    <h2>KEDIA calls – <span id="callsFor">gold</span> <small id="callsInfo"></small></h2>
+    <div class="strip" id="callsStats"></div>
+    <div id="callsOpen"></div>
+    <div class="tw"><table id="callsTbl"></table></div>
+    <div class="note" id="callsNote">Research calls of KEDIA ADVISORY (Kedia Stocks and Commodities Research Pvt Ltd, SEBI Research Analyst INH000006156). Past results do not promise future returns. Trading in commodities carries risk; please read the full disclaimer.</div>
   </div>
 
   <div class="card mb hide" id="ecoCard">
@@ -907,7 +924,8 @@ function applyTab() {
   $('track').innerHTML = '';
   ['fLtp', 'b2Ltp', 'b3Val'].forEach(id => $(id).textContent = '—');
   $('ncTitle').textContent = (S[ck].full || C.tab) + ' news'; commNews = []; commNewsCat = 'all'; $('ncChips').innerHTML = ''; $('ncList').innerHTML = '<li><span></span>Loading…</li>';
-  buildJump(); addCardBtns(); loadCommNews();
+  $('callsCard').classList.add('hide'); $('callsOpen').innerHTML = ''; $('callsTbl').innerHTML = '';
+  buildJump(); addCardBtns(); loadCommNews(); loadCalls();
   firstLive = true; refreshLive().then(() => { loadSlow(); if (S[ck].agmark) loadArrivals(); if (S[ck].trade) loadTrade(); if (S[ck].weather) loadWeather(); if (S[ck].eco) loadEco(); });
 }
 window.addEventListener('hashchange', applyTab);
@@ -1589,6 +1607,35 @@ async function loadCommNews() {
     commNews = notOurs(r.items); renderCommNews(); $('ncInfo').textContent = 'Google News, last 14 days · updated ' + (r.at ? fmtDT(r.at) : '—'); }
   catch (e) { $('ncList').innerHTML = `<li class="dn">News error: ${esc(e.message)}</li>`; }
 }
+/* ------------------------------------------------------------ KEDIA calls (23-Nov-2026, user)
+   data from the trading-call Excel (calls_import.py, commodity only); 7 Days Access clients see closed calls only (Google hides open ones) */
+function callDay(d, t) { if (!d) return '—'; const [Y, M, Dd] = d.split('-'); return `${+Dd} ${MON[+M - 1]} ${Y.slice(2)}` + (t ? ' · ' + esc(t) : ''); }
+function callNum(v) { return v == null ? '—' : (+v).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+async function loadCalls() {
+  const my = ck; let r;
+  try { r = await api(`/api/calls?c=${ck}`); } catch (e) { r = null; }
+  if (my !== ck) return;
+  const card = $('callsCard');
+  if (!r || (!r.open?.length && !r.closed?.length && !r.openHidden)) { card.classList.add('hide'); return; }
+  card.classList.remove('hide'); buildJump();
+  $('callsFor').textContent = (S[ck].full || C.tab).toLowerCase();
+  const up = typeof r.updated === 'number' ? new Date(r.updated * 1000).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : r.updated;
+  $('callsInfo').textContent = up ? 'updated ' + up : '';
+  const st = r.stats || {};
+  $('callsStats').innerHTML = st.n ? `<span class="tag n">Last ${st.days} days: ${st.n} closed calls</span><span class="tag b">${st.win} in profit (${Math.round(st.win / st.n * 100)}%)</span>` +
+    `<span class="tag b">Target hit ${st.tgt}</span><span class="tag s">Stop-loss hit ${st.sl}</span>` : '';
+  const op = r.open || [];
+  $('callsOpen').innerHTML = op.map(c => `<div class="callo"><div class="h"><span class="pill on">OPEN</span><b>${esc(c.act)}</b><span>${esc(c.type)}</span><span>${callDay(c.d, c.t)}</span><span>${esc(c.ex)}</span></div>
+      <div class="t">${esc(c.txt || (c.act + ' ' + c.sc))}</div>
+      <div class="lv"><span>Entry <b>${callNum(c.entry)}</b></span><span>Target <b class="up">${callNum(c.tgt)}</b></span><span>Stop-loss <b class="dn">${callNum(c.sl)}</b></span></div></div>`).join('') +
+    (r.openHidden ? `<div class="callo lock"><div class="t">🔒 ${r.openHidden} open call${r.openHidden > 1 ? 's' : ''} running now – open calls come with a paid plan. Please contact your RM.</div></div>` : '');
+  const cl = r.closed || [];
+  $('callsTbl').innerHTML = cl.length ? '<tr><th>Closed on</th><th>Call</th><th>Entry</th><th>Exit</th><th>Result</th></tr>' + cl.map(c => {
+    const s = (c.st || '').toLowerCase(), pl = c.pl, good = (c.res || '').toLowerCase() === 'profit' || pl > 0, bad = (c.res || '').toLowerCase() === 'loss' || pl < 0;
+    const lab = s === 'target' ? 'Target hit' : s === 'stoploss' ? 'Stop-loss hit' : 'Closed';
+    return `<tr><td>${callDay(c.cd || c.d, c.ct)}</td><td>${esc(c.txt || (c.act + ' ' + c.sc))}</td><td>${callNum(c.entry)}</td><td>${callNum(c.cp)}</td>` +
+      `<td><span class="tag ${good ? 'b' : bad ? 's' : 'n'}">${lab}${pl != null ? ' ' + (pl > 0 ? '+' : '') + (+pl).toFixed(2) + '%' : ''}</span></td></tr>`; }).join('') : '';
+}
 /* ------------------------------------------------------------ base metals arbitrage (21-Nov-2026, user)
    Shanghai $/t = SHFE yuan ÷ 1.13 (VAT) ÷ USDCNY · MCX $/t = MCX ₹/kg × 1000 ÷ USDINR · landed = LME × USDINR ÷ 1000 × (1 + duty)
    carry %/yr = (next ÷ near − 1) × 365 ÷ days between the two expiries */
@@ -1630,7 +1677,7 @@ $('arbTbl').addEventListener('change', e => { const i = e.target.closest('input[
   try { localStorage.setItem('kediaArbDuty', JSON.stringify(arbDuty)); } catch (er) {} renderArb(); });
 /* "Jump to" bar: one link per block that is shown on this tab */
 function buildJump() {
-  const J = [['heroBox', 'Price'], ['ecoCard', 'Eco data'], ['arbCard', 'Arbitrage'], ...CB.map((b, i) => [b.k + 'Card', 'Chart: ' + C.src[i][1]]), ['techCard', 'Technicals'], ['lvCard', 'Levels'],
+  const J = [['heroBox', 'Price'], ['callsCard', 'KEDIA calls'], ['ecoCard', 'Eco data'], ['arbCard', 'Arbitrage'], ...CB.map((b, i) => [b.k + 'Card', 'Chart: ' + C.src[i][1]]), ['techCard', 'Technicals'], ['lvCard', 'Levels'],
     ['momCard', 'Momentum'], ['retCard', 'Returns'], ['weatherCard', 'Weather'], ['crossCard', 'Other markets'], ['parityCard', 'Parity'], ['basisCard', 'Basis'],
     ['curveCard', 'Expiries'], ['famCard', 'Contracts'], ['arrCard', 'Arrivals'], ['trCard', 'Exports & imports'], ...SB.map((s, i) => [s.k + 'Card', 'Seasonality: ' + C.src[i][1]]), ['newsCard', 'News'], ['aboutCard', 'About']];
   const JV = J.filter(([id]) => $(id) && !$(id).classList.contains('hide'));
@@ -2271,7 +2318,7 @@ function boot() {
 }
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});</script>
-<script>(function () { var V = '95138b426f', K = 'v';
+<script>(function () { var V = '04718ea4f2', K = 'v';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
