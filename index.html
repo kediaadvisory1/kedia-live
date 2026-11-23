@@ -2205,6 +2205,8 @@ async function showMyQ(openId) {
     b.disabled = true; try { const x = await authCall({ action: 'q_reply', token: TOKEN, id, text: t }); if (!x.ok) { toast(x.error || 'Could not send'); b.disabled = false; return; } showMyQ(id); } catch (e) { b.disabled = false; } });
   if (openId) { const el = document.getElementById('q_' + openId); if (el) el.scrollIntoView({ block: 'center' }); }
 }
+/* 23-Nov-2026 (user): queries are internal for now - the three menu items stay hidden (set Q_CLIENT = true here and in Auth.gs to open them) */
+const Q_CLIENT = false; ['btnAskView', 'btnSvc', 'btnMyQ'].forEach(id => { if (!Q_CLIENT && $(id)) $(id).style.display = 'none'; });
 $('btnAskView').onclick = () => showAsk('view'); $('btnSvc').onclick = () => showAsk('service'); $('btnMyQ').onclick = () => showMyQ();
 function showLocked(h) {
   const k = S[h] && CFG[h] ? h : firstOpen(), nm = CFG[k] ? CFG[k].tab : h, open = Object.keys(S).filter(x => CFG[x] && !locked(x));
@@ -2269,7 +2271,7 @@ function boot() {
 }
 </script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});</script>
-<script>(function () { var V = '187ad9865c', K = 'v';
+<script>(function () { var V = '95138b426f', K = 'v';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
