@@ -494,18 +494,18 @@ async function enter() {
 }
 function navHtml() {
   const cl = USERS.filter(u => (u.Role || 'user') === 'user'), free = cl.filter(u => u.eff === 'Active' && u.Plan === FREE_PLAN).length, sn = USERS.filter(soon).length,
-    ex = cl.filter(u => u.eff === 'Expired').length, pend = USERS.filter(u => u.eff === 'Pending').length;
+    ex = cl.filter(u => stWord(u) === 'Inactive').length, pend = USERS.filter(u => u.eff === 'Pending').length;
   const a = (v, i, t, b, r) => `<a href="#${v}" class="${VIEW === v ? 'on' : ''}">${ic(i)}<span>${t}</span>${b ? `<span class="bdg${r ? ' red' : ''}">${b}</span>` : ''}</a>`;
   const qOpenN = (QS || []).filter(q => (q.Status === 'Open' || q.Status === 'In progress') && q.canAct).length;
   if (ME && ME.role === 'analyst') { $('nav').innerHTML = '<div class="grp">Research desk</div>' + a('queries', 'wait', 'Client queries', qOpenN, 1); return; }
   $('nav').innerHTML = '<div class="grp">Overview</div>' + a('dash', 'dash', 'Dashboard') + a('queries', 'wait', 'Client queries', qOpenN, 1) +
     '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
-    a('expired', 'ban', 'Inactive', ex, 1) + (pend ? a('pending', 'wait', 'Waiting for approval', pend) : '') +
+    a('expired', 'ban', 'Inactive', ex, 1) +                          /* 23-Nov-2026 (user): no 'Waiting for approval' - old Pending records show under Inactive */
     (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
     '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history');
 }
 function route() {
-  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'pending', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries'].includes(h) ? h : 'dash';
+  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries'].includes(h) ? h : (h === 'pending' ? 'expired' : 'dash');
   if (ME && ME.role === 'analyst') VIEW = 'queries';
   if ((VIEW === 'team' || VIEW === 'deleted') && !isAdmin()) VIEW = 'subs';
   $('side').classList.remove('open'); navHtml(); window.scrollTo(0, 0);
@@ -581,9 +581,8 @@ function rowBtns(u, mini) {
   if (!isAdmin()) return mini ? `<button class="btn line sm" data-a="edit" data-e="${e}">Open</button>`
     : `<div class="acts"><button class="ib" title="Open / remarks" data-a="edit" data-e="${e}">${ic('edit')}</button><button class="ib" title="Password (email or set)" data-a="reset" data-e="${e}">${ic('key')}</button></div>`;
   if (u.main) return `<div class="acts"><button class="ib" title="Edit details" data-a="edit" data-e="${e}">${ic('edit')}</button>${meMain() ? `<button class="ib" title="Password" data-a="reset" data-e="${e}">${ic('key')}</button>` : ''}</div>`;
-  if (u.eff === 'Pending' && mini) return `<button class="btn gold sm" data-a="approve" data-e="${e}">${ic('ok')} Approve</button>`;
   if (mini) return `<button class="btn gold sm" data-a="plan" data-e="${e}">${ic('plus')} Add plan</button>`;
-  return `<div class="acts">${u.eff === 'Pending' ? `<button class="btn gold sm" data-a="approve" data-e="${e}">Approve</button>` : client ? `<button class="btn gold sm" data-a="plan" data-e="${e}" title="Give a new plan / renew">${ic('plus')} Plan</button>` : ''}
+  return `<div class="acts">${client ? `<button class="btn gold sm" data-a="plan" data-e="${e}" title="Give a new plan / renew">${ic('plus')} Plan</button>` : ''}
     <button class="ib" title="Edit" data-a="edit" data-e="${e}">${ic('edit')}</button>
     <button class="ib" title="Password (email or set)" data-a="reset" data-e="${e}">${ic('key')}</button>
     ${u.Status === 'Blocked' ? `<button class="ib" title="Unblock" data-a="unblock" data-e="${e}">${ic('ok')}</button>` : `<button class="ib r" title="Block" data-a="block" data-e="${e}">${ic('ban')}</button>`}</div>`;
@@ -1408,7 +1407,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '9257eb2662', K = 'va';
+<script>(function () { var V = '7073d470b8', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
