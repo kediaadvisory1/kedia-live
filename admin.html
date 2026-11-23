@@ -370,7 +370,7 @@ const IC = {
 const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" viewBox="0 0 24 24">${IC[n]}</svg>`;
 
 let TOKEN = ''; try { TOKEN = localStorage.getItem('kediaAdminToken') || ''; } catch (e) {}
-let QS = [], QTEAM = [], QDISC = '';
+let QS = [], QTEAM = [], QDISC = '', QCL = [];
 let ME = null, USERS = [], RMS = [], RMST = [], TODAY = '', COMM = {}, HIST = null, VIEW = 'dash', PLANROWS = [], DELETED = null;
 const F = { tab: 'All', q: '', plan: '', src: '', srm: '', vrm: '', role: '', sort: 'Created', dir: -1, page: 0, per: 25 };
 
@@ -682,11 +682,12 @@ let D = null;
 function closeLayer() { $('layer').innerHTML = ''; D = null; }
 function openDrawer(u, mode) {
   const isNew = !u;
-  D = { isNew, mode: mode || '', orig: u, x: Object.assign({ Email: '', Name: '', Mobile: '', City: '', State: '', Role: mode === 'staff' ? 'rm' : 'user', Status: mode === 'staff' ? 'Active' : 'Pending', Plan: '', Start: '', End: '', Access: mode === 'staff' ? 'ALL' : '', 'Sales RM': '', 'Service RM': '', Remarks: '' }, u || {}) };
+  D = { isNew, mode: mode || '', orig: u, x: Object.assign({ Email: '', Name: '', Mobile: '', City: '', State: '', Role: mode === 'staff' ? 'rm' : 'user', Status: 'Active', Plan: mode === 'staff' ? '' : FREE_PLAN, Start: '', End: '', Access: 'ALL', 'Sales RM': '', 'Service RM': '', Remarks: '' }, u || {}) };
   const x = D.x;
   if (mode === 'approve') { x.Status = 'Active'; if (!x.Start || x.eff !== 'Active') x.Start = TODAY; if (!x.Plan) x.Plan = 'Basic'; }
   if (mode === 'plan') { x.Status = 'Active'; x.Start = TODAY; x.End = ''; if (!x.Plan || x.Plan === FREE_PLAN) { x.Plan = 'Basic'; x.Access = ''; } }
   if (isNew && !x.Start) x.Start = TODAY;
+  if (isNew && mode !== 'staff' && !x.End) x.End = addD(TODAY, 6);       /* 7 Days Access by default, like a sign-up */
   if (x.Status !== 'Active' && x.Status !== 'Blocked') x.Status = x.Status || 'Pending';
   const sel = (id, vals, cur, blank) => `<select id="${id}">${blank ? `<option value="">${blank}</option>` : ''}${[...new Set(vals.concat(cur ? [cur] : []))].map(v => `<option${v === cur ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select>`;
   $('layer').innerHTML = `<div class="shade" id="shade"></div><div class="drawer" role="dialog">
@@ -705,9 +706,15 @@ function openDrawer(u, mode) {
         <div class="fld" id="rmTypeF" style="display:none"><label>RM type</label><select id="xRmType">${['Sales', 'Service', 'Both'].map(t => `<option${(x['RM type'] || 'Both') === t ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
         <div class="fld"><label>User type</label>${isAdmin() ? `<select id="xRole">${[['user', 'Client'], ['rm', 'RM (team)'], ['analyst', 'Analyst (research desk)'], ['admin', 'Admin']].map(([v, l]) => `<option value="${v}"${(x.Role || 'user') === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` :`<input readonly value="${esc({ user: 'Client', rm: 'RM', analyst: 'Analyst', admin: 'Admin' }[x.Role || 'user'])}">`}</div>
       </div><div class="info" id="roleInfo"></div></div>
+      ${isNew ? `<div class="sec"><div class="st">Login details</div>
+        <div class="g2"><div class="fld"><label>Login ID</label><input readonly value="Email or mobile number"></div>
+          <div class="fld"><label>Password (any 6+ characters)</label><input id="xPw" autocomplete="off" placeholder="Kedia@1234"></div></div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer;margin-bottom:6px"><input type="checkbox" id="xSendMail" checked> Email the login details to the client</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="xMust"> Ask the client to change the password after the first login</label>
+        <div class="info">The client simply logs in with this email / mobile and password – no sign-up needed. The password is shown to you once after saving.</div></div>` : ''}
 
       <div class="sec"><div class="st">Subscription</div>
-        <div class="fld"><label>Plan status</label><div class="seg st3" id="xStatus">${['Pending', 'Active', 'Blocked'].map(s => `<button type="button" data-v="${s}" class="${x.Status === s ? 'on' : ''}">${s}</button>`).join('')}</div></div>
+        <div class="fld"><label>Plan status</label><div class="seg st3" id="xStatus">${(x.Status === 'Pending' ? ['Pending', 'Active', 'Blocked'] : ['Active', 'Blocked']).map(s => `<button type="button" data-v="${s}" class="${x.Status === s ? 'on' : ''}">${s}</button>`).join('')}</div></div>
         <div class="fld"><label>Plan</label><div class="seg" id="xPlan">${PLANS.map(p => `<button type="button" data-v="${p}" class="${x.Plan === p ? 'on' : ''}">${p}</button>`).join('')}</div></div>
         <div class="pers" id="pers"><span class="lb">Period from start:</span>${[['7d', '7 days'], ['1m', '1 month'], ['2m', '2 months'], ['3m', '3 months'], ['6m', '6 months'], ['12m', '1 year']].map(([v, l]) => `<button type="button" data-p="${v}">${l}</button>`).join('')}</div>
         ${isNew ? '' : `<div class="pers" id="ext"><span class="lb">Extend end date by:</span>${[['7d', '+7 days'], ['1m', '+1 month'], ['3m', '+3 months']].map(([v, l]) => `<button type="button" data-p="${v}">${l}</button>`).join('')}</div>
@@ -768,6 +775,8 @@ function openDrawer(u, mode) {
   if ($('dDel')) $('dDel').onclick = () => askDelete(u);
   if ($('dOutAll')) $('dOutAll').onclick = () => askLogoutAll(u);
   cityBox($('xCity'), $('xCityList'), $('xState'));
+  if ($('xPw')) { let typed = false; const fill = () => { if (!typed) $('xPw').value = 'Kedia@' + ($('xMobile').value.replace(/\D/g, '').slice(-4) || '1234'); };
+    $('xPw').oninput = () => { typed = true; }; $('xMobile').addEventListener('input', fill); fill(); }
   if ($('phAdd')) $('phAdd').onclick = () => planLine(u, null);
   if ($('phCur')) $('phCur').onclick = () => planLine(u, null, curPlanLine(u));
   document.querySelectorAll('.drawer [data-pe]').forEach(b => b.onclick = () => planLine(u, PLANROWS.find(p => String(p.row) === b.dataset.pe)));
@@ -791,7 +800,7 @@ function openDrawer(u, mode) {
   /* 22-Nov-2026 (user): every card title is underlined - click to fold / unfold. All cards start FOLDED; the ones you open are
      remembered on this computer. Approve / extend / a new client open the cards they need. */
   let opened = []; try { opened = JSON.parse(localStorage.getItem('kediaOpenCards') || '[]'); } catch (e) {}
-  const need = isNew ? ['client details', 'subscription', 'segments'] : mode === 'approve' ? ['subscription', 'segments'] : mode === 'extend' ? ['subscription'] : [];
+  const need = isNew ? ['client details', 'login details', 'subscription', 'segments'] : mode === 'approve' ? ['subscription', 'segments'] : mode === 'extend' ? ['subscription'] : [];
   document.querySelectorAll('.drawer .sec > .st').forEach(st => {
     const tn = [...st.childNodes].find(n => n.nodeType === 3 && n.textContent.trim()); if (!tn) return;
     const sp = document.createElement('span'); sp.className = 'sttxt'; sp.textContent = tn.textContent.trim(); st.replaceChild(sp, tn);
@@ -915,9 +924,11 @@ async function saveDrawer() {
   }
   busy(b, true, 'Saving…');
   try {
-    const j = await call('admin_save', { user: out, notify: $('xNotify').checked, grant });
+    const extra = D.isNew ? { password: $('xPw').value.trim(), sendMail: $('xSendMail').checked, mustChange: $('xMust').checked } : {};
+    if (D.isNew && extra.password && extra.password.length < 6) { busy(b, false); return toast('Use at least 6 characters for the password.', true); }
+    const j = await call('admin_save', Object.assign({ user: out, notify: $('xNotify').checked, grant }, extra));
     const wasNew = D.isNew; closeLayer(); await loadAll(); route();
-    if (wasNew && j.tempPassword) showPw(out, j.tempPassword, j.mailed, 'Account created');
+    if (wasNew && j.tempPassword) showPw(out, j.tempPassword, j.mailed, 'Account created – give these login details', !j.mailed, !!(extra.mustChange || !extra.password));
     else toast('Saved: ' + out.Name);
   } catch (e) { busy(b, false); toast(e.message, true); }
 }
@@ -1067,10 +1078,10 @@ function openAddPlan(u) {
     } catch (e) { busy($('mYes'), false); toast(e.message, true); } };
   drawAcc(); calc();
 }
-function showPw(u, pw, mailed, head, typed) {
+function showPw(u, pw, mailed, head, typed, must) {
   modal(`<h3>${esc(head)}</h3><p>${typed ? 'Give this password to <b>' + esc(u.Name || u.Email) + '</b> on call / WhatsApp. They log in with their email or mobile number. ' : mailed ? '📧 Emailed to <b>' + esc(u.Email) + '</b>. You can also share it on WhatsApp / call. ' : '⚠️ The email could not be sent – please give it to the client yourself. '}It is shown only now.</p>
     <div class="pw"><code id="pwv">${esc(pw)}</code><button class="ib" id="pwc" title="Copy">${ic('copy')}</button></div>
-    ${typed ? '' : '<p style="font-size:12.5px">The client will be asked to set their own password after logging in.</p>'}<div class="mbtns"><button class="btn navy" id="mOk">Done</button></div>`);
+    ${(must === undefined ? !typed : must) ? '<p style="font-size:12.5px">The client will be asked to set their own password after logging in.</p>' : '<p style="font-size:12.5px">The client logs in directly with this password (email or mobile as login ID).</p>'}<div class="mbtns"><button class="btn navy" id="mOk">Done</button></div>`);
   $('mOk').onclick = closeModal;
   $('pwc').onclick = () => { try { navigator.clipboard.writeText(pw).then(() => toast('Password copied')); } catch (e) {} };
 }
@@ -1245,7 +1256,7 @@ function drawSales() {
 /* ---------- Client queries (23-Nov-2026, user): View questions (research desk / Analyst) and Service issues (RM). The server decides who sees / answers. ---------- */
 const QF = { type: 'view', st: 'open', mine: false, q: '' };
 const isAnalyst = () => ME && ME.role === 'analyst';
-async function loadQueries() { try { const j = await call('qa_list'); QS = j.queries || []; QTEAM = j.team || []; QDISC = j.disclaimer || ''; } catch (e) { QS = QS || []; } }
+async function loadQueries() { try { const j = await call('qa_list'); QS = j.queries || []; QTEAM = j.team || []; QDISC = j.disclaimer || ''; QCL = j.clients || []; } catch (e) { QS = QS || []; } }
 const qOpen = q => q.Status === 'Open' || q.Status === 'In progress';
 const qAgeH = q => { const t = Date.parse(String(q.Updated || q.Created).replace(' ', 'T') + '+05:30'); return isNaN(t) ? 0 : (Date.now() - t) / 3600000; };
 const qMine = q => q.Assigned === (ME && ME.name) || (isAnalyst() && q.Assigned === 'Research desk') || (isAdmin() && q.Assigned === 'Admins');
@@ -1261,7 +1272,7 @@ function drawQueries() {
   const stF = { open: qOpen, wait: q => q.Status === 'Waiting for client', done: q => q.Status === 'Resolved' || q.Status === 'Closed', all: () => true }[QF.st];
   const list = vis.filter(q => stF(q) && (!QF.mine || qMine(q)) && (!q0 || [q.ID, q.Name, q.Email, q.Subject, q.Commodity, q.Category].join(' ').toLowerCase().includes(q0)));
   const avg = (() => { const d = vis.filter(q => q['First answer']).map(q => (Date.parse(q['First answer'].replace(' ', 'T')) - Date.parse(q.Created.replace(' ', 'T'))) / 3600000).filter(x => x >= 0); return d.length ? d.reduce((a, b) => a + b, 0) / d.length : null; })();
-  const canNew = !isAnalyst();
+  const canNew = true;                                                 /* admin, RM (own clients) and analyst (any client) add queries */
   $('content').innerHTML = `<div class="kpis">
       <div class="kpi" style="cursor:default"><div class="l">Open</div><div class="v">${cnt(qOpen)}</div><div class="s">${QF.type === 'view' ? 'view questions' : 'service issues'} to answer</div></div>
       <div class="kpi" style="cursor:default"><div class="l">Late</div><div class="v" style="color:var(--bad)">${cnt(q => qOpen(q) && qAgeH(q) > (QF.type === 'view' ? 0.5 : 24))}</div><div class="s">over ${QF.type === 'view' ? '30 minutes' : '24 hours'}</div></div>
@@ -1302,13 +1313,13 @@ function openQuery(id) {
         <div><span>Sales / Service RM</span><span>${esc(c.srm || '—')} / ${esc(c.vrm || '—')}</span></div><div><span>Asked on</span><span>${fmtT(q.Created)}</span></div></div></div>
       <div class="sec"><div class="st">Conversation</div><div style="display:grid;gap:8px">${q.msgs.map(m => `<div style="padding:9px 11px;border-radius:10px;${m.kind === 'note' ? 'background:#F1F2F6;border:1px dashed #CDD2DE' : m.role === 'user' ? 'background:#F7F8FB;border:1px solid var(--line)' : 'background:var(--cream)'}">
           <div class="left">${m.kind === 'note' ? '🔒 Team note · ' : ''}${esc(m.by || m.email)} · ${fmtT(m.t)}</div><div style="white-space:pre-wrap;font-size:13.5px">${esc(m.text)}</div></div>`).join('')}</div>
-        ${isV ? `<div class="info">Clients see this with the disclaimer: ${esc(QDISC)}</div>` : ''}</div>
+        <div class="info">Internal only for now – clients do not see queries in the app and get no emails.${isV ? ' When opened to clients later, view answers will carry the SEBI disclaimer.' : ''}</div></div>
       ${act ? `<div class="sec"><div class="st">Reply</div>
-        <div class="seg" id="qKind" style="margin-bottom:10px"><button type="button" data-v="msg" class="on">Reply to client</button><button type="button" data-v="note">Team note (client can't see)</button></div>
+        <div class="seg" id="qKind" style="margin-bottom:10px"><button type="button" data-v="msg" class="on">Answer</button><button type="button" data-v="note">Team note</button></div>
         <div class="fld"><textarea id="qText" rows="5" placeholder="${isV ? 'Your view: trend, levels, what to watch…' : 'Write to the client…'}"></textarea></div>
         <div class="g2"><div class="fld"><label>Status</label><select id="qStat"><option value="">${isV ? 'Auto (Resolved after a reply)' : 'Auto (Waiting for client after a reply)'}</option>${['Open', 'In progress', 'Waiting for client', 'Resolved', 'Closed'].map(s => `<option>${s}</option>`).join('')}</select></div>
           ${isAdmin() ? `<div class="fld"><label>Assign to</label><select id="qAsg"><option value="">— keep: ${esc(q.Assigned)} —</option><option>Research desk</option><option>Admins</option>${QTEAM.map(t => `<option value="${esc(t.n)}">${esc(t.n)} (${t.r === 'rm' ? 'RM' : t.r === 'analyst' ? 'Analyst' : 'Admin'})</option>`).join('')}</select></div>` : ''}</div>
-        ${isV && (isAdmin() || isAnalyst()) ? `<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="qShare"${q.Shared === 'yes' ? ' checked' : ''}> Share this question and answer with all clients ("Today's views")</label>` : ''}
+        ${isV && (isAdmin() || isAnalyst()) ? `<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="qShare"${q.Shared === 'yes' ? ' checked' : ''}> Mark as a good answer (for "Today's views" when it opens to clients)</label>` : ''}
       </div>` : `<div class="sec"><div class="info">${isV ? 'View questions are answered by the research desk. You can read them for your clients.' : 'Only the RM of this client or an admin can answer.'}</div></div>`}
     </div>
     <div class="df"><span class="sp"></span><button class="btn line" id="dCancel">Close</button>${act ? `<button class="btn gold" id="qGo">${ic('ok')} Send / save</button>` : ''}</div></div>`;
@@ -1320,12 +1331,12 @@ function openQuery(id) {
     if (!text && !st && !asg && (sh === null || sh === (q.Shared === 'yes'))) return toast('Write a reply or change something first.', true);
     busy($('qGo'), true, 'Saving…');
     try { await call('qa_act', { id: q.ID, text, kind, status: st || undefined, assign: asg || undefined, shared: sh === null ? undefined : sh });
-      toast(text && kind === 'msg' ? 'Reply sent to the client (app + email)' : 'Saved'); await loadQueries(); navHtml(); drawQueries(); openQuery(q.ID); }
+      toast(text && kind === 'msg' ? 'Answer saved' : 'Saved'); await loadQueries(); navHtml(); drawQueries(); openQuery(q.ID); }
     catch (e) { busy($('qGo'), false); toast(e.message, true); } };
 }
 function newQueryBox() {
-  const cl = USERS.filter(u => (u.Role || 'user') === 'user');
-  modal(`<h3>New query for a client</h3><p>For a question that came by phone or WhatsApp. The client sees it in the app under My queries.</p>
+  const cl = isAnalyst() ? (QCL || []) : USERS.filter(u => (u.Role || 'user') === 'user');
+  modal(`<h3>New query for a client</h3><p>For a question that came by phone, WhatsApp or in person. Internal only – the client does not see it in the app.</p>
     <div class="fld"><label>Client – type name, mobile or email, then click the client</label><div class="cbox"><input id="nqC" placeholder="e.g. Ajay or 9320…" autocomplete="off"><div class="clist hide" id="nqL"></div></div>
       <div class="info" id="nqPick">No client chosen yet.</div></div>
     <div class="fld"><label>Type</label><select id="nqT"><option value="service">🛠 Service issue</option><option value="view">📈 View question</option></select></div>
@@ -1397,7 +1408,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = 'df44f8e1aa', K = 'va';
+<script>(function () { var V = '9257eb2662', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
