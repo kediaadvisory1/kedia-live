@@ -415,7 +415,7 @@ const soon = u => u.eff === 'Active' && left(u) != null && left(u) >= 0 && left(
 const ini = s => (String(s || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2) || '?').toUpperCase();
 const name = k => String((COMM[k] && (COMM[k].name || COMM[k].tab)) || k).replace(/&amp;/g, '&');
 const isAdmin = () => ME && ME.role === 'admin';
-const rmHasPlan = u => !!(u.Plan && u.Plan !== 'Main admin') || PLANROWS.some(p => String(p.Email).toLowerCase() === String(u.Email).toLowerCase());
+const rmHasPlan = u => !!(u.Plan && u.Plan !== 'Main admin' && u.Plan !== FREE_PLAN) || PLANROWS.some(p => p.Plan !== FREE_PLAN && String(p.Email).toLowerCase() === String(u.Email).toLowerCase());   /* the automatic sign-up 7 Days Access does not count */
 const meMain = () => !!(ME && USERS.some(u => u.main && u.Email.toLowerCase() === String(ME.email).toLowerCase()));
 function groups() {
   const keys = Object.keys(COMM); const listed = new Set(GROUPS.flatMap(g => g[1]));
@@ -560,7 +560,7 @@ function viewDash() {
 function who(u) { return `<div class="who"><div class="av">${esc(ini(u.Name))}</div><div><b>${esc(u.Name || '—')}</b><small>${esc(u.Email)}</small></div></div>`; }
 function rowBtns(u, mini) {
   const e = esc(u.Email);
-  const client = (u.Role || 'user') === 'user' || u.Role === 'rm';      /* an RM can also hold a subscriber plan */
+  const client = (u.Role || 'user') === 'user' || u.Role === 'rm' || u.Role === 'analyst';      /* an RM / analyst can also hold a subscriber plan */
   /* RM: view + remarks + password help only (no add / plan / block / approve) */
   if (!isAdmin()) return mini ? `<button class="btn line sm" data-a="edit" data-e="${e}">Open</button>`
     : `<div class="acts"><button class="ib" title="Open / remarks" data-a="edit" data-e="${e}">${ic('edit')}</button><button class="ib" title="Password (email or set)" data-a="reset" data-e="${e}">${ic('key')}</button></div>`;
@@ -594,9 +594,9 @@ const COLS = [['#', null], ['Client', 'Name'], ['Mobile', 'Mobile'], ['City', 'C
 function filtered(ignoreTab) {
   const q = F.q.trim().toLowerCase();
   return USERS.filter(u => {
-    const staff = u.Role === 'admin' || u.Role === 'rm';
+    const staff = u.Role === 'admin' || u.Role === 'rm' || u.Role === 'analyst';
     if (u.main && F.role !== 'staff') return false;                     /* main admin: only in Team (Admin / RM) */
-    if (staff && F.role !== 'staff' && F.role !== u.Role && !(u.Role === 'rm' && rmHasPlan(u))) return false;   /* staff without a plan: Team only */
+    if (staff && F.role !== 'staff' && F.role !== u.Role && !((u.Role === 'rm' || u.Role === 'analyst') && rmHasPlan(u))) return false;   /* staff without a plan: Team only */
     if (F.role === 'staff' ? !staff : (F.role ? (u.Role || 'user') !== F.role : false)) return false;
     if (!ignoreTab) { if (F.tab === 'Soon' ? !soon(u) : F.tab === 'Free' ? !(u.eff === 'Active' && u.Plan === FREE_PLAN) : F.tab === 'Inactive' ? stWord(u) !== 'Inactive' : (F.tab !== 'All' && u.eff !== F.tab)) return false; }
     if (F.plan && (u.Plan || '') !== F.plan) return false;
@@ -619,7 +619,7 @@ function viewSubs() {
     <div class="frow"><div class="sbox">${ic('search')}<input id="fq" type="search" placeholder="Search name, email, mobile, city, remarks" value="${esc(F.q)}"></div>
       <select id="fplan">${opts(PLANS, F.plan, 'All plans')}</select>
       <select id="fsrc"><option value="">All sources</option>${[['App', '📱 App'], ['Website', '🌐 Website'], ['Admin', '👤 Added by admin'], ['Other', 'Not known']].map(([v, l]) => `<option value="${v}"${F.src === v ? ' selected' : ''}>${l}</option>`).join('')}</select><select id="fsrm">${opts(rmVals, F.srm, 'All Sales RM')}</select><select id="fvrm">${opts(rmVals, F.vrm, 'All Service RM')}</select>
-      ${VIEW === 'team' ? '' : `<select id="frole"><option value="">All user types</option>${['user', 'rm', 'admin'].map(r => `<option value="${r}"${F.role === r ? ' selected' : ''}>${{ user: 'Client', rm: 'RM', admin: 'Admin' }[r]}</option>`).join('')}</select>`}</div>
+      ${VIEW === 'team' ? '' : `<select id="frole"><option value="">All user types</option>${['user', 'rm', 'analyst', 'admin'].map(r => `<option value="${r}"${F.role === r ? ' selected' : ''}>${{ user: 'Client', rm: 'RM', analyst: 'Analyst', admin: 'Admin' }[r]}</option>`).join('')}</select>`}</div>
     <div class="tw"><table class="t"><thead><tr id="thr"></tr></thead><tbody id="tb"></tbody></table></div><div class="pager" id="pager"></div></div>`;
   $('fq').oninput = e => { F.q = e.target.value; F.page = 0; drawTable(); };
   [['fplan', 'plan'], ['fsrc', 'src'], ['fsrm', 'srm'], ['fvrm', 'vrm'], ['frole', 'role']].forEach(([id, k]) => { if ($(id)) $(id).onchange = e => { F[k] = e.target.value; F.page = 0; drawTable(); }; });
@@ -642,7 +642,7 @@ function drawTable() {
     return `<tr data-e="${esc(u.Email)}" style="cursor:pointer"><td class="left">${F.page * F.per + i + 1}</td><td>${who(u)}</td><td>${esc(u.Mobile || '—')}</td><td>${esc(u.City || '—')}</td><td>${srcHtml(u)}</td>
       <td>${u.Plan ? `<span class="tag g">${esc(u.Plan)}</span>` : '<span class="left">—</span>'}</td><td class="wrap">${accTags(u.Role === 'admin' ? 'ALL' : u.Access)}</td>
       <td>${fmtD(u.Start)}</td><td>${fmtD(u.End)}${endNote(u)}</td>
-      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM' + (u['RM type'] && u['RM type'] !== 'Both' ? ' · ' + esc(u['RM type']) : '') + '</span>' + (VIEW !== 'team' ? '<br><span class="left">also RM</span>' : '') }[u.Role] || 'Client'}</td>
+      <td>${pill(u)}</td><td>${u.Paid ? '<b style="color:var(--navy)">' + inr(u.Paid) + '</b>' : '<span class="left">—</span>'}</td><td>${esc(u.Mode || '—')}</td><td>${u.main ? '<span class="tag g">Main admin</span>' : { admin: '<span class="tag g">Admin</span>', rm: '<span class="tag">RM' + (u['RM type'] && u['RM type'] !== 'Both' ? ' · ' + esc(u['RM type']) : '') + '</span>' + (VIEW !== 'team' ? '<br><span class="left">also RM</span>' : ''), analyst: '<span class="tag">Analyst</span>' + (VIEW !== 'team' ? '<br><span class="left">also Analyst</span>' : '') }[u.Role] || 'Client'}</td>
       <td>${esc(u['Sales RM'] || '—')}</td><td>${esc(u['Service RM'] || '—')}</td><td class="left">${fmtT(u['Last login'])}</td><td class="left">${fmtT(u.Created)}</td>
       <td class="wrap left" style="max-width:220px">${esc(u.Remarks || '')}</td><td>${rowBtns(u)}</td></tr>`; }).join('')
     : `<tr><td colspan="${COLS.length}"><div class="empty">${USERS.length ? 'No client matches these filters.' : 'No clients yet. When someone signs up in the app, they appear here.'}</div></td></tr>`;
@@ -687,7 +687,7 @@ function openDrawer(u, mode) {
         <div class="fld"><label>City</label><div class="cbox"><input id="xCity" value="${esc(x.City)}" placeholder="Type or pick a city" autocomplete="off"><div class="clist hide" id="xCityList"></div></div></div>
         <div class="fld"><label>State</label><select id="xState"><option value="">—</option>${[...new Set((window.KEDIA_STATES || []).concat(x.State ? [x.State] : []))].map(s => `<option${s === x.State ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
         <div class="fld" id="rmTypeF" style="display:none"><label>RM type</label><select id="xRmType">${['Sales', 'Service', 'Both'].map(t => `<option${(x['RM type'] || 'Both') === t ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
-        <div class="fld"><label>User type</label>${isAdmin() ? `<select id="xRole">${[['user', 'Client'], ['rm', 'RM (team)'], ['analyst', 'Analyst (research desk)'], ['admin', 'Admin']].map(([v, l]) => `<option value="${v}"${(x.Role || 'user') === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` :`<input readonly value="${esc({ user: 'Client', rm: 'RM', admin: 'Admin' }[x.Role || 'user'])}">`}</div>
+        <div class="fld"><label>User type</label>${isAdmin() ? `<select id="xRole">${[['user', 'Client'], ['rm', 'RM (team)'], ['analyst', 'Analyst (research desk)'], ['admin', 'Admin']].map(([v, l]) => `<option value="${v}"${(x.Role || 'user') === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` :`<input readonly value="${esc({ user: 'Client', rm: 'RM', analyst: 'Analyst', admin: 'Admin' }[x.Role || 'user'])}">`}</div>
       </div><div class="info" id="roleInfo"></div></div>
 
       <div class="sec"><div class="st">Subscription</div>
@@ -718,7 +718,7 @@ function openDrawer(u, mode) {
         ${ME.role === 'rm' && isNew ? '<div class="info">New clients you add get you as Sales RM if you leave it empty.</div>' : ''}</div>
 
       ${isNew ? '' : `<div class="sec"><div class="st">Plan history<span class="sp"></span><span class="left">${(() => { const p = plansOf(x.Email); return p.length + ' plan' + (p.length === 1 ? '' : 's') + ' · ' + inr(p.reduce((s, r) => s + (Number(r.Amount) || 0), 0)); })()}</span>
-          ${isAdmin() && ((x.Role || 'user') === 'user' || x.Role === 'rm') ? `<button type="button" class="btn line sm" id="phAdd" style="margin-left:8px">${ic('plus')} Add past entry</button>` : ''}</div>
+          ${isAdmin() && ['user', 'rm', 'analyst'].includes(x.Role || 'user') ? `<button type="button" class="btn line sm" id="phAdd" style="margin-left:8px">${ic('plus')} Add past entry</button>` : ''}</div>
         ${(() => { const p = plansOf(x.Email), ad = isAdmin(); return p.length ? `<div class="tw"><table class="t"><thead><tr><th class="ns">Given on</th><th class="ns">Plan</th><th class="ns">Period</th><th class="ns">From – to</th><th class="ns">Amount</th><th class="ns">Mode</th><th class="ns">By</th>${ad ? '<th class="ns"></th>' : ''}</tr></thead><tbody>` +
           p.map(r => `<tr><td class="left">${fmtT(r.Time)}</td><td><span class="tag g">${esc(r.Plan)}</span></td><td>${esc(r.Period)}</td><td class="left">${fmtD(r.Start)} – ${fmtD(r.End)}</td><td><b>${Number(r.Amount) ? inr(r.Amount) : '—'}</b></td><td>${esc(r.Mode || '—')}${r.Note ? '<br><span class="left">' + esc(r.Note) + '</span>' : ''}</td><td class="left">${esc(r.By)}</td>` +
             (ad ? `<td><div class="acts"><button type="button" class="ib" title="Edit this line" data-pe="${r.row}">${ic('edit')}</button>${r.Plan === FREE_PLAN && r.By === 'Sign-up' ? `<span class="ib" title="The sign-up ${FREE_PLAN} line always stays" style="opacity:.45;cursor:default">${ic('lock')}</span>` : `<button type="button" class="ib r" title="Delete this line" data-pd="${r.row}">${ic('trash')}</button>`}</div></td>` : '') + '</tr>').join('') +
@@ -733,7 +733,7 @@ function openDrawer(u, mode) {
     <div class="df">${isNew ? '' : `<button class="btn line sm" id="dReset">${ic('key')} Reset password</button>`}
       ${!isNew && (!u.main || meMain()) ? `<button class="btn line sm" id="dOutAll" title="Log this login out of every phone / computer">${ic('out')} Log out all devices</button>` : ''}
       ${!isNew && !u.main && isAdmin() && String(x.Email).toLowerCase() !== String(ME.email).toLowerCase() ? `<button class="btn red sm" id="dDel">${ic('trash')} Delete</button>` : ''}<span class="sp"></span>
-      ${!isNew && ((x.Role || 'user') === 'user' || x.Role === 'rm') ? `<button class="btn navy sm" id="dPlan">${ic('plus')} Add plan</button>` : ''}
+      ${!isNew && ['user', 'rm', 'analyst'].includes(x.Role || 'user') ? `<button class="btn navy sm" id="dPlan">${ic('plus')} Add plan</button>` : ''}
       <button class="btn line" id="dCancel">Cancel</button><button class="btn gold" id="dSave">${ic('ok')} Save</button></div></div>`;
   $('shade').onclick = $('dx').onclick = $('dCancel').onclick = () => tryCloseDrawer();
   if ($('endNow')) $('endNow').onclick = () => { const e = addD(TODAY, -1); $('xEnd').value = e; if ($('xStart').value && $('xStart').value > e) $('xStart').value = e;
@@ -830,7 +830,7 @@ function segBind(id, fn) { $(id).querySelectorAll('button').forEach(b => b.oncli
 function segSet(id, v) { $(id).querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); }
 function period(start, p, inclusive) { const n = parseInt(p, 10), e = p.endsWith('d') ? addD(start, n) : addM(start, n); return inclusive ? addD(e, -1) : e; }
 function roleInfo() { const r = D.x.Role; if ($('rmTypeF')) $('rmTypeF').style.display = r === 'rm' ? '' : 'none';
-  $('roleInfo').textContent = r === 'admin' ? 'Admin: sees every client, can change roles and every setting.' : r === 'rm' ? 'RM: opens this back panel and sees only the clients where they are Sales RM or Service RM. Sales RMs appear in the Sales RM list, Service RMs in the Service RM list. An RM can also hold a plan (+ Add plan); RM access never expires with the plan.' : ''; }
+  $('roleInfo').textContent = r === 'admin' ? 'Admin: sees every client, can change roles and every setting.' : r === 'analyst' ? 'Analyst (research desk): opens the back panel and sees only Client queries → View questions, to answer market questions. Cannot see plans or amounts. Can also hold a plan (+ Add plan); access never expires with the plan.' : r === 'rm' ? 'RM: opens this back panel and sees only the clients where they are Sales RM or Service RM. Sales RMs appear in the Sales RM list, Service RMs in the Service RM list. An RM can also hold a plan (+ Add plan); RM access never expires with the plan.' : ''; }
 function perSum() {
   const s = $('xStart').value, e = $('xEnd').value, st = D.x.Status;
   let t;
@@ -951,7 +951,7 @@ function askLogoutAll(u) {
 /* the client's current plan as a history-like line (null when there is no real plan) */
 const dd10 = v => /^\d{4}-\d\d-\d\d/.test(String(v || '')) ? String(v).slice(0, 10) : '';
 function curPlanLine(u) {
-  if (!u || u.main || !u.Plan || u.Plan === 'Main admin' || !dd10(u.Start) || !dd10(u.End) || dd10(u.End) < TODAY || !['user', 'rm'].includes(u.Role || 'user')) return null;
+  if (!u || u.main || !u.Plan || u.Plan === 'Main admin' || !dd10(u.Start) || !dd10(u.End) || dd10(u.End) < TODAY || !['user', 'rm', 'analyst'].includes(u.Role || 'user')) return null;
   return { Plan: u.Plan, Start: dd10(u.Start), End: dd10(u.End) };
 }
 const sameLine = (p, c) => p && c && p.Plan === c.Plan && dd10(p.Start) === c.Start && dd10(p.End) === c.End;
@@ -1181,7 +1181,7 @@ function viewSales() {
 const inP = d => { d = String(d || '').slice(0, 10); return d >= SP.from && d <= SP.to; };
 const isPaid = p => p.Plan !== FREE_PLAN && Number(p.Amount) > 0;
 function salesRows() {
-  const cl = USERS.filter(u => (u.Role || 'user') === 'user' || (u.Role === 'rm' && rmHasPlan(u))), byEmail = {};
+  const cl = USERS.filter(u => (u.Role || 'user') === 'user' || ((u.Role === 'rm' || u.Role === 'analyst') && rmHasPlan(u))), byEmail = {};
   cl.forEach(u => byEmail[u.Email.toLowerCase()] = u);
   const rmOf = u => (u && u[SP.by]) || 'No RM', rows = {};
   const row = n => rows[n] = rows[n] || { rm: n, clients: 0, active: 0, free: 0, expired: 0, soon: 0, newC: 0, paid: 0, newPaid: 0, renew: 0, amt: 0, amtAll: 0, lines: [] };
@@ -1381,7 +1381,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = 'ba2be3a42b', K = 'va';
+<script>(function () { var V = '52a6d65eef', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
