@@ -96,6 +96,8 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .card > .hd .note { color: var(--mute); font-size: 12.5px; }
 .card > .hd .sp { flex: 1; }
 .card > .bd { padding: 16px 18px; }
+.nrf label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 700; color: var(--mute); }
+.nrf input, .nrf select { width: 100%; box-sizing: border-box; }
 .kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
 .kpi { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: box-shadow .15s, transform .15s; text-align: left; }
 .kpi:hover { box-shadow: 0 8px 24px rgba(16, 24, 40, .08); transform: translateY(-1px); }
@@ -504,12 +506,13 @@ function navHtml() {
     '<div class="grp">Clients</div>' + a('subs', 'users', 'Subscribers List', cl.length) + a('free', 'wait', FREE_PLAN, free) + a('expiring', 'soon', 'Expiring in 7 days', sn, 1) +
     a('expired', 'ban', 'Inactive', ex, 1) +                          /* 23-Nov-2026 (user): no 'Waiting for approval' - old Pending records show under Inactive */
     (isAdmin() ? a('team', 'team', 'Team (Admin / RM)') + a('deleted', 'trash', 'Deleted') : '') +
-    '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history') + up;
+    '<div class="grp">Reports</div>' + a('sales', 'dash', 'Sales & RM performance') + a('plans', 'rupee', 'Plan history & amount') + a('history', 'hist', 'Login history') + up +
+    (isAdmin() ? '<div class="grp">Settings</div>' + a('newsset', 'search', 'News settings') : '');      /* 24-Nov-2026 (user): admins only */
 }
 function route() {
-  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries', 'upload'].includes(h) ? h : (h === 'pending' ? 'expired' : 'dash');
+  const h = (location.hash || '#dash').slice(1); VIEW = ['dash', 'subs', 'free', 'expiring', 'expired', 'team', 'deleted', 'plans', 'history', 'sales', 'queries', 'upload', 'newsset'].includes(h) ? h : (h === 'pending' ? 'expired' : 'dash');
   if (ME && ME.role === 'analyst' && VIEW !== 'upload') VIEW = 'queries';
-  if ((VIEW === 'team' || VIEW === 'deleted') && !isAdmin()) VIEW = 'subs';
+  if ((VIEW === 'team' || VIEW === 'deleted' || VIEW === 'newsset') && !isAdmin()) VIEW = 'subs';
   $('side').classList.remove('open'); navHtml(); window.scrollTo(0, 0);
   if (VIEW === 'dash') return viewDash();
   if (VIEW === 'history') return viewHist();
@@ -518,6 +521,7 @@ function route() {
   if (VIEW === 'sales') return viewSales();
   if (VIEW === 'queries') return viewQueries();
   if (VIEW === 'upload') return viewUpload();
+  if (VIEW === 'newsset') return viewNewsSet();
   F.tab = { subs: ['Pending', 'Soon', 'Free'].includes(F.tab) ? 'All' : F.tab, free: 'Free', pending: 'Pending', expiring: 'Soon', expired: 'Inactive', team: 'All' }[VIEW];
   F.role = VIEW === 'team' ? 'staff' : (F.role === 'staff' ? '' : F.role); F.page = 0;
   viewSubs();
@@ -1394,6 +1398,64 @@ function viewUpload() {
       catch (er) { busy(bt, false); toast(er.message, true); } };
   });
 }
+/* ---------- 24-Nov-2026 (user): NEWS SETTINGS - admins only. Rules live in Google (sheet "News rules"); the app, Google page and PC page all use them.
+   Include: website (Google News site:) / RSS link / keyword. Exclude: website or source name / RSS link (its website) / keyword in the headline.
+   For all commodities or one. Saving clears the news cache, so the front pages show the change on their next news load. */
+let NRULES = null, NCOMM = [];
+async function viewNewsSet() {
+  title('News settings', 'Add or block news sources for the news on the app and web pages (admins only)');
+  $('content').innerHTML = '<div class="card"><div class="empty"><span class="spin"></span> Loading…</div></div>';
+  try { const j = await call('admin_news', { op: 'list' }); NRULES = j.rules || []; NCOMM = j.comm || []; } catch (e) { $('content').innerHTML = `<div class="card"><div class="empty left r">${esc(e.message)}</div></div>`; return; }
+  const cOpts = (all) => (all ? '<option value="ALL">All commodities</option>' : '') + NCOMM.map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join('');
+  const HELP = { include: { site: 'Website, e.g. <b>reuters.com</b> – its stories about the commodity come in through Google News.', rss: 'RSS link, e.g. <b>https://www.example.com/rss/commodities.xml</b> – every story of that feed (checked when you add it).', keyword: 'Keyword, e.g. <b>import duty</b> – stories with this word are added (with "All commodities" the commodity name is added to the search).' },
+    exclude: { site: 'Website like <b>xyz.com</b>, or a source name like <b>ABC News</b> – its stories are never shown.', rss: 'RSS link – every story from that feed\'s website is never shown.', keyword: 'Word or phrase, e.g. <b>lottery</b> – any story with it in the headline is never shown.' } };
+  $('content').innerHTML = `<div class="card"><div class="hd"><h2>Add a rule</h2></div><div class="bd left">
+      <div class="nrf" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end">
+        <label>What to do<select id="nrType"><option value="include">Include (add news)</option><option value="exclude">Exclude (block news)</option></select></label>
+        <label>Type<select id="nrKind"><option value="site">Website</option><option value="rss">RSS link</option><option value="keyword">Keyword</option></select></label>
+        <label style="grid-column:span 2">Value<input id="nrVal" placeholder="reuters.com"></label>
+        <label>For<select id="nrCk">${cOpts(true)}</select></label>
+        <label>Note (optional)<input id="nrNote" maxlength="200" placeholder="why"></label>
+      </div>
+      <div class="note" id="nrHelp" style="margin-top:8px"></div>
+      <div style="margin-top:10px"><button class="btn gold" id="nrAdd">${ic('plus')} Add rule</button></div></div></div>
+    <div id="nrLists"></div>
+    <div class="card"><div class="hd"><h2>Check the news now</h2><span class="sp"></span><select id="nrPck" style="max-width:200px">${cOpts(false)}</select><button class="btn line sm" id="nrPrev">Show news</button></div>
+      <div class="bd left" id="nrPrevOut"><span class="note">Pick a commodity to see the news exactly as the app shows it now, with all rules applied.</span></div></div>
+    <div class="card"><div class="bd left note">Fixed rules (always on): news with "kedia" in the headline, source or link is never shown · only the last 14 days · same story from two sources is shown once.
+      Changes show on the app and web pages the next time the news loads (open the commodity again). Keep include rules to about 20 so news stays quick.</div></div>`;
+  const help = () => { $('nrHelp').innerHTML = HELP[$('nrType').value][$('nrKind').value]; $('nrKind').options[0].text = $('nrType').value === 'exclude' ? 'Website or source name' : 'Website';
+    $('nrVal').placeholder = { site: $('nrType').value === 'exclude' ? 'xyz.com or ABC News' : 'reuters.com', rss: 'https://…/rss.xml', keyword: $('nrType').value === 'exclude' ? 'lottery' : 'import duty' }[$('nrKind').value]; };
+  $('nrType').onchange = help; $('nrKind').onchange = help; help();
+  $('nrAdd').onclick = async () => { const b = $('nrAdd'), v = $('nrVal').value.trim(); if (!v) { toast('Type a website, RSS link or keyword.', true); return; }
+    busy(b, true, $('nrKind').value === 'rss' ? 'Checking the link…' : 'Adding…');
+    try { const j = await call('admin_news', { op: 'add', type: $('nrType').value, kind: $('nrKind').value, value: v, ck: $('nrCk').value, note: $('nrNote').value.trim() });
+      NRULES = j.rules; $('nrVal').value = ''; $('nrNote').value = ''; drawRules(); toast('Rule added – news will update on the next load'); }
+    catch (e) { toast(e.message, true); } busy(b, false); };
+  $('nrPrev').onclick = async () => { const b = $('nrPrev'); busy(b, true, 'Loading…');
+    try { const j = await call('admin_news', { op: 'preview', ck: $('nrPck').value });
+      $('nrPrevOut').innerHTML = j.items.length ? '<ul style="margin:0;padding-left:18px">' + j.items.map(it => `<li style="margin:4px 0"><a href="${esc(it.link)}" target="_blank" rel="noopener">${esc(it.title)}</a> <span class="note">· ${esc(it.source)} · ${it.ts ? new Date(it.ts * 1000).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : ''}</span></li>`).join('') + '</ul>'
+        : `<span class="left r">No news now${j.error ? ' (' + esc(j.error) + ')' : ''}.</span>`; }
+    catch (e) { toast(e.message, true); } busy(b, false); };
+  drawRules();
+}
+function drawRules() {
+  const nm = k => k === 'ALL' ? 'All commodities' : esc((NCOMM.find(c => c[0] === k) || [k, k])[1]);
+  const kindL = (r) => r.kind === 'rss' ? 'RSS link' : r.kind === 'keyword' ? 'Keyword' : (r.type === 'exclude' && r.value.indexOf('.') < 0 ? 'Source name' : 'Website');
+  const tbl = (type, h) => { const rs = NRULES.filter(r => r.type === type);
+    return `<div class="card"><div class="hd"><h2>${h}</h2><span class="note">${rs.length} rule${rs.length === 1 ? '' : 's'}</span></div>` + (rs.length ? `<div class="tw"><table class="t"><thead><tr><th>Type</th><th>Value</th><th>For</th><th>Added</th><th>Status</th><th></th></tr></thead><tbody>` +
+      rs.map(r => `<tr style="${r.on ? '' : 'opacity:.55'}"><td>${kindL(r)}</td><td style="max-width:360px;white-space:normal;word-break:break-all"><b>${esc(r.value)}</b>${r.note ? `<br><span class="note">${esc(r.note)}</span>` : ''}</td><td>${nm(r.ck)}</td>
+        <td><span class="note">${esc(r.by)}<br>${fmtT(r.at)}</span></td><td><button class="btn ${r.on ? 'line' : 'gold'} sm" data-nt="${esc(r.id)}">${r.on ? 'On · turn off' : 'Off · turn on'}</button></td>
+        <td><button class="btn red sm" data-nd="${esc(r.id)}" title="Delete">${ic('trash')}</button></td></tr>`).join('') + '</tbody></table></div>'
+      : `<div class="empty">No ${type} rules yet</div>`) + '</div>'; };
+  $('nrLists').innerHTML = tbl('include', 'Include rules – extra news') + tbl('exclude', 'Exclude rules – blocked news');
+  const act = async (op, id, btn) => { busy(btn, true, ''); try { const j = await call('admin_news', { op, id }); NRULES = j.rules; drawRules(); toast(op === 'delete' ? 'Rule deleted' : 'Rule updated'); } catch (e) { busy(btn, false); toast(e.message, true); } };
+  $('nrLists').querySelectorAll('[data-nt]').forEach(b => b.onclick = () => act('toggle', b.dataset.nt, b));
+  $('nrLists').querySelectorAll('[data-nd]').forEach(b => b.onclick = () => {
+    const r = NRULES.find(x => x.id === b.dataset.nd);
+    modal(`<h3>Delete this rule?</h3><p>${r.type === 'include' ? 'Include' : 'Exclude'} · ${kindL(r)} · <b>${esc(r.value)}</b> · ${nm(r.ck)}</p><div class="mbtns"><button class="btn line" id="mNo">Cancel</button><button class="btn red" id="mYes">Delete</button></div>`);
+    $('mNo').onclick = closeModal; $('mYes').onclick = async () => { closeModal(); await act('delete', r.id, b); }; });
+}
 async function viewQueries() {
   title('Client queries', isAnalyst() ? 'View questions from clients – answer them here' : 'View questions (research desk) and service issues (RM)');
   if (isAnalyst()) QF.type = 'view';
@@ -1541,7 +1603,7 @@ function setup() {
 }
 setup();
 </script>
-<script>(function () { var V = '20ef49775d', K = 'va';
+<script>(function () { var V = '23c7ccf58e', K = 'va';
   function check() { try { fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
     var n = j && j[K]; if (!n || n === V) return; try { if (sessionStorage.getItem('kediaVer') === n) return; sessionStorage.setItem('kediaVer', n); } catch (e) {}
     (window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (x) { return caches.delete(x); })); }) : Promise.resolve())
